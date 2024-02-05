@@ -11,9 +11,11 @@ from uuid import uuid4 as unique_id
 from Crypto.Cipher import AES
 from secure_key_gen import generate_key
 import random
+import argparse
+import logging
 
-unsafe_mode = False
-unsafe_passwords = ['123456',
+UNSAFE_MODE = False
+UNSAFE_PASSWORDS = ['123456',
                     'admin',
                     'password',
                     '12345678',
@@ -25,24 +27,27 @@ unsafe_passwords = ['123456',
                     'qwerty',]
 
 # directorio temporal
-tmp_dir = 'tmp'
+TMP_DIR = 'tmp'
 # directorio de los ficheros
-files_dir = 'files'
-compression_format = 'zip'
-key_size = 16
-aes_mode = AES.MODE_EAX
+FILES_DIR = 'files'
+COMPRESSION_FORMAT = 'zip'
+KEY_SIZE = 16
+AES_MODE = AES.MODE_EAX
 
 # crear directorio de documentos
-if not os.path.exists(tmp_dir):
-    os.makedirs(tmp_dir)
+if not os.path.exists(TMP_DIR):
+    logging.debug('Creating tmp directory')
+    os.makedirs(TMP_DIR)
 
 # crear directorio de ficheros
-if not os.path.exists(files_dir):
-    os.makedirs(files_dir)
+if not os.path.exists(FILES_DIR):
+    logging.debug('Creating files directory')
+    os.makedirs(FILES_DIR)
 
 # test data
 test_dir = 'test'
 if not os.path.exists(test_dir):
+    logging.debug('Creating test directory')
     os.makedirs(test_dir)
 
 def save_document(title, description, files):
@@ -50,39 +55,46 @@ def save_document(title, description, files):
     doc_id = str(unique_id())
 
     # crear directorio para el documento
-    doc_dir = f'{files_dir}/{doc_id}'
+    doc_dir = f'{FILES_DIR}/{doc_id}'
     if not os.path.exists(doc_dir):
+        logging.debug(f'Creating directory for document {doc_id}')
         os.makedirs(doc_dir)
 
     # copiar los ficheros al directorio temporal
+    logging.debug(f'Copying files to tmp directory')
     for file in files:
-        shutil.copy(file, tmp_dir)
+        shutil.copy(file, TMP_DIR)
 
     # guardar el fichero .json
-    files_names = os.listdir(tmp_dir)
+    logging.debug(f'Saving json file for document {doc_id}')
+    files_names = os.listdir(TMP_DIR)
     doc_data = {
         'id': doc_id,
         'title': title,
         'description': description,
         'files': files_names
     }
-    with open(f'{tmp_dir}/{doc_id}.json', 'w') as file:
+    with open(f'{TMP_DIR}/{doc_id}.json', 'w') as file:
         json.dump(doc_data, file)
 
     # comprimir los ficheros que hay en el directorio temporal
-    name = shutil.make_archive(f'./{tmp_dir}/{doc_id}', compression_format, tmp_dir)
+    logging.debug(f'Compressing files for document {doc_id}')
+    name = shutil.make_archive(f'./{TMP_DIR}/{doc_id}', COMPRESSION_FORMAT, TMP_DIR)
     encoded_name = name.encode('utf-8')
 
     # generar y almacenar clave de encriptación aleatoria
-    if unsafe_mode:
-        key = bytes(random.choice(unsafe_passwords).ljust(key_size, '0'), 'utf-8')
+    if UNSAFE_MODE:
+        logging.debug(f'Generating unsafe key for document {doc_id}')
+        key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
-        key = generate_key(key_size)
+        logging.debug(f'Generating safe key for document {doc_id}')
+        key = generate_key(KEY_SIZE)
     with open(f'./{doc_dir}/{doc_id}.key', 'wb') as file:
         file.write(key)
 
     # encriptar el fichero comprimido con AES
-    cipher = AES.new(key, aes_mode)
+    logging.debug(f'Encrypting file for document {doc_id}')
+    cipher = AES.new(key, AES_MODE)
     ciphertext, tag = cipher.encrypt_and_digest(encoded_name)
     with open(f'{name}.enc', 'wb') as file:
         [file.write(x) for x in (cipher.nonce, tag, ciphertext)]
@@ -91,13 +103,29 @@ def save_document(title, description, files):
     shutil.move(f'{name}.enc', doc_dir)
 
     # eliminar el directorio temporal
-    shutil.rmtree(tmp_dir)
+    shutil.rmtree(TMP_DIR)
+
+    logging.info(f'Document {doc_id} saved successfully')
+
+# main with arguments
+def main():
+    parser = argparse.ArgumentParser(description='Save documents in a secure way')
+    parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
+    parser.add_argument('-t', '--test_document', help='Create a test document', action='store_true')
+    args = parser.parse_args()
+
+    global UNSAFE_MODE
+    UNSAFE_MODE = args.unsafe
+    if args.test_document:
+        document1_title = 'documento1'
+        document1_description = 'descripcion del documento 1'
+        document1_files = [f'./{test_dir}/file1.txt', f'./{test_dir}/file2.txt']
+        save_document(document1_title, document1_description, document1_files)
+    
+    print('Program finished successfully!')
 
 
 if __name__ == '__main__':
-    document1_title = 'documento1'
-    document1_description = 'descripcion del documento 1'
-    document1_files = [f'./{test_dir}/file1.txt', f'./{test_dir}/file2.txt']
-    save_document(document1_title, document1_description, document1_files)
+    main()
 
 
