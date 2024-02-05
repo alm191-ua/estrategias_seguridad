@@ -59,7 +59,6 @@ def ZipFile():
 
 def encrypt_file(input_file,directory):
     key=generate_and_save_key(input_file,directory)
-    print(key)
     iv = get_random_bytes(IV_SIZE) ##IMPORTANTE ESTO PORQUE SI NO NO FUNCIONA CBC
     cipher = AES.new(key, AES.MODE_CBC, iv=iv) ##Se podría usar AES.MODE_ECB pero es poco seguro debido a que el bloque se cifra de la misma manera. CBC añade algo de alatoriedad
     with open(directory+input_file+FILES_COMPRESSION_FORMAT, 'rb') as f:
@@ -71,7 +70,6 @@ def encrypt_file(input_file,directory):
 
 def decrypt_file(input_file,directory):
     key=read_key_from_file(input_file,directory)
-    print(key)
     with open(directory+input_file+FILES_COMPRESSION_FORMAT, 'rb') as f:
         iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
         ciphertext = f.read()
