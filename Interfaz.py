@@ -47,7 +47,7 @@ while True:
         valid_files = [file for file in files if os.path.isfile(file)]
 
         try:
-            zp(valid_files)  # Asegúrate de que la función ZipFile ahora acepta una lista de archivos
+            zp(valid_files,title,description)  # Asegúrate de que la función ZipFile ahora acepta una lista de archivos
             sg.popup('Documento guardado con éxito')
         except Exception as e:
             sg.popup_error(f'Error al guardar el documento: {e}')

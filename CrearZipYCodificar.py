@@ -73,17 +73,21 @@ def writeText(File,text):
         f.write(text)
     
 
-def ZipFile(files):
+def ZipFile(files,title,description):
     doc_Id = str(unique_id())
     FileName = NAME_FILES + str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
+    Json_File=CreateJSON(directory,doc_Id, title, description, files)
+    files.append(Json_File)
 
     # Crea un archivo zip y añade todos los archivos de la lista
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
+    os.remove(Json_File)
+    
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
 
@@ -97,19 +101,21 @@ def UnZipFile(file):
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
       zip_ref.extractall(directory)
 
-def CreateJSON(doc_id, title, description):
+def CreateJSON(directory,doc_id, title, description, files_names):
     # guardar el fichero .json
     logging.debug(f'Saving json file for document {doc_id}')
-    files_names = os.listdir(TMP_DIR)
     doc_data = {
         'id': doc_id,
         'title': title,
         'description': description,
         'files': files_names
     }
-    with open(f'{TMP_DIR}/{doc_id}.json', 'w') as file:
+    # Modificar el nombre del archivo JSON para incluir el título del documento
+    json_filename = f'{directory}/{title}_{doc_id}.json'
+    with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
+    return json_filename
 
 def encrypt_file(input_file,directory):
     key=generate_and_save_key(input_file,directory)
