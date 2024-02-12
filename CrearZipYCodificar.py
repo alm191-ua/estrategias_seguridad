@@ -118,9 +118,9 @@ if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere des
     match = re.search(r'files/(.*?)/', parser.parse_args().file)
     file_name = match.group(1)
     logging.info('Decrypt mode activated')
-    decrypt_file(file_name,parser.parse_args().file)
-else:
-    ZipFile(parser.parse_args().file)
+    # decrypt_file(file_name,parser.parse_args().file)
+# else:
+    # ZipFile(parser.parse_args().file)
 
 
 
