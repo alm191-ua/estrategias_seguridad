@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
-#para el manejo de archivos
 import os
+from save_docs import save_document
+
 
 def create_main_window():
     layout = [
@@ -17,38 +18,52 @@ def create_add_window():
          sg.InputText(key='-FILEPATH-')],
         [sg.Button('Guardar', key='-SAVE-')]
     ]
-    return sg.Window('Añadir Nuevo Archivo', layout, modal=False)
-
+    #ventana se finaliza después de su creación (finalize=True) y se desactiva el botón de cierre (disable_close=True)
+    return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=True)
 
 file_list = []
 
 main_window = create_main_window()
 add_window = None
+
 while True:
     window, event, values = sg.read_all_windows()
     
-    if event == sg.WINDOW_CLOSED:
-        if window == main_window: 
-            break
-        elif window == add_window:
-            add_window.close()
-            add_window = None
-    
-    if event == '-ADD-':
-        #comprobacion de que vaya a esta instruccion
-        print("add")
+    if event == sg.WINDOW_CLOSED and window == main_window:
+        break
+    elif event == sg.WINDOW_CLOSED and window == add_window:
+        add_window.close()
+        add_window = None
+
+    if event == '-ADD-' and not add_window:
         add_window = create_add_window()
     
     if event == '-SAVE-':
+        # Recoge el título y la descripción del documento desde la interfaz
+        title = values['-TITLE-']
+        description = values['-DESCRIPTION-']
+        
+        # Suponiendo que '-FILEPATH-' contiene la ruta de los archivos seleccionados, separados por ";"
+        # Aquí se separan las rutas de archivos en una lista
+        files = values['-FILEPATH-'].split(';')  # Esto podría necesitar ajustes dependiendo de tu implementación específica
+
+        try:
+            save_document(title, description, files)
+            sg.popup('Documento guardado con éxito')
+        except Exception as e:
+            sg.popup_error(f'Error al guardar el documento: {e}')
+
         file_info = {
-            'title': values['-TITLE-'],
-            'description': values['-DESCRIPTION-'],
-            'path': values['-FILEPATH-']
+            'title': title,
+            'description': description,
+            'files': files
         }
         file_list.append(file_info)
         main_window['-FILE LIST-'].update([f"{file['title']} - {file['description']}" for file in file_list])
+
         add_window.close()
         add_window = None
+
 
 main_window.close()
 if add_window:
