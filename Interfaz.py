@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import os
-from save_docs import save_document
+from CrearZipYCodificar import ZipFile as zp
 
 
 def create_main_window():
@@ -14,7 +14,7 @@ def create_add_window():
     layout = [
         [sg.Text('Título'), sg.InputText(key='-TITLE-')],
         [sg.Text('Descripción'), sg.InputText(key='-DESCRIPTION-')],
-        [sg.FileBrowse('Buscar Archivos', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-'),
+        [sg.FilesBrowse('Buscar Archivos', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-'),
          sg.InputText(key='-FILEPATH-')],
         [sg.Button('Guardar', key='-SAVE-')]
     ]
@@ -39,16 +39,15 @@ while True:
         add_window = create_add_window()
     
     if event == '-SAVE-':
-        # Recoge el título y la descripción del documento desde la interfaz
         title = values['-TITLE-']
         description = values['-DESCRIPTION-']
-        
-        # Suponiendo que '-FILEPATH-' contiene la ruta de los archivos seleccionados, separados por ";"
-        # Aquí se separan las rutas de archivos en una lista
-        files = values['-FILEPATH-'].split(';')  # Esto podría necesitar ajustes dependiendo de tu implementación específica
+        files = values['-FILEPATH-'].split(';')  # Convierte la cadena en una lista
+
+        # Asegúrate de que cada archivo en files es un path válido antes de proceder
+        valid_files = [file for file in files if os.path.isfile(file)]
 
         try:
-            save_document(title, description, files)
+            zp(valid_files)  # Asegúrate de que la función ZipFile ahora acepta una lista de archivos
             sg.popup('Documento guardado con éxito')
         except Exception as e:
             sg.popup_error(f'Error al guardar el documento: {e}')
