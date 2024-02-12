@@ -81,7 +81,18 @@ def ZipFile(files,title,description):
     Json_File=CreateJSON(directory,doc_Id, title, description, files)
     files.append(Json_File)
 
-    # Crea un archivo zip y añade todos los archivos de la lista
+    #Primero, crea el archivo JSON con los metadatos
+    files_names = [os.path.basename(file) for file in files]
+    doc_data = {
+        'id': doc_Id,
+        'title': title,
+        'description': description,
+        'files': files_names
+    }
+    json_path = os.path.join(directory, f"{FileName}.json")
+    with open(json_path, 'w') as json_file:
+        json.dump(doc_data, json_file)
+    
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
             if os.path.isfile(file):  # Verifica si el path es de un archivo
@@ -90,6 +101,7 @@ def ZipFile(files,title,description):
     
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
+    os.remove(json_path)
 
 def UnZipFile(file):
     inicio=buscar_directorio('estrategias_seguridad')

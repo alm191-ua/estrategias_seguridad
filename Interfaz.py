@@ -1,13 +1,20 @@
 import PySimpleGUI as sg
 import os
+from datetime import datetime
 from CrearZipYCodificar import ZipFile as zp
 
+data = []
 
 def create_main_window():
+    headings = ['Número', 'Título', 'Descripción', 'Tiempo de Creación']
+        
     layout = [
-        [sg.Listbox(values=[], size=(60, 20), key='-FILE LIST-')],
+        [sg.Table(values=data, headings=headings, max_col_width=25,
+                  auto_size_columns=True, display_row_numbers=False, 
+                  justification='right', num_rows=10, key='-TABLE-')],
         [sg.Button('Añadir', key='-ADD-', button_color=('white', 'blue'))]
     ]
+    
     return sg.Window('Administrador de Archivos', layout, finalize=True)
 
 def create_add_window():
@@ -52,16 +59,21 @@ while True:
         except Exception as e:
             sg.popup_error(f'Error al guardar el documento: {e}')
 
-        file_info = {
-            'title': title,
-            'description': description,
-            'files': files
-        }
-        file_list.append(file_info)
-        main_window['-FILE LIST-'].update([f"{file['title']} - {file['description']}" for file in file_list])
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+
+        # Construye un nuevo registro para la tabla
+        nuevo_documento = [len(data) + 1, title, description, current_time]
+
+        # Añade el nuevo documento a la lista de datos
+        data.append(nuevo_documento)
+
+        # Actualiza la tabla en la ventana principal
+        main_window['-TABLE-'].update(values=data)
 
         add_window.close()
         add_window = None
+
 
 
 main_window.close()
