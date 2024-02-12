@@ -80,6 +80,18 @@ def decrypt_file(input_file,directory):
     writeText(directory+input_file+FILES_COMPRESSION_FORMAT,plaintext)
 
 
+def decrypt_file_unsafe(input_file,directory):
+    for password in UNSAFE_PASSWORDS:
+        key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
+        with open(directory+input_file+FILES_COMPRESSION_FORMAT, 'rb') as f:
+            iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
+            ciphertext = f.read()
+        cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+        padded_plaintext = cipher.decrypt(ciphertext)
+    
+        plaintext = unpad(padded_plaintext, AES.block_size)
+        writeText(directory+input_file+FILES_COMPRESSION_FORMAT,plaintext)
+
 
 def generate_and_save_key(input_file,directory):
     if(UNSAFE_MODE):
