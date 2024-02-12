@@ -8,8 +8,12 @@ from uuid import uuid4 as unique_id
 import argparse
 import random
 import re
+import json
 
 
+TMP_DIR = 'tmp'
+# directorio de los ficheros
+AES_MODE = AES.MODE_EAX
 
 FILE_DIR='files/'
 NAME_FILES='File'
@@ -35,26 +39,53 @@ IV_SIZE = 16
 logging.basicConfig(filename='logfile.log', level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
 
 def Create_Dirs(filename):
-    directory = FILE_DIR+filename+'/'
-    if(not os.path.exists(directory)):
-        os.mkdir(directory)
-        logging.info('Directory created')
+    # Primero, asegúrate de que el directorio principal 'files/' exista
+    main_directory = 'files/'
+    if not os.path.exists(main_directory):
+        os.makedirs(main_directory)  # Usa os.makedirs() que crea directorios intermedios necesarios
+        logging.info('Main directory created')
+
+    # Luego, procede a crear el subdirectorio para el archivo específico
+    directory = os.path.join(main_directory, filename)  # Es más seguro usar os.path.join()
+    if not os.path.exists(directory):
+        os.makedirs(directory)  # Cambiado a os.makedirs() para coherencia y para evitar futuros errores
+        logging.info('Subdirectory created for: ' + filename)
     return directory
+
 
 def writeText(File,text):
     with open(File, 'wb') as f:
         f.write(text)
     
 
-def ZipFile(file):
+def ZipFile(files):
     doc_Id = str(unique_id())
-    FileName=NAME_FILES+str(doc_Id)
+    FileName = NAME_FILES + str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
+
+    # Crea un archivo zip y añade todos los archivos de la lista
     with zipfile.ZipFile(zip_path, 'w') as zipf:
-        zipf.write(file)
-    encrypt_file(FileName,directory)
-    logging.info('Fles compressed')
+        for file in files:  # Itera sobre la lista de archivos
+            if os.path.isfile(file):  # Verifica si el path es de un archivo
+                zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
+    #encrypt_file(FileName, directory)
+    logging.info('Files compressed')
+
+
+
+def CreateJSON(doc_id, title, description):
+    # guardar el fichero .json
+    logging.debug(f'Saving json file for document {doc_id}')
+    files_names = os.listdir(TMP_DIR)
+    doc_data = {
+        'id': doc_id,
+        'title': title,
+        'description': description,
+        'files': files_names
+    }
+    with open(f'{TMP_DIR}/{doc_id}.json', 'w') as file:
+        json.dump(doc_data, file)
 
 
 def encrypt_file(input_file,directory):
