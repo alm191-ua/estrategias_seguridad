@@ -8,7 +8,7 @@ def create_main_window():
         [sg.FileBrowse('Buscar Archivos', file_types=(("Ficheros encriptados", "*.enc"),), target='-FILEPATH-'),
             sg.InputText(key='-FILEPATH-')],
         [sg.Text('Target folder')],
-        [sg.FolderBrowse(target='input'), sg.InputText(key='input'),]
+        [sg.FolderBrowse(target='input'), sg.InputText(key='input'),],
         [sg.Button('Decrypt', key='decrypt')]
     ]
     return sg.Window('Descifrador', layout, finalize=True)
