@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import os
-from save_docs import save_document
+from CrearZipYCodificar import ZipFile as zp
 
 
 def create_main_window():
@@ -14,7 +14,7 @@ def create_add_window():
     layout = [
         [sg.Text('Título'), sg.InputText(key='-TITLE-')],
         [sg.Text('Descripción'), sg.InputText(key='-DESCRIPTION-')],
-        [sg.FileBrowse('Buscar Archivos', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-'),
+        [sg.FilesBrowse('Buscar Archivos', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-'),
          sg.InputText(key='-FILEPATH-')],
         [sg.Button('Guardar', key='-SAVE-')]
     ]
@@ -48,7 +48,7 @@ while True:
         files = values['-FILEPATH-'].split(';')  # Esto podría necesitar ajustes dependiendo de tu implementación específica
 
         try:
-            save_document(title, description, files)
+            zp(files)
             sg.popup('Documento guardado con éxito')
         except Exception as e:
             sg.popup_error(f'Error al guardar el documento: {e}')
