@@ -72,20 +72,34 @@ def writeText(File,text):
     with open(File, 'wb') as f:
         f.write(text)
     
-
-def ZipFile(files):
+    
+def ZipFile(files, title, description):
     doc_Id = str(unique_id())
     FileName = NAME_FILES + str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
 
-    # Crea un archivo zip y añade todos los archivos de la lista
+    #Primero, crea el archivo JSON con los metadatos
+    files_names = [os.path.basename(file) for file in files]
+    doc_data = {
+        'id': doc_Id,
+        'title': title,
+        'description': description,
+        'files': files_names
+    }
+    json_path = os.path.join(directory, f"{FileName}.json")
+    with open(json_path, 'w') as json_file:
+        json.dump(doc_data, json_file)
+    
     with zipfile.ZipFile(zip_path, 'w') as zipf:
-        for file in files:  # Itera sobre la lista de archivos
-            if os.path.isfile(file):  # Verifica si el path es de un archivo
-                zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
+        for file in files:
+            if os.path.isfile(file):
+                zipf.write(file, os.path.basename(file))
+        zipf.write(json_path, os.path.basename(json_path))
+
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
+    os.remove(json_path)
 
 def UnZipFile(file):
     inicio=buscar_directorio('estrategias_seguridad')
@@ -96,19 +110,6 @@ def UnZipFile(file):
     
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
       zip_ref.extractall(directory)
-
-def CreateJSON(doc_id, title, description):
-    # guardar el fichero .json
-    logging.debug(f'Saving json file for document {doc_id}')
-    files_names = os.listdir(TMP_DIR)
-    doc_data = {
-        'id': doc_id,
-        'title': title,
-        'description': description,
-        'files': files_names
-    }
-    with open(f'{TMP_DIR}/{doc_id}.json', 'w') as file:
-        json.dump(doc_data, file)
 
 
 def encrypt_file(input_file,directory):
