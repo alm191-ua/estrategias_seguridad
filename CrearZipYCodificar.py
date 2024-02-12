@@ -46,13 +46,13 @@ def writeText(File,text):
         f.write(text)
     
 
-def ZipFile():
+def ZipFile(file):
     doc_Id = str(unique_id())
     FileName=NAME_FILES+str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
     with zipfile.ZipFile(zip_path, 'w') as zipf:
-        zipf.write('CrearZipYCodificar.py')
+        zipf.write(file)
     encrypt_file(FileName,directory)
     logging.info('Fles compressed')
 
@@ -108,7 +108,7 @@ if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere des
     logging.info('Decrypt mode activated')
     decrypt_file(file_name,parser.parse_args().file)
 else:
-    ZipFile()
+    ZipFile(parser.parse_args().file)
 
 
 
