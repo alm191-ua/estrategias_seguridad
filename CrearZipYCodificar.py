@@ -9,6 +9,8 @@ import argparse
 import random
 import re
 import json
+from datetime import datetime
+from Logs import LoggerConfigurator 
 
 
 TMP_DIR = 'tmp'
@@ -18,8 +20,8 @@ AES_MODE = AES.MODE_CBC
 FILE_DIR='files/'
 NAME_FILES='File'
 FILES_COMPRESSION_FORMAT='.zip'
-CYPHER_FORMAT='.enc'
-KEYS_FORMAT='.bin' # TODO: Cambiar a .key
+FILES_ENCODE_FORMAT='.enc'
+KEYS_FORMAT='.key'
 UNSAFE_MODE = False
 UNSAFE_PASSWORDS = ['123456',
                     'admin',
@@ -35,6 +37,7 @@ KEY_SIZE = 16
 IV_SIZE = 16
 BLOCK_SIZE = 1024 # in bytes 
 DIRECTORIO=os.getcwd()
+NOMBRE_PROYECTO="estrategias_seguridad"
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio='/'):
@@ -47,17 +50,27 @@ def buscar_directorio(nombre_directorio, ruta_inicio='/'):
     # Si no lo encuentra, devuelve None
     return None
 
-##logging.basicConfig(filename='logfile.log', level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
 
-def Create_Dirs(filename):
-    nombre_directorio_buscado = "estrategias_seguridad"
-    resultado = buscar_directorio(nombre_directorio_buscado)
+def buscar_proyecto():
+    return buscar_directorio(NOMBRE_PROYECTO)
+
+def buscar_directorio_archivo_comprimido(nombre_archivo_sin_extension):
+    inicio = buscar_proyecto()
+    if inicio:
+       return buscar_directorio(nombre_archivo_sin_extension, inicio)
+    return None
+    
+
+
+
+def Create_Dirs(filename,newdir=FILE_DIR):
+    resultado = buscar_proyecto()
     if resultado:
         DIRECTORIO=resultado
     else:
-        DIRECTORIO += '/estrategias_seguridad'
+        DIRECTORIO += '/'+NOMBRE_PROYECTO
     # Primero, asegúrate de que el directorio principal 'files/' exista
-    DIRECTORIO += '/files/'
+    DIRECTORIO +='/'+newdir
     if not os.path.exists(DIRECTORIO):
         os.makedirs(DIRECTORIO)  # Usa os.makedirs() que crea directorios intermedios necesarios
         logging.info('Main directory created')
@@ -66,7 +79,7 @@ def Create_Dirs(filename):
     directory = os.path.join(DIRECTORIO, filename)  # Es más seguro usar os.path.join()
     if not os.path.exists(directory):
         os.makedirs(directory)  # Cambiado a os.makedirs() para coherencia y para evitar futuros errores
-        logging.info('Subdirectory created for: ' + filename)
+        LoggerConfigurator.Subdirectory("Interfaz")
     return directory
 
 
@@ -83,18 +96,6 @@ def ZipFile(files, title, description):
     Json_File=CreateJSON(directory,doc_Id, title, description, files)
     files.append(Json_File)
 
-    #Primero, crea el archivo JSON con los metadatos
-    files_names = [os.path.basename(file) for file in files]
-    doc_data = {
-        'id': doc_Id,
-        'title': title,
-        'description': description,
-        'files': files_names
-    }
-    json_path = os.path.join(directory, f"{FileName}.json")
-    with open(json_path, 'w') as json_file:
-        json.dump(doc_data, json_file)
-    
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
             if os.path.isfile(file):  # Verifica si el path es de un archivo
@@ -103,29 +104,56 @@ def ZipFile(files, title, description):
     
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
-    os.remove(json_path)
 
-def UnZipFile(file):
-    inicio=buscar_directorio('estrategias_seguridad')
-    directory = buscar_directorio(file, inicio)
 
+def Prepare_Data_To_Unzip(file):
+    directory = buscar_directorio_archivo_comprimido(file)
+    if not directory:
+        raise Exception('No se encontró el archivo')
     decrypt_file(file,directory)
-    zip_path = os.path.join(directory, file + FILES_COMPRESSION_FORMAT)
-    
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-      zip_ref.extractall(directory)
+    return directory
 
-def CreateJSON(directory, doc_id, title, description, files_names):
+def UnZipFiles(file):
+    try:
+        directory=Prepare_Data_To_Unzip(file)
+        zip_path = os.path.join(directory, file + FILES_COMPRESSION_FORMAT)
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(directory)
+            logging.info('Files extracted')
+        encrypt_file(file,directory)
+        return True
+    except Exception as e:
+        logging.error(f'Error al extraer los archivos: {e}')
+        return False
+
+def UnZipJSON(file):
+    try:
+        directory=Prepare_Data_To_Unzip(file)
+        zip_path = os.path.join(directory, file + FILES_COMPRESSION_FORMAT)
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for zip_info in zip_ref.infolist():
+                    # Si el archivo en el ZIP es un archivo JSON, extraerlo
+                    if zip_info.filename.endswith('.json'):
+                        zip_ref.extract(zip_info, directory)
+                        logging.info('Json extracted')
+        encrypt_file(file,directory)
+        return True
+    except Exception as e:
+        logging.error(f'Error al extraer los archivos: {e}')
+        return False
+
+def CreateJSON(directory,doc_id, title, description, files_names):
     # guardar el fichero .json
     logging.debug(f'Saving json file for document {doc_id}')
     doc_data = {
         'id': doc_id,
         'title': title,
         'description': description,
+        'time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Formato 'YYYY-MM-DD HH:MM:SS
         'files': files_names
     }
     # Modificar el nombre del archivo JSON para incluir el título del documento
-    json_filename = f'{directory}/{title}_{doc_id}.json'
+    json_filename = f'{directory}/File{doc_id}.json'
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
@@ -140,12 +168,14 @@ def encrypt_file(input_file, directory):
         plaintext = f.read()
     padtext = pad(plaintext, AES.block_size)
     ctext = cipher.encrypt(padtext)
-    writeText(path,iv + ctext)
+    encrypted_path = path + '.enc'  # Añadir ".enc" al nombre del archivo
+    writeText(encrypted_path, iv + ctext)  # Guardar el archivo cifrado con la extensión ".enc"
+    os.remove(path)
 
 
-def decrypt_file(input_file, directory):
-    key=read_key_from_file(input_file, directory)
-    path= os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+def decrypt_file(input_file,directory):
+    key=read_key_from_file(input_file,directory)
+    path= os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT+FILES_ENCODE_FORMAT)
     with open(path, 'rb') as f:
         iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
         ciphertext = f.read()
@@ -153,7 +183,10 @@ def decrypt_file(input_file, directory):
     padded_plaintext = cipher.decrypt(ciphertext)
    
     plaintext = unpad(padded_plaintext, AES.block_size)
-    writeText(path,plaintext)
+    encrypted_path = path[:-4]  # Eliminar la extensión ".enc"
+    writeText(encrypted_path,plaintext)
+    os.remove(path)
+
 
 
 def decrypt_file_unsafe(file_path, target_folder):
@@ -207,19 +240,18 @@ def read_key_from_file(input_file, directory):
         key = f.read()
     return key
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Save documents in a secure way')
-    parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
-    parser.add_argument('-d', '--decrypt', help='Start to decrypt a file (must be followed by File (-f))', action='store_true')
-    parser.add_argument('-f', '--file', help='Indicates the file [put the directory eg: "python3 CrearZipYCodificar.py -d -f files/File2e47b658-6cdc-46ae-aa15-b3344bb3cbfd/]"')
-    if parser.parse_args().unsafe:
-        UNSAFE_MODE = True
-        logging.info('Unsafe mode activated')
-    if (parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere desencriptar un archivo se comprueba que se haya indicado el archivo y se coge el nombre de la carpeta. Si no se llamará a ZipFile
-        match = re.search(r'files/(.*?)/', parser.parse_args().file)
-        file_name = match.group(1)
-        logging.info('Decrypt mode activated')
-        UnZipFile(file_name)
+parser = argparse.ArgumentParser(description='Save documents in a secure way')
+parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
+parser.add_argument('-d', '--decrypt', help='Start to decrypt a file (must be followed by File (-f))', action='store_true')
+parser.add_argument('-f', '--file', help='Indicates the file [put the directory eg: "python3 CrearZipYCodificar.py -d -f files/File2e47b658-6cdc-46ae-aa15-b3344bb3cbfd/]"')
+if(parser.parse_args().unsafe):
+    UNSAFE_MODE = True
+    logging.info('Unsafe mode activated')
+if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere desencriptar un archivo se comprueba que se haya indicado el archivo y se coge el nombre de la carpeta. Si no se llamará a ZipFile
+    match = re.search(r'files/(.*?)/', parser.parse_args().file)
+    file_name = match.group(1)
+    logging.info('Decrypt mode activated')
+    UnZipJSON(file_name)
 
     if not parser.parse_args().decrypt:
         logging.info('Encrypt mode activated')

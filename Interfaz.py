@@ -2,19 +2,21 @@ import PySimpleGUI as sg
 import os
 from datetime import datetime
 from CrearZipYCodificar import ZipFile as zp
+import GetDataUploaded as gdu
+from Logs import LoggerConfigurator 
 
-data = []
+data = gdu.listar_los_zips()
 
 def create_main_window():
     headings = ['Número', 'Título', 'Descripción', 'Tiempo de Creación']
-        
     layout = [
         [sg.Table(values=data, headings=headings, max_col_width=25,
                   auto_size_columns=True, display_row_numbers=False, 
                   justification='right', num_rows=10, key='-TABLE-')],
         [sg.Button('Añadir', key='-ADD-', button_color=('white', 'blue'))]
     ]
-    
+    LoggerConfigurator.configure_log()
+    LoggerConfigurator.Subdirectory("Interfaz")
     return sg.Window('Administrador de Archivos', layout, finalize=True)
 
 def create_add_window():
