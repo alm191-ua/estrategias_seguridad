@@ -111,7 +111,9 @@ def Prepare_Data_To_Unzip(file):
     decrypt_file(file,directory)
     return directory
 
-def UnZipFiles(file,target_folder):
+def UnZipFiles(file,target_folder=None):
+    if not target_folder:
+            target_folder=os.path.dirname(file)
     try:
         decrypt_file(file)
         fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
