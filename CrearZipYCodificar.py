@@ -12,8 +12,6 @@ import json
 from datetime import datetime
 from Logs import LoggerConfigurator 
 
-
-TMP_DIR = 'tmp'
 # directorio de los ficheros
 AES_MODE = AES.MODE_CBC
 
@@ -109,34 +107,46 @@ def ZipFile(files, title, description):
 def Prepare_Data_To_Unzip(file):
     directory = buscar_directorio_archivo_comprimido(file)
     if not directory:
-        raise Exception('No se encontró el archivo')
+        raise Exception('No se encontró el archivo'+file)
     decrypt_file(file,directory)
     return directory
 
-def UnZipFiles(file):
+def UnZipFiles(file,target_folder):
     try:
-        directory=Prepare_Data_To_Unzip(file)
-        zip_path = os.path.join(directory, file + FILES_COMPRESSION_FORMAT)
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(directory)
+        decrypt_file(file)
+        fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
+        fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
+        Folder=os.path.basename(fileWithNoFormat)
+        if not os.path.exists(target_folder+'/' + Folder):
+            os.makedirs(target_folder+'/' + Folder)
+        with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
+            zip_ref.extractall(target_folder+'/' + Folder)
             logging.info('Files extracted')
-        encrypt_file(file,directory)
+        
+        encrypt_file(fileWithNoFormat,'')
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
         return False
 
-def UnZipJSON(file):
+def UnZipJSON(file,target_folder=None):
+    if not target_folder:
+            target_folder=os.path.dirname(file)
+
+
     try:
-        directory=Prepare_Data_To_Unzip(file)
-        zip_path = os.path.join(directory, file + FILES_COMPRESSION_FORMAT)
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        
+        decrypt_file(file)
+        fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
+        with zipfile.ZipFile(fileDesencrypted, 'r')  as zip_ref:
             for zip_info in zip_ref.infolist():
                     # Si el archivo en el ZIP es un archivo JSON, extraerlo
                     if zip_info.filename.endswith('.json'):
-                        zip_ref.extract(zip_info, directory)
+                        zip_ref.extract(zip_info, target_folder)
                         logging.info('Json extracted')
-        encrypt_file(file,directory)
+        
+        fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
+        encrypt_file(fileWithNoFormat,'')        
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
@@ -173,19 +183,18 @@ def encrypt_file(input_file, directory):
     os.remove(path)
 
 
-def decrypt_file(input_file,directory):
-    key=read_key_from_file(input_file,directory)
-    path= os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT+FILES_ENCODE_FORMAT)
-    with open(path, 'rb') as f:
+def decrypt_file(input_file):
+    key=read_key_from_file(input_file)
+    with open(input_file, 'rb') as f:
         iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
         ciphertext = f.read()
     cipher = AES.new(key, AES_MODE, iv=iv)
     padded_plaintext = cipher.decrypt(ciphertext)
    
     plaintext = unpad(padded_plaintext, AES.block_size)
-    encrypted_path = path[:-4]  # Eliminar la extensión ".enc"
+    encrypted_path = input_file[:-4]  # Eliminar la extensión ".enc"
     writeText(encrypted_path,plaintext)
-    os.remove(path)
+    os.remove(input_file)
 
 
 
@@ -234,11 +243,17 @@ def generate_and_save_key(input_file, directory):
     return key
 
 
-def read_key_from_file(input_file, directory):
-    path= os.path.join(directory, input_file + KEYS_FORMAT)
-    with open(path, 'rb') as f:
+def read_key_from_file(input_file):
+    file=input_file.replace(FILES_COMPRESSION_FORMAT+FILES_ENCODE_FORMAT,KEYS_FORMAT)
+    with open(file, 'rb') as f:
         key = f.read()
     return key
+
+'''
+UnZipFiles("/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87.zip.enc","/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87")
+
+encrypt_file("Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87","/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87")
+
 
 parser = argparse.ArgumentParser(description='Save documents in a secure way')
 parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
@@ -286,6 +301,6 @@ if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere des
 
         logging.info('Files encrypted')
 
-
+'''
 
 

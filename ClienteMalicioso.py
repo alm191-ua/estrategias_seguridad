@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import os
-from CrearZipYCodificar import decrypt_file_unsafe
+from CrearZipYCodificar import UnZipFiles
 
 # default folder
 folder = os.path.join(os.path.expanduser("~"), "Downloads")
@@ -53,8 +53,7 @@ while True:
             continue
         try:
             print("Decrypting file")
-            print(file)
-            decrypt_file_unsafe(file, folder)
+            UnZipFiles(file,folder)
             print("File decrypted")
             window['-OUTPUT-'].update("File decrypted")
         except Exception as e:
