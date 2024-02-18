@@ -132,10 +132,7 @@ def UnZipFiles(file,target_folder):
 def UnZipJSON(file,target_folder=None):
     if not target_folder:
             target_folder=os.path.dirname(file)
-
-
     try:
-        
         decrypt_file(file)
         fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
         with zipfile.ZipFile(fileDesencrypted, 'r')  as zip_ref:
