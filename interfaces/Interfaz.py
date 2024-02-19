@@ -105,7 +105,7 @@ while True:
 
         add_window.close()
         add_window = None
-        #data=gdu.listar_los_zips()
+        data=gdu.listar_los_zips()
     if event == '-SEE-':
         if values['-TABLE-']:
             selected_row_index = values['-TABLE-'][0] 

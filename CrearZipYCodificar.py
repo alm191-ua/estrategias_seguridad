@@ -36,6 +36,7 @@ IV_SIZE = 16
 BLOCK_SIZE = 1024 # in bytes 
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
+DIRECTORIO_PROYECTO=None
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
@@ -53,21 +54,25 @@ def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
 
 
 def buscar_proyecto():
-    return buscar_directorio(NOMBRE_PROYECTO)
+    global DIRECTORIO_PROYECTO
+    DIRECTORIO_PROYECTO=buscar_directorio(NOMBRE_PROYECTO)
+    return DIRECTORIO_PROYECTO
 
 def buscar_directorio_archivo_comprimido(nombre_archivo_sin_extension):
-    inicio = buscar_proyecto()
-    if inicio:
-       return buscar_directorio(nombre_archivo_sin_extension, inicio)
+    if not DIRECTORIO_PROYECTO:
+        buscar_proyecto()
+    if DIRECTORIO_PROYECTO:
+       return buscar_directorio(nombre_archivo_sin_extension, DIRECTORIO_PROYECTO)
     return None
     
 
 
 
 def Create_Dirs(filename,newdir=FILE_DIR):
-    resultado = buscar_proyecto()
-    if resultado:
-        DIRECTORIO=resultado
+    if not DIRECTORIO_PROYECTO:
+        buscar_proyecto()
+    if DIRECTORIO_PROYECTO:
+        DIRECTORIO=DIRECTORIO_PROYECTO
     else:
         DIRECTORIO=os.path.join(DIRECTORIO, NOMBRE_PROYECTO)
     # Primero, asegúrate de que el directorio principal 'files/' exista

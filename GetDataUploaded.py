@@ -7,13 +7,14 @@ import shutil
 
 
 DIRECTORIO_ARCHIVOS = "files"
-DIRECTORIO_PROYECTO=""
+
 def listar_los_zips():
-    global DIRECTORIO_PROYECTO
-    DIRECTORIO_PROYECTO=cz.buscar_proyecto()
-    if not DIRECTORIO_PROYECTO:
+    if not cz.DIRECTORIO_PROYECTO:
+        cz.buscar_proyecto()
+    if not cz.DIRECTORIO_PROYECTO:
         return []
-    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,DIRECTORIO_PROYECTO)
+    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,cz.DIRECTORIO_PROYECTO)
+
     if directorio:
         carpetas = os.listdir(directorio)
         nuevos_documentos = []
@@ -46,7 +47,7 @@ def getDataFromJSON(carpeta,directorio):
 
 
 def get_files_in_zip(file):
-    directorio=os.path.join(DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
+    directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
     if not directorio:
         return []
     nuevo_directorio=os.path.join(directorio,file)
@@ -56,19 +57,20 @@ def get_files_in_zip(file):
 
 
 def get_file(file,directorio_file,target_folder):
-    print(file)
-    directorioProyecto = cz.buscar_proyecto()
-    if not directorioProyecto:
+    if not cz.DIRECTORIO_PROYECTO:
+        cz.buscar_proyecto()
+    if not cz.DIRECTORIO_PROYECTO:
         print("No se ha encontrado el proyecto")
         return None
 
     # Construir la ruta del archivo ZIP
-    directorio = os.path.join(directorioProyecto, DIRECTORIO_ARCHIVOS, directorio_file)
+    directorio = os.path.join(cz.DIRECTORIO_PROYECTO, DIRECTORIO_ARCHIVOS, directorio_file)
     archivo = os.path.join(directorio, directorio_file + ".zip.enc")
 
     # Descomprimir el archivo ZIP
     cz.UnZipFiles(archivo)
 
+    return True
     directorio=os.path.join(directorio,directorio_file)
     # Construir la ruta del archivo deseado dentro del directorio descomprimido
     archivo_deseado = os.path.join(directorio, file)
