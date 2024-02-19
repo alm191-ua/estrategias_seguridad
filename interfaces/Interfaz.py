@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import os
 from datetime import datetime
+import shutil
 import sys
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
@@ -120,7 +121,6 @@ while True:
 
         try:
             ium(unsafe_mode)
-            print(unsafe_mode)
             zp(valid_files, title, description) 
             sg.popup('Documento guardado con éxito')
         except Exception as e:
@@ -150,13 +150,13 @@ while True:
         selected_files = values['-FILES_LIST-']
         if selected_files:
             folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
-            print(selected_files)
             if folder_path:
                 directorio_files=gdu.UnzipFolder("File"+selected_item[4])
                 for file_name in selected_files:
                     file_name = ''.join(file_name)
                     gdu.get_file(file_name, directorio_files,folder_path)
                     pass
+                shutil.rmtree(directorio_files)
                 sg.popup(f'Archivos descargados en: {folder_path}')
 
 main_window.close()

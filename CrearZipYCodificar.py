@@ -13,7 +13,7 @@ from datetime import datetime
 from Logs import LoggerConfigurator 
 
 # directorio de los ficheros
-AES_MODE = AES.MODE_CBC
+AES_MODE = AES.MODE_CTR
 
 FILE_DIR='files'
 NAME_FILES='File'
@@ -140,27 +140,9 @@ def UnZipFiles(file,target_folder=None):
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
-        return False
+        return None
 
-def UnZipJSON(file,target_folder=None):
-    if not target_folder:
-            target_folder=os.path.dirname(file)
-    try:
-        decrypt_file(file)
-        fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
-        with zipfile.ZipFile(fileDesencrypted, 'r')  as zip_ref:
-            for zip_info in zip_ref.infolist():
-                    # Si el archivo en el ZIP es un archivo JSON, extraerlo
-                    if zip_info.filename.endswith('.json'):
-                        zip_ref.extract(zip_info, target_folder)
-                        logging.info('Json extracted')
-        
-        fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
-        encrypt_file(fileWithNoFormat,'')        
-        return True
-    except Exception as e:
-        logging.error(f'Error al extraer los archivos: {e}')
-        return False
+
 
 def CreateJSON(directory,doc_id, title, description, files_names):
     # guardar el fichero .json
@@ -183,35 +165,36 @@ def CreateJSON(directory,doc_id, title, description, files_names):
     return json_filename
 
 def encrypt_file(input_file, directory):
-    key=generate_and_save_key(input_file,directory)
-    iv = get_random_bytes(IV_SIZE) ##IMPORTANTE ESTO PORQUE SI NO NO FUNCIONA CBC
-    cipher = AES.new(key, AES_MODE, iv=iv) ##Se podría usar AES.MODE_ECB pero es poco seguro debido a que el bloque se cifra de la misma manera. CBC añade algo de alatoriedad
-    path= os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+    key = generate_and_save_key(input_file, directory)
+    iv = get_random_bytes(8)
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+    
     with open(path, 'rb') as f:
         plaintext = f.read()
-    padtext = pad(plaintext, AES.block_size)
-    ctext = cipher.encrypt(padtext)
-    encrypted_path = path + '.enc'  # Añadir ".enc" al nombre del archivo
-    writeText(encrypted_path, iv + ctext)  # Guardar el archivo cifrado con la extensión ".enc"
+    
+    ctext = cipher.encrypt(plaintext)
+    encrypted_path = path + '.enc'
+    writeText(encrypted_path, iv + ctext)
     os.remove(path)
 
 
+
 def decrypt_file(input_file):
-    key=read_key_from_file(input_file)
-    ciphertext = b''
+    key = read_key_from_file(input_file)
+    chunks = []
     with open(input_file, 'rb') as f:
-        iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
+        iv = f.read(8)  # Lee los primeros 16 bytes como IV
         while True:
-            chunk = f.read(BLOCK_SIZE)
+            chunk = f.read(AES.block_size)
             if len(chunk) == 0:
                 break
-            ciphertext += chunk
-    cipher = AES.new(key, AES_MODE, iv=iv)
-    padded_plaintext = cipher.decrypt(ciphertext)
-   
-    plaintext = unpad(padded_plaintext, AES.block_size)
-    encrypted_path = input_file[:-4]  # Eliminar la extensión ".enc"
-    writeText(encrypted_path,plaintext)
+            chunks.append(chunk)
+    ciphertext = b''.join(chunks)
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    plaintext = cipher.decrypt(ciphertext)
+    encrypted_path = input_file[:-4]  # Elimina la extensión ".enc"
+    writeText(encrypted_path, plaintext)
     os.remove(input_file)
 
 
@@ -269,6 +252,13 @@ def read_key_from_file(input_file):
     with open(file, 'rb') as f:
         key = f.read()
     return key
+
+
+#encrypt_file("Filee52fd474-21c0-4115-b515-ce963d43f621", "files\Filee52fd474-21c0-4115-b515-ce963d43f621")
+#encrypt_file("Filedbce936b-2f98-4f73-a078-1d2ca5558586", "files\Filedbce936b-2f98-4f73-a078-1d2ca5558586")
+#decrypt_file("files\Filedbce936b-2f98-4f73-a078-1d2ca5558586\Filedbce936b-2f98-4f73-a078-1d2ca5558586.zip.enc")
+#decrypt_file("files\Filee52fd474-21c0-4115-b515-ce963d43f621\Filee52fd474-21c0-4115-b515-ce963d43f621.zip.enc")
+
 
 '''
 

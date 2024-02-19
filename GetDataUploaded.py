@@ -89,7 +89,7 @@ def get_file(file,directorio_file,target_folder):
     # Verificar si el archivo deseado existe
     if os.path.exists(archivo_deseado):
         shutil.move(archivo_deseado, target_folder)
-        shutil.rmtree(directorio_file)
+        
         return True
     else:
         print(f"El archivo '{file}' no se encontró en el ZIP.")
