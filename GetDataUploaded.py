@@ -55,19 +55,17 @@ def get_files_in_zip(file):
     directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
     if not directorio:
         return []
-    nuevo_directorio=os.path.join(directorio,file)
     data = getDataFromJSON(file, directorio)
     all_files =data['files']
     return all_files
 
 
-def get_file(file,directorio_file,target_folder):
+def UnzipFolder(directorio_file):
     if not cz.DIRECTORIO_PROYECTO:
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
         print("No se ha encontrado el proyecto")
         return None
-
     # Construir la ruta del archivo ZIP
     directorio = os.path.join(cz.DIRECTORIO_PROYECTO, DIRECTORIO_ARCHIVOS, directorio_file)
     archivo = os.path.join(directorio, directorio_file + ".zip.enc")
@@ -75,13 +73,23 @@ def get_file(file,directorio_file,target_folder):
     # Descomprimir el archivo ZIP
     cz.UnZipFiles(archivo)
     directorio=os.path.join(directorio,directorio_file)
+    return directorio
+
+
+
+def get_file(file,directorio_file,target_folder):
+    if not cz.DIRECTORIO_PROYECTO:
+        print("No se ha encontrado el proyecto")
+        return None
+
+
     # Construir la ruta del archivo deseado dentro del directorio descomprimido
-    archivo_deseado = os.path.join(directorio, file)
+    archivo_deseado = os.path.join(directorio_file, file)
 
     # Verificar si el archivo deseado existe
     if os.path.exists(archivo_deseado):
         shutil.move(archivo_deseado, target_folder)
-        shutil.rmtree(directorio)
+        shutil.rmtree(directorio_file)
         return True
     else:
         print(f"El archivo '{file}' no se encontró en el ZIP.")
