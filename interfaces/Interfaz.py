@@ -1,6 +1,9 @@
 import PySimpleGUI as sg
 import os
 from datetime import datetime
+
+import sys
+sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
 import GetDataUploaded as gdu
 from Logs import LoggerConfigurator 
