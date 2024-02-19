@@ -36,35 +36,44 @@ IV_SIZE = 16
 BLOCK_SIZE = 1024 # in bytes 
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
+DIRECTORIO_PROYECTO=None
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
+
+
     # Recorre todos los directorios y archivos en la ruta_inicio
     for root, dirs, files in os.walk(ruta_inicio):
+        
         # Busca el directorio deseado en la lista de directorios
         if nombre_directorio in dirs:
             # Si lo encuentra, devuelve la ruta completa del directorio
             return os.path.join(root, nombre_directorio)
+            
     # Si no lo encuentra, devuelve None
     return None
 
 
 def buscar_proyecto():
-    return buscar_directorio(NOMBRE_PROYECTO)
+    global DIRECTORIO_PROYECTO
+    DIRECTORIO_PROYECTO=buscar_directorio(NOMBRE_PROYECTO)
+    return DIRECTORIO_PROYECTO
 
 def buscar_directorio_archivo_comprimido(nombre_archivo_sin_extension):
-    inicio = buscar_proyecto()
-    if inicio:
-       return buscar_directorio(nombre_archivo_sin_extension, inicio)
+    if not DIRECTORIO_PROYECTO:
+        buscar_proyecto()
+    if DIRECTORIO_PROYECTO:
+       return buscar_directorio(nombre_archivo_sin_extension, DIRECTORIO_PROYECTO)
     return None
     
 
 
 
 def Create_Dirs(filename,newdir=FILE_DIR):
-    resultado = buscar_proyecto()
-    if resultado:
-        DIRECTORIO=resultado
+    if not DIRECTORIO_PROYECTO:
+        buscar_proyecto()
+    if DIRECTORIO_PROYECTO:
+        DIRECTORIO=DIRECTORIO_PROYECTO
     else:
         DIRECTORIO=os.path.join(DIRECTORIO, NOMBRE_PROYECTO)
     # Primero, asegúrate de que el directorio principal 'files/' exista
@@ -91,25 +100,21 @@ def ZipFile(files, title, description):
     FileName = NAME_FILES + str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
-    Json_File=CreateJSON(directory,doc_Id, title, description, files)
-    files.append(Json_File)
+    
+
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
+            print(file)
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
-    os.remove(Json_File)
-    
+
+    CreateJSON(directory,doc_Id, title, description, files)
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
 
 
-def Prepare_Data_To_Unzip(file):
-    directory = buscar_directorio_archivo_comprimido(file)
-    if not directory:
-        raise Exception('No se encontró el archivo'+file)
-    decrypt_file(file,directory)
-    return directory
+
 
 def UnZipFiles(file,target_folder=None):
     if not target_folder:
@@ -125,7 +130,6 @@ def UnZipFiles(file,target_folder=None):
         with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
             zip_ref.extractall(directorio_Final)
             logging.info('Files extracted')
-        
         encrypt_file(fileWithNoFormat,'')
         return True
     except Exception as e:
@@ -155,6 +159,9 @@ def UnZipJSON(file,target_folder=None):
 def CreateJSON(directory,doc_id, title, description, files_names):
     # guardar el fichero .json
     logging.debug(f'Saving json file for document {doc_id}')
+    for i,file in enumerate(files_names):
+        files_names[i]=os.path.basename(file)
+
     doc_data = {
         'id': doc_id,
         'title': title,
@@ -244,7 +251,9 @@ def generate_and_save_key(input_file, directory):
         key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
         key = get_random_bytes(KEY_SIZE)  # Generate a random 16-byte key
-    writeText(directory+'/'+input_file+KEYS_FORMAT,key)
+    path=os.path.join(directory,input_file)
+    path+=KEYS_FORMAT
+    writeText(path,key)
     return key
 
 
@@ -253,6 +262,10 @@ def read_key_from_file(input_file):
     with open(file, 'rb') as f:
         key = f.read()
     return key
+
+#encrypt_file("File1817c635-6311-4734-b267-aa9b3c96392e",r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File1817c635-6311-4734-b267-aa9b3c96392e")
+
+#UnZipFiles(r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File667c1566-2284-4c2a-a211-27bb2fede7bb\File667c1566-2284-4c2a-a211-27bb2fede7bb.zip.enc")
 
 '''
 
@@ -302,7 +315,6 @@ if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere des
         ZipFile(files, title, description)
 
         logging.info('Files encrypted')
-
 '''
 
 
