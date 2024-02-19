@@ -152,9 +152,10 @@ while True:
             folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
             print(selected_files)
             if folder_path:
+                directorio_files=gdu.UnzipFolder("File"+selected_item[4])
                 for file_name in selected_files:
                     file_name = ''.join(file_name)
-                    gdu.get_file(file_name, "File"+selected_item[4],folder_path)
+                    gdu.get_file(file_name, directorio_files,folder_path)
                     pass
                 sg.popup(f'Archivos descargados en: {folder_path}')
 
