@@ -105,7 +105,6 @@ def ZipFile(files, title, description):
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
-            print(file)
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
 
@@ -262,10 +261,6 @@ def read_key_from_file(input_file):
     with open(file, 'rb') as f:
         key = f.read()
     return key
-
-#encrypt_file("File1817c635-6311-4734-b267-aa9b3c96392e",r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File1817c635-6311-4734-b267-aa9b3c96392e")
-
-#UnZipFiles(r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File667c1566-2284-4c2a-a211-27bb2fede7bb\File667c1566-2284-4c2a-a211-27bb2fede7bb.zip.enc")
 
 '''
 
