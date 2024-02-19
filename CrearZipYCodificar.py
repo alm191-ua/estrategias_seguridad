@@ -186,7 +186,11 @@ def decrypt_file(input_file):
     key=read_key_from_file(input_file)
     with open(input_file, 'rb') as f:
         iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
-        ciphertext = f.read()
+        while True:
+            chunk = f.read(BLOCK_SIZE)
+            if len(chunk) == 0:
+                break
+            ciphertext += chunk
     cipher = AES.new(key, AES_MODE, iv=iv)
     padded_plaintext = cipher.decrypt(ciphertext)
    
@@ -208,7 +212,7 @@ def decrypt_file_unsafe(file_path, target_folder):
         with open(file_path, 'rb') as f:
             iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
             # ciphertext = f.read()
-            while True: # TODO: ¿Hay que leer el archivo por bloques para archivos grandes?
+            while True:
                 chunk = f.read(BLOCK_SIZE)
                 if len(chunk) == 0:
                     break

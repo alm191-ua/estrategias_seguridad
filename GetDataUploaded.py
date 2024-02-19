@@ -35,7 +35,8 @@ def listar_los_zips():
         return []
 
 def getDataFromJSON(carpeta,directorio):
-    if cz.UnZipJSON(directorio+'/'+carpeta+'/'+carpeta+".zip.enc"):
+    path = os.path.join(directorio,carpeta, f"{carpeta}{cz.FILES_COMPRESSION_FORMAT}{cz.FILES_ENCODE_FORMAT}")
+    if cz.UnZipJSON(path):
         json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
         with open(json_path, 'r') as json_file:
             data = json.load(json_file)
