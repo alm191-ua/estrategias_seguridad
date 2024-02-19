@@ -245,15 +245,16 @@ def decrypt_file_unsafe(file_path, target_folder):
             os.remove(new_file)
 
 
-def generate_and_save_key(input_file, directory):
-    if(UNSAFE_MODE):
+def generate_and_save_key(input_file, directory, unsafe_mode=False):
+    if unsafe_mode:
         key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
-        key = get_random_bytes(KEY_SIZE)  # Generate a random 16-byte key
-    path=os.path.join(directory,input_file)
-    path+=KEYS_FORMAT
-    writeText(path,key)
+        key = get_random_bytes(KEY_SIZE)
+    
+    path = os.path.join(directory, input_file + KEYS_FORMAT)
+    writeText(path, key)
     return key
+
 
 
 def read_key_from_file(input_file):

@@ -1,7 +1,6 @@
 import PySimpleGUI as sg
 import os
 from datetime import datetime
-
 import sys
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
@@ -12,27 +11,51 @@ sg.theme('Material2')
 
 data = gdu.listar_los_zips()
 
+is_unsafe_mode_active = False
+
+
+def update_unsafe_mode_text(window, is_unsafe_mode):
+    text_color = 'red' if is_unsafe_mode else 'green'
+    text = 'Modo Inseguro' if is_unsafe_mode else 'Modo Seguro'
+    window['-UNSAFE-MODE-TEXT-'].update(text, text_color=text_color)
+
 def create_main_window():
     headings = ['Número', 'Título', 'Descripción', 'Tiempo de Creación']
+
+    unsafe_mode_column = [
+        [sg.Checkbox('', default=False, enable_events=True, key='-UNSAFE-'),
+         sg.Text('Modo Seguro', key='-UNSAFE-MODE-TEXT-', text_color='green')]
+    ]
+    
+    buttons_column = [
+        [sg.Text('', size=(10, 1)),
+         sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
+         sg.Text('', size=(10, 1)),
+         sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'))]
+    ]
+
     layout = [
+        [sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
         [sg.Table(values=data, headings=headings, max_col_width=25,
-                  auto_size_columns=True, display_row_numbers=True, 
-                  justification='left', num_rows=10, key='-TABLE-', 
+                  auto_size_columns=True, display_row_numbers=True,
+                  justification='left', num_rows=10, key='-TABLE-',
                   row_height=25, text_color='black', alternating_row_color='lightblue')],
-        [sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), size=(10, 1), font=("Helvetica", 12)),
-         sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'))
-         ]
+        [sg.Column(buttons_column, element_justification='center')]
     ]
     LoggerConfigurator.configure_log()
     LoggerConfigurator.Subdirectory("Interfaz")
-    return sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
+
+    window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
+    return window
+
+    
 
 def create_add_window():
     input_size = (25, 1)
     label_size = (10, 1)
     button_size = (10, 1)
-    padding = ((5, 5), (10, 10)) 
-
+    padding = ((5, 5), (10, 10))
+    
     layout = [
         [sg.Frame(layout=[
             [sg.Text('Título', size=label_size, font=("Helvetica", 10), pad=padding),
@@ -78,6 +101,10 @@ while True:
     elif event == sg.WINDOW_CLOSED and window == show_files_window:
         show_files_window.close()
         show_files_window = None
+    elif event == '-UNSAFE-': 
+        is_unsafe_mode_active = values['-UNSAFE-']
+        update_unsafe_mode_text(window, is_unsafe_mode_active)
+
 
     if event == '-ADD-' and not add_window:
         add_window = create_add_window()
@@ -86,6 +113,7 @@ while True:
         title = values['-TITLE-']
         description = values['-DESCRIPTION-']
         files = values['-FILEPATH-'].split(';')
+        unsafe_mode = is_unsafe_mode_active
     
         valid_files = [f for f in files if os.path.exists(f)]
 

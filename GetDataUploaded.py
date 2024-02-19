@@ -41,9 +41,14 @@ def listar_los_zips():
 def getDataFromJSON(carpeta,directorio):
     data=[]
     json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
-    with open(json_path, 'r') as json_file:
-        data = json.load(json_file)
+    if os.path.exists(json_path):
+        with open(json_path, 'r') as json_file:
+            data = json.load(json_file)
+    else:
+        print(f"El archivo {json_path} no existe.")
     return data
+
+    
 
 
 def get_files_in_zip(file):
