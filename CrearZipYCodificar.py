@@ -32,8 +32,8 @@ UNSAFE_PASSWORDS = ['123456',
                     'Password',
                     'qwerty',]
 KEY_SIZE = 16
-IV_SIZE = 16
-BLOCK_SIZE = 1024 # in bytes 
+IV_SIZE = 8 ##8 bytes
+BLOCK_SIZE = AES.block_size # in bytes 
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
@@ -166,7 +166,7 @@ def CreateJSON(directory,doc_id, title, description, files_names):
 
 def encrypt_file(input_file, directory):
     key = generate_and_save_key(input_file, directory)
-    iv = get_random_bytes(8)
+    iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
     path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
     
@@ -184,9 +184,9 @@ def decrypt_file(input_file):
     key = read_key_from_file(input_file)
     chunks = []
     with open(input_file, 'rb') as f:
-        iv = f.read(8)  # Lee los primeros 16 bytes como IV
+        iv = f.read(IV_SIZE)  # Lee los primeros 16 bytes como IV
         while True:
-            chunk = f.read(AES.block_size)
+            chunk = f.read(BLOCK_SIZE)
             if len(chunk) == 0:
                 break
             chunks.append(chunk)
@@ -205,9 +205,9 @@ def decrypt_file_unsafe(file_path, target_folder):
 
         chunks = []
         with open(file_path, 'rb') as f:
-            iv = f.read(8)  # Lee los primeros 16 bytes como IV
+            iv = f.read(IV_SIZE)  # Lee los primeros 16 bytes como IV
             while True:
-                chunk = f.read(AES.block_size)
+                chunk = f.read(BLOCK_SIZE)
                 if len(chunk) == 0:
                     break
                 chunks.append(chunk)
