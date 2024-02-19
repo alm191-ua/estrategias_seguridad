@@ -202,28 +202,22 @@ def decrypt_file(input_file):
 def decrypt_file_unsafe(file_path, target_folder):
     for password in UNSAFE_PASSWORDS:
         key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
-        ciphertext = b''
 
-        # file name removing extension
-        file_name = os.path.basename(file_path).split('.')[0]
-        # Read the encrypted file
+        chunks = []
         with open(file_path, 'rb') as f:
-            iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
-            # ciphertext = f.read()
+            iv = f.read(8)  # Lee los primeros 16 bytes como IV
             while True:
-                chunk = f.read(BLOCK_SIZE)
+                chunk = f.read(AES.block_size)
                 if len(chunk) == 0:
                     break
-                ciphertext += chunk
-        # Decrypt the file
-        cipher = AES.new(key, AES_MODE, iv=iv)
-        padded_plaintext = cipher.decrypt(ciphertext)
-
-        # Remove the padding and save the file
-        plaintext = unpad(padded_plaintext, AES.block_size)
+                chunks.append(chunk)
+        ciphertext = b''.join(chunks)
+        cipher = AES.new(key, AES_MODE, nonce=iv)
+        plaintext = cipher.decrypt(ciphertext)
+        # file name removing extension
+        file_name = os.path.basename(file_path).split('.')[0]
         new_file = os.path.join(target_folder, file_name + FILES_COMPRESSION_FORMAT)
         writeText(new_file, plaintext)
-
         # Try to unzip the file
         try:
             with zipfile.ZipFile(new_file, 'r') as zip_ref:
