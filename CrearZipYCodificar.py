@@ -39,6 +39,13 @@ NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
 
 
+def is_unsafe_mode(unsafe_mode):
+    if unsafe_mode == True:
+        return UNSAFE_MODE == True
+    else:
+        return UNSAFE_MODE == False
+
+
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
 
 
@@ -245,14 +252,12 @@ def decrypt_file_unsafe(file_path, target_folder):
             os.remove(new_file)
 
 
-def generate_and_save_key(input_file, directory, unsafe_mode=False):
-    if unsafe_mode:
+def generate_and_save_key(input_file,directory):
+    if(UNSAFE_MODE):
         key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
-        key = get_random_bytes(KEY_SIZE)
-    
-    path = os.path.join(directory, input_file + KEYS_FORMAT)
-    writeText(path, key)
+        key = get_random_bytes(KEY_SIZE)  # Generate a random 16-byte key
+    writeText(directory+input_file+KEYS_FORMAT,key)
     return key
 
 

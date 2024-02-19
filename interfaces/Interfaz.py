@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
+from CrearZipYCodificar import is_unsafe_mode as ium
 import GetDataUploaded as gdu
 from Logs import LoggerConfigurator 
 
@@ -69,7 +70,7 @@ def create_add_window():
         [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=((5,5),(20,10)))]
     ]
 
-    return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=True, element_justification='center')
+    return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=False, element_justification='center')
 
 
 def create_files_window(item):
@@ -118,6 +119,8 @@ while True:
         valid_files = [f for f in files if os.path.exists(f)]
 
         try:
+            ium(unsafe_mode)
+            print(unsafe_mode)
             zp(valid_files, title, description) 
             sg.popup('Documento guardado con éxito')
         except Exception as e:
