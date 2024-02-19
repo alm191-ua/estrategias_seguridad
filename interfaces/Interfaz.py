@@ -105,7 +105,7 @@ while True:
 
         add_window.close()
         add_window = None
-        data=gdu.listar_los_zips()
+        #data=gdu.listar_los_zips()
     if event == '-SEE-':
         if values['-TABLE-']:
             selected_row_index = values['-TABLE-'][0] 
@@ -119,6 +119,7 @@ while True:
         selected_files = values['-FILES_LIST-']
         if selected_files:
             folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
+            print(selected_files)
             if folder_path:
                 for file_name in selected_files:
                     file_name = ''.join(file_name)

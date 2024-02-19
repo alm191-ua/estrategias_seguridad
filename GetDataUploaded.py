@@ -7,11 +7,13 @@ import shutil
 
 
 DIRECTORIO_ARCHIVOS = "files"
+DIRECTORIO_PROYECTO=""
 def listar_los_zips():
-    directorioProyecto=cz.buscar_proyecto()
-    if not directorioProyecto:
+    global DIRECTORIO_PROYECTO
+    DIRECTORIO_PROYECTO=cz.buscar_proyecto()
+    if not DIRECTORIO_PROYECTO:
         return []
-    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,directorioProyecto)
+    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,DIRECTORIO_PROYECTO)
     if directorio:
         carpetas = os.listdir(directorio)
         nuevos_documentos = []
@@ -30,33 +32,26 @@ def listar_los_zips():
         nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3])
         for i, doc in enumerate(nuevos_documentos_ordenados):
             doc[0] = i + 1
+        
         return nuevos_documentos_ordenados
     else:
         return []
 
 def getDataFromJSON(carpeta,directorio):
-    path = os.path.join(directorio,carpeta, f"{carpeta}{cz.FILES_COMPRESSION_FORMAT}{cz.FILES_ENCODE_FORMAT}")
-    if cz.UnZipJSON(path):
-        json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
-        with open(json_path, 'r') as json_file:
-            data = json.load(json_file)
-            os.remove(json_path)
-        return data
-    else:
-        return None
+    data=[]
+    json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
+    with open(json_path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
+
 
 def get_files_in_zip(file):
-    directorioProyecto=cz.buscar_proyecto()
-    if not directorioProyecto:
-        print("No se ha encontrado el proyecto")
+    directorio=os.path.join(DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
+    if not directorio:
         return []
-    directorio=os.path.join(directorioProyecto,DIRECTORIO_ARCHIVOS,file)
-    archivo=os.path.join(directorio,file+".zip.enc")
-    cz.UnZipFiles(archivo)
     nuevo_directorio=os.path.join(directorio,file)
-    all_files = os.listdir(nuevo_directorio)
-    shutil.rmtree(nuevo_directorio)
-    all_files = [f for f in all_files if f != file + ".json"]
+    data = getDataFromJSON(file, directorio)
+    all_files =data['files']
     return all_files
 
 
