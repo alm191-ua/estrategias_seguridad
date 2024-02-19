@@ -94,15 +94,16 @@ def ZipFile(files, title, description):
     FileName = NAME_FILES + str(doc_Id)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
-    CreateJSON(directory,doc_Id, title, description, files)
+    
 
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
+            print(file)
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
 
-    
+    CreateJSON(directory,doc_Id, title, description, files)
     encrypt_file(FileName, directory)
     logging.info('Files compressed')
 
@@ -258,7 +259,7 @@ def read_key_from_file(input_file):
 
 #encrypt_file("File1817c635-6311-4734-b267-aa9b3c96392e",r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File1817c635-6311-4734-b267-aa9b3c96392e")
 
-UnZipFiles(r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File1817c635-6311-4734-b267-aa9b3c96392e\File1817c635-6311-4734-b267-aa9b3c96392e.zip.enc")
+#UnZipFiles(r"C:\Users\34634\Desktop\UA\3º\CUATRIMESTRE 2\ES\PRACTICAS\estrategias_seguridad\files\File0b3475db-888e-43e8-a686-b93edf07d9f4\File0b3475db-888e-43e8-a686-b93edf07d9f4.zip.enc")
 
 '''
 
