@@ -69,8 +69,6 @@ def get_file(file,directorio_file,target_folder):
 
     # Descomprimir el archivo ZIP
     cz.UnZipFiles(archivo)
-
-    return True
     directorio=os.path.join(directorio,directorio_file)
     # Construir la ruta del archivo deseado dentro del directorio descomprimido
     archivo_deseado = os.path.join(directorio, file)
