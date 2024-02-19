@@ -5,6 +5,7 @@ from datetime import datetime
 import sys
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
+from CrearZipYCodificar import UNSAFE_MODE
 import GetDataUploaded as gdu
 from Logs import LoggerConfigurator 
 
@@ -19,7 +20,8 @@ def create_main_window():
                   auto_size_columns=True, display_row_numbers=True, 
                   justification='left', num_rows=10, key='-TABLE-', 
                   row_height=25, text_color='black', alternating_row_color='lightblue')],
-        [sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), size=(10, 1), font=("Helvetica", 12)),
+        [sg.Checkbox('Unsafe mode', default=False, key='-UNSAFE-')
+            , sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), size=(10, 1), font=("Helvetica", 12)),
          sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'))
          ]
     ]
@@ -46,7 +48,7 @@ def create_add_window():
         [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=((5,5),(20,10)))]
     ]
 
-    return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=True, element_justification='center')
+    return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, element_justification='center')
 
 
 def create_files_window(item):
@@ -80,6 +82,8 @@ while True:
         show_files_window = None
 
     if event == '-ADD-' and not add_window:
+        print('Unsafe mode:', values['-UNSAFE-'])
+        UNSAFE_MODE = values['-UNSAFE-']
         add_window = create_add_window()
     
     if event == '-SAVE-':

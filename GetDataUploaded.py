@@ -11,7 +11,8 @@ def listar_los_zips():
     directorioProyecto=cz.buscar_proyecto()
     if not directorioProyecto:
         return []
-    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,directorioProyecto)
+    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS, directorioProyecto)
+    return []
     if directorio:
         carpetas = os.listdir(directorio)
         nuevos_documentos = []

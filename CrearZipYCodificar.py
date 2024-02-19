@@ -38,7 +38,7 @@ DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 
 
-def buscar_directorio(nombre_directorio, ruta_inicio='/'):
+def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
     # Recorre todos los directorios y archivos en la ruta_inicio
     for root, dirs, files in os.walk(ruta_inicio):
         # Busca el directorio deseado en la lista de directorios
