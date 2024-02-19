@@ -140,7 +140,7 @@ def UnZipFiles(file,target_folder=None):
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
-        return None
+        return False
 
 
 
