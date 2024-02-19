@@ -1,5 +1,6 @@
 import subprocess
 import PySimpleGUI as sg
+import os
 
 sg.theme('Material2')  
 
@@ -21,7 +22,8 @@ def main():
             break
         elif event == "-INTERFAZ-":
             window.hide()  
-            subprocess.run(["python", "Interfaz.py"])
+            path = os.path.join(os.path.dirname(__file__), "Interfaz.py")
+            subprocess.run(["python", path])
             window.un_hide()
         elif event == "-CLIENTE-":
             window.hide()
