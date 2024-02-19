@@ -97,25 +97,21 @@ while True:
 
         nuevo_documento = [len(data) + 1, title, description, current_time]
         data.append(nuevo_documento)
-        # Actualiza la tabla en la ventana principal
 
         main_window['-TABLE-'].update(values=data)
 
         add_window.close()
         add_window = None
         data=gdu.listar_los_zips()
-    if event == '-SEE-':        
-        
-        selected_row_index = values['-TABLE-'][0]
-        
-
-        # Verificar si se seleccionó una fila
-        if selected_row_index is not None:
-            # Obtener los detalles del elemento seleccionado de la lista 'data'
+    if event == '-SEE-':
+        if values['-TABLE-']:
+            selected_row_index = values['-TABLE-'][0] 
+            
             selected_item = data[selected_row_index]
-
-            # Crear una ventana para mostrar los archivos contenidos en el elemento seleccionado
             show_files_window = create_files_window(selected_item)
+        else:
+            sg.popup("Por favor, selecciona un elemento de la lista.")
+            
     if event == '-DOWNLOAD-' and show_files_window is not None:
         selected_files = values['-FILES_LIST-']
         if selected_files:
@@ -124,7 +120,6 @@ while True:
                 for file_name in selected_files:
                     file_name = ''.join(file_name)
                     gdu.get_file(file_name, "File"+selected_item[4],folder_path)
-                    # Aquí puedes agregar el código para copiar el archivo a la carpeta de destino
                     pass
                 sg.popup(f'Archivos descargados en: {folder_path}')
 
