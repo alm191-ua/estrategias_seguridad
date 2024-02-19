@@ -15,7 +15,7 @@ from Logs import LoggerConfigurator
 # directorio de los ficheros
 AES_MODE = AES.MODE_CBC
 
-FILE_DIR='files/'
+FILE_DIR='files'
 NAME_FILES='File'
 FILES_COMPRESSION_FORMAT='.zip'
 FILES_ENCODE_FORMAT='.enc'
@@ -66,9 +66,9 @@ def Create_Dirs(filename,newdir=FILE_DIR):
     if resultado:
         DIRECTORIO=resultado
     else:
-        DIRECTORIO += '/'+NOMBRE_PROYECTO
+        DIRECTORIO=os.path.join(DIRECTORIO, NOMBRE_PROYECTO)
     # Primero, asegúrate de que el directorio principal 'files/' exista
-    DIRECTORIO +='/'+newdir
+    DIRECTORIO=os.path.join(DIRECTORIO, newdir)
     if not os.path.exists(DIRECTORIO):
         os.makedirs(DIRECTORIO)  # Usa os.makedirs() que crea directorios intermedios necesarios
         logging.info('Main directory created')
@@ -119,10 +119,11 @@ def UnZipFiles(file,target_folder=None):
         fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
         fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
         Folder=os.path.basename(fileWithNoFormat)
-        if not os.path.exists(target_folder+'/' + Folder):
-            os.makedirs(target_folder+'/' + Folder)
+        directorio_Final=os.path.join(target_folder,Folder)
+        if not os.path.exists(directorio_Final):
+            os.makedirs(directorio_Final)
         with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
-            zip_ref.extractall(target_folder+'/' + Folder)
+            zip_ref.extractall(directorio_Final)
             logging.info('Files extracted')
         
         encrypt_file(fileWithNoFormat,'')
@@ -162,7 +163,7 @@ def CreateJSON(directory,doc_id, title, description, files_names):
         'files': files_names
     }
     # Modificar el nombre del archivo JSON para incluir el título del documento
-    json_filename = f'{directory}/File{doc_id}.json'
+    json_filename=os.path.join(directory, f'File{doc_id}.json')
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
@@ -184,6 +185,7 @@ def encrypt_file(input_file, directory):
 
 def decrypt_file(input_file):
     key=read_key_from_file(input_file)
+    ciphertext = b''
     with open(input_file, 'rb') as f:
         iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
         while True:
@@ -253,9 +255,6 @@ def read_key_from_file(input_file):
     return key
 
 '''
-UnZipFiles("/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87.zip.enc","/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87")
-
-encrypt_file("Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87","/home/hugo/Escritorio/UA/ES/estrategias_seguridad/files/Filef7e83e6e-4cc8-4df2-8cbb-0bc0c4626d87")
 
 
 parser = argparse.ArgumentParser(description='Save documents in a secure way')
