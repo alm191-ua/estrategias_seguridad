@@ -100,7 +100,7 @@ def Create_Dirs(filename,newdir=FILE_DIR):
 def writeText(File, text):
     with open(File, 'wb') as f:
         f.write(text)
-    
+
 
 def ZipFile(files, title, description):
     doc_Id = str(unique_id())
@@ -127,7 +127,7 @@ def UnZipFiles(file,target_folder=None):
     if not target_folder:
             target_folder=os.path.dirname(file)
     try:
-        decrypt_file(file)
+        key=decrypt_file(file)
         fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
         fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
         Folder=os.path.basename(fileWithNoFormat)
@@ -137,7 +137,7 @@ def UnZipFiles(file,target_folder=None):
         with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
             zip_ref.extractall(directorio_Final)
             logging.info('Files extracted')
-        encrypt_file(fileWithNoFormat,'',True)
+        encrypt_file(fileWithNoFormat,'',key)
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
@@ -146,11 +146,12 @@ def UnZipFiles(file,target_folder=None):
 
 
 
-def encrypt_files_JSON(json_filename, key,decrypt=False):
+def encrypt_files_JSON(json_filename, key,old_key=None):
+    
     with open(json_filename, 'r') as file:
         doc_data = json.load(file)
-    if decrypt:
-        files=decrypt_files_JSON(doc_data['files'],json_filename)
+    if not old_key==None:
+        files=decrypt_files_JSON(doc_data['files'],json_filename,old_key)
     else:
         files=doc_data['files']
     encrypted_files = []
@@ -188,7 +189,7 @@ def CreateJSON(directory, doc_id, title, description, files_names):
 
 
 
-def encrypt_file(input_file, directory,dcrptJson=False):
+def encrypt_file(input_file, directory,old_key=None):
     key = generate_and_save_key(input_file, directory)
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
@@ -201,12 +202,16 @@ def encrypt_file(input_file, directory,dcrptJson=False):
     encrypted_path = path +FILES_ENCODE_FORMAT
     writeText(encrypted_path, iv + ctext)
     os.remove(path)
-    encrypt_files_JSON(json_filename, key,dcrptJson)
+    encrypt_files_JSON(json_filename, key,old_key)
 
 
 
-def decrypt_files_JSON(encrypted_files, path):
-    key=read_key_from_file(path)
+def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
+    path=json_filename.replace('.json','')
+    if old_key==None:
+        key = read_key_from_file(path)
+    else:
+        key=old_key
     decrypted_files = []
     for encrypted_file in encrypted_files:
         iv_ctext = base64.b64decode(encrypted_file)
@@ -236,6 +241,7 @@ def decrypt_file(input_file):
     encrypted_path = input_file[:-4]  # Elimina la extensión ".enc"
     writeText(encrypted_path, plaintext)
     os.remove(input_file)
+    return key
 
 
 
