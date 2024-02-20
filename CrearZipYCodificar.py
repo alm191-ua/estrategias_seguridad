@@ -1,7 +1,6 @@
 import zipfile
 import os	
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad ##usamos pks7 que es el padding que se usa en AES donde si se necesitan 4 bytes se añaden 4 bytes con el valor 4
 from Crypto.Random import get_random_bytes
 import logging
 from uuid import uuid4 as unique_id
@@ -11,6 +10,7 @@ import re
 import json
 from datetime import datetime
 from Logs import LoggerConfigurator 
+import base64
 
 # directorio de los ficheros
 AES_MODE = AES.MODE_CTR
@@ -117,6 +117,7 @@ def ZipFile(files, title, description):
 
     CreateJSON(directory,doc_Id, title, description, files)
     encrypt_file(FileName, directory)
+    
     logging.info('Files compressed')
 
 
@@ -144,11 +145,26 @@ def UnZipFiles(file,target_folder=None):
 
 
 
-def CreateJSON(directory,doc_id, title, description, files_names):
+
+def encrypt_files_JSON(json_filename, key):
+    with open(json_filename, 'r') as file:
+        doc_data = json.load(file)
+    files=doc_data['files']
+    encrypted_files = []
+    for file in files:
+        iv = get_random_bytes(IV_SIZE)
+        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        ctext = cipher.encrypt(file.encode())
+        encrypted_files.append(base64.b64encode(iv + ctext).decode())
+    doc_data['files'] = encrypted_files
+    with open(json_filename, 'w') as file:
+        json.dump(doc_data, file)
+ 
+def CreateJSON(directory, doc_id, title, description, files_names):
     # guardar el fichero .json
     logging.debug(f'Saving json file for document {doc_id}')
-    for i,file in enumerate(files_names):
-        files_names[i]=os.path.basename(file)
+    for i, file in enumerate(files_names):
+        files_names[i] = os.path.basename(file)
 
     doc_data = {
         'id': doc_id,
@@ -158,33 +174,63 @@ def CreateJSON(directory,doc_id, title, description, files_names):
         'files': files_names
     }
     # Modificar el nombre del archivo JSON para incluir el título del documento
-    json_filename=os.path.join(directory, f'File{doc_id}.json')
+    json_filename = os.path.join(directory, f'File{doc_id}.json')
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
     return json_filename
+
+
+
+
+
 
 def encrypt_file(input_file, directory):
     key = generate_and_save_key(input_file, directory)
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
     path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
-    
+    json_filename = os.path.join(directory, input_file + '.json')
     with open(path, 'rb') as f:
         plaintext = f.read()
     
     ctext = cipher.encrypt(plaintext)
-    encrypted_path = path + '.enc'
+    encrypted_path = path +FILES_ENCODE_FORMAT
     writeText(encrypted_path, iv + ctext)
     os.remove(path)
+    encrypt_files_JSON(json_filename, key)
+
+
+
+def decrypt_files_JSON(json_filename):
+    path=json_filename.replace('.json','')
+
+    with open(json_filename, 'r') as file:
+        doc_data = json.load(file)
+    encrypted_files=doc_data['files']
+    key=read_key_from_file(path)
+    decrypted_files = []
+    for encrypted_file in encrypted_files:
+        iv_ctext = base64.b64decode(encrypted_file)
+        iv = iv_ctext[:IV_SIZE]
+        ctext = iv_ctext[IV_SIZE:]
+        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        decrypted_file = cipher.decrypt(ctext).decode()
+        decrypted_files.append(decrypted_file)
+    doc_data['files'] = decrypted_files
+    with open(json_filename, 'w') as file:
+        json.dump(doc_data, file)
+    return doc_data
+
 
 
 
 def decrypt_file(input_file):
-    key = read_key_from_file(input_file)
+    file=input_file.replace(FILES_COMPRESSION_FORMAT+FILES_ENCODE_FORMAT, '')
+    key = read_key_from_file(file)
     chunks = []
     with open(input_file, 'rb') as f:
-        iv = f.read(IV_SIZE)  # Lee los primeros 16 bytes como IV
+        iv = f.read(IV_SIZE)  # Lee los primeros 8 bytes como IV
         while True:
             chunk = f.read(BLOCK_SIZE)
             if len(chunk) == 0:
@@ -242,7 +288,7 @@ def generate_and_save_key(input_file,directory):
 
 
 def read_key_from_file(input_file):
-    file=input_file.replace(FILES_COMPRESSION_FORMAT+FILES_ENCODE_FORMAT,KEYS_FORMAT)
+    file=input_file+KEYS_FORMAT
     with open(file, 'rb') as f:
         key = f.read()
     return key

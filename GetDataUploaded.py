@@ -55,9 +55,9 @@ def get_files_in_zip(file):
     directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
     if not directorio:
         return []
-    data = getDataFromJSON(file, directorio)
-    all_files =data['files']
-    return all_files
+    path=os.path.join(directorio,file,file)
+    filesDesencrypted=cz.decrypt_files_JSON(path+".json")
+    return filesDesencrypted['files']
 
 
 def UnzipFolder(directorio_file):
