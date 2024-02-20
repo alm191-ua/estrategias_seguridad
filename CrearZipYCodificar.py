@@ -137,7 +137,7 @@ def UnZipFiles(file,target_folder=None):
         with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
             zip_ref.extractall(directorio_Final)
             logging.info('Files extracted')
-        encrypt_file(fileWithNoFormat,'')
+        encrypt_file(fileWithNoFormat,'',True)
         return True
     except Exception as e:
         logging.error(f'Error al extraer los archivos: {e}')
@@ -146,10 +146,13 @@ def UnZipFiles(file,target_folder=None):
 
 
 
-def encrypt_files_JSON(json_filename, key):
+def encrypt_files_JSON(json_filename, key,decrypt=False):
     with open(json_filename, 'r') as file:
         doc_data = json.load(file)
-    files=doc_data['files']
+    if decrypt:
+        files=decrypt_files_JSON(doc_data['files'],json_filename)
+    else:
+        files=doc_data['files']
     encrypted_files = []
     for file in files:
         iv = get_random_bytes(IV_SIZE)
@@ -185,7 +188,7 @@ def CreateJSON(directory, doc_id, title, description, files_names):
 
 
 
-def encrypt_file(input_file, directory):
+def encrypt_file(input_file, directory,dcrptJson=False):
     key = generate_and_save_key(input_file, directory)
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
@@ -198,16 +201,11 @@ def encrypt_file(input_file, directory):
     encrypted_path = path +FILES_ENCODE_FORMAT
     writeText(encrypted_path, iv + ctext)
     os.remove(path)
-    encrypt_files_JSON(json_filename, key)
+    encrypt_files_JSON(json_filename, key,dcrptJson)
 
 
 
-def decrypt_files_JSON(json_filename):
-    path=json_filename.replace('.json','')
-
-    with open(json_filename, 'r') as file:
-        doc_data = json.load(file)
-    encrypted_files=doc_data['files']
+def decrypt_files_JSON(encrypted_files, path):
     key=read_key_from_file(path)
     decrypted_files = []
     for encrypted_file in encrypted_files:
@@ -217,11 +215,7 @@ def decrypt_files_JSON(json_filename):
         cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
         decrypted_file = cipher.decrypt(ctext).decode()
         decrypted_files.append(decrypted_file)
-    doc_data['files'] = decrypted_files
-    with open(json_filename, 'w') as file:
-        json.dump(doc_data, file)
-    return doc_data
-
+    return decrypted_files
 
 
 
