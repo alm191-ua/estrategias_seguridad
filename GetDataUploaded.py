@@ -98,8 +98,3 @@ def get_file(file, directorio_file, target_folder):
     else:
         print(f"El archivo '{file}' no se encontró en el ZIP.")
         return None
-    '''
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        return zip_ref.namelist()
-
-    '''
