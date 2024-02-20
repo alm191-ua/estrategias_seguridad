@@ -77,17 +77,19 @@ def UnzipFolder(directorio_file):
 
 
 
-def get_file(file,directorio_file,target_folder):
+def get_file(file, directorio_file, target_folder):
     if not cz.DIRECTORIO_PROYECTO:
         print("No se ha encontrado el proyecto")
         return None
-
 
     # Construir la ruta del archivo deseado dentro del directorio descomprimido
     archivo_deseado = os.path.join(directorio_file, file)
 
     # Verificar si el archivo deseado existe
     if os.path.exists(archivo_deseado):
+        archivo_Existente = os.path.join(target_folder, file)
+        if os.path.exists(archivo_Existente):
+            os.remove(archivo_Existente)
         shutil.move(archivo_deseado, target_folder)
         
         return True
