@@ -11,6 +11,10 @@ import json
 from datetime import datetime
 from Logs import LoggerConfigurator 
 import base64
+from scandir import scandir, walk
+import time
+
+
 
 # directorio de los ficheros
 AES_MODE = AES.MODE_CTR
@@ -47,7 +51,6 @@ def is_unsafe_mode(unsafe_mode):
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
-
     """
     Recorre un directorio y sus subdirectorios buscando un directorio específico.
 
@@ -58,14 +61,11 @@ def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
     Returns:
         str o None: Ruta completa del directorio si se encuentra, None si no.
     """
-
+    
     for root, dirs, files in os.walk(ruta_inicio):
-        
-
+        dirs.reverse() # Esto lo he puesto porque como lo tenemos en Users, irá más rápido
         if nombre_directorio in dirs:
-
             return os.path.join(root, nombre_directorio)
-
     return None
 
 def buscar_proyecto():

@@ -7,9 +7,6 @@ sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
 from CrearZipYCodificar import is_unsafe_mode as ium
 import GetDataUploaded as gdu
-from Logs import LoggerConfigurator 
-import PantallaCarga
-
 sg.theme('Material2')
 
 data = gdu.listar_los_zips()
@@ -45,8 +42,6 @@ def create_main_window():
                   row_height=25, text_color='black', alternating_row_color='lightblue')],
         [sg.Column(buttons_column, element_justification='center')]
     ]
-    LoggerConfigurator.configure_log()
-    LoggerConfigurator.Subdirectory("Interfaz")
 
     window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
     return window
@@ -90,10 +85,13 @@ def create_files_window(item):
 file_list = []
 
 main_window = create_main_window()
+with open('carga_completada.txt', 'w'):
+    pass
 add_window = None
 show_files_window = None
 
 while True:
+    
     window, event, values = sg.read_all_windows()
     
     if event == sg.WINDOW_CLOSED and window == main_window:

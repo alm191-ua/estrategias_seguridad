@@ -1,52 +1,52 @@
-import tkinter as tk
-import time
-import tkinter.ttk as ttk
+import PySimpleGUI as sg
+import threading
+import os
+import subprocess
 
-# Crear la ventana principal
-ventana = tk.Tk()
-ventana.title("Pantalla de carga")
-ancho_pantalla = ventana.winfo_screenwidth()
-alto_pantalla = ventana.winfo_screenheight()
-x = (ancho_pantalla - ventana.winfo_width()) / 2
-y = (alto_pantalla - ventana.winfo_height()) / 2
-ventana.geometry("+%d+%d" % (x, y))
 
-# Crear una etiqueta para el mensaje de carga
-etiqueta_mensaje = tk.Label(text="Cargando...")
-etiqueta_mensaje.pack()
+sg.theme('Material2')  # Choose a visually appealing theme
 
-# Crear una barra de progreso
-barra_progreso = tk.ttk.Progressbar(orient="horizontal", length=200, mode="indeterminate")
-barra_progreso.pack()
+layout = [
+    [sg.Text('Cargando Interfaz...', font=("Helvetica", 18), justification='center')],
+    [sg.Text('', size=(30, 1), font=("Helvetica", 12), justification='center', key='-PROGRESS-')],
+    #[sg.Image(filename='loading.gif', key='-IMAGE-')],  # Replace 'loading.gif' with your desired loading animation
+]
 
-# Función para cargar la interfaz "Interfaz.py"
-def cargar_interfaz():
-    # Ocultar la pantalla de carga
-    ventana.withdraw()
+window = sg.Window('Cargando...', layout, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-    # Importar la interfaz "Interfaz.py"
-    import Interfaz
 
-    # Crear una instancia de la interfaz
-    interfaz = Interfaz.create_main_window()
+def load_main_interface():
+    subprocess.run(['python', 'Interfaz.py'])  # Launch the main interface
 
-    # Mostrar la interfaz
-    interfaz.mainloop()
 
-# Simular el proceso de carga
-for i in range(100):
-    # Actualizar la barra de progreso
-    barra_progreso.step()
-    # Simular tiempo de carga
-    ventana.update()
-    time.sleep(0.05)
+# Start a separate thread to load the main interface
+thread = threading.Thread(target=load_main_interface)
+thread.start()
 
-# Cambiar el mensaje y la barra de progreso al finalizar
-etiqueta_mensaje.config(text="¡Carga completada!")
-barra_progreso.stop()
+while True:
+    event, values = window.read(timeout=100)
 
-# Cargar la interfaz "Interfaz.py" después de 2 segundos
-ventana.after(2000, cargar_interfaz)
+    if event == sg.WINDOW_CLOSED:
+        break
 
-# Mostrar la ventana hasta que se cierre
-ventana.mainloop()
+    # Update the progress bar with a simple animation
+    progress_text = window['-PROGRESS-'].get()
+    if progress_text == '':
+        window['-PROGRESS-'].update('...')
+    elif progress_text == '...':
+        window['-PROGRESS-'].update(' ..')
+    elif progress_text == ' ..':
+        window['-PROGRESS-'].update('  .')
+    else:
+        window['-PROGRESS-'].update('')
+
+    if os.path.exists('carga_completada.txt'):
+        os.remove('carga_completada.txt')
+        window.close()
+        break
+    # Check if the main interface has finished loading
+    if not thread.is_alive() :
+        window.close()  # Close the loading screen
+        break
+
+window.close()
