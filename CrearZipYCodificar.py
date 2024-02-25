@@ -42,6 +42,12 @@ DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
 
+def is_unsafe_mode(unsafe_mode):
+    if unsafe_mode == True:
+        return UNSAFE_MODE == True
+    else:
+        return UNSAFE_MODE == False
+
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
     """
