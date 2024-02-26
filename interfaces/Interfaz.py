@@ -14,17 +14,22 @@ data = []
 
 is_unsafe_mode_active = False
 
-
 def cargar_datos(window):
-    import time
-    time.sleep(2)
-    data = gdu.listar_los_zips()
-    window.write_event_value('-DATOS CARGADOS-', data)
+    try:
+        data_cargada = gdu.listar_los_zips()
+        if not data_cargada:
+            sg.popup('No se encontraron datos')
+        else:
+            print(data_cargada)
+            window.write_event_value('-DATOS CARGADOS-', data_cargada)
+    except Exception as e:
+        print("Error al cargar datos:", e)
+        window.write_event_value('-ERROR-', str(e)) 
 
 
 def update_unsafe_mode_text(window, is_unsafe_mode):
     text_color = 'red' if is_unsafe_mode else 'green'
-    text = 'Modo Inseguro' if is_unsafe_mode else 'Modo Seguro'
+    text = 'Modo Inseguro Activado' if is_unsafe_mode else 'Modo Seguro Activado'
     window['-UNSAFE-MODE-TEXT-'].update(text, text_color=text_color)
 
 def create_main_window():
@@ -32,19 +37,21 @@ def create_main_window():
 
     unsafe_mode_column = [
         [sg.Checkbox('', default=False, enable_events=True, key='-UNSAFE-'),
-         sg.Text('Modo Seguro', key='-UNSAFE-MODE-TEXT-', text_color='green')]
+         sg.Text('Modo Seguro Activado', key='-UNSAFE-MODE-TEXT-', text_color='green')]
     ]
     
     buttons_column = [
         [sg.Text('', size=(10, 1)),
          sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
          sg.Text('', size=(10, 1)),
-         sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'))]
+         sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
+         sg.Text('', size=(10, 1)),
+         sg.Button('Buscar Datos', key='-BUSCAR DATOS-', button_color=('white', 'brown'), font=("Helvetica", 12))]
     ]
 
     layout = [
         [sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
-        [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-')],
+        [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
         [sg.Table(values=data, headings=headings, max_col_width=25,
                   auto_size_columns=True, display_row_numbers=True,
                   justification='left', num_rows=10, key='-TABLE-',
@@ -94,9 +101,6 @@ def create_files_window(item):
 file_list = []
 
 main_window = create_main_window()
-threading.Thread(target=cargar_datos, args=(main_window,), daemon=True).start()
-with open('carga_completada.txt', 'w'):
-    pass
 add_window = None
 show_files_window = None
 
@@ -167,9 +171,17 @@ while True:
                     pass
                 shutil.rmtree(directorio_files)
                 sg.popup(f'Archivos descargados en: {folder_path}')
+    elif event == '-BUSCAR DATOS-':
+        window['-CARGANDO-'].update(visible=True)
+        threading.Thread(target=cargar_datos, args=(window,), daemon=True).start()  # Inicia la carga de datos en un hilo
     elif event == '-DATOS CARGADOS-':
-        data = values[event]
-        window['-TABLE-'].update(values=data)
+        if values[event]:  # Asegúrate de que hay datos antes de actualizar la GUI
+            data = values[event]
+            window['-TABLE-'].update(values=data)  # Actualiza la tabla con los nuevos datos
+            window['-CARGANDO-'].update(visible=False)  # Oculta el mensaje de "Cargando"
+        else:
+            sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
+    elif event == '-ERROR-':
         window['-CARGANDO-'].update(visible=False)
 
 main_window.close()
