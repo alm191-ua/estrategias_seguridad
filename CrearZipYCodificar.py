@@ -371,7 +371,7 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
 
 
 
-def _handle_decrypt_file(input_file):
+def _handle_decrypt_file(input_file, key = None):
     """
     Desencripta un archivo individual usando AES-CTR.
 
@@ -385,7 +385,8 @@ def _handle_decrypt_file(input_file):
 
     # Extraer nombre base del archivo y recuperar la clave
     file = input_file.replace(FILES_COMPRESSION_FORMAT + FILES_ENCODE_FORMAT, '')
-    key = read_key_from_file(file)
+    if key == None:
+        key = read_key_from_file(file)
     # Leer el archivo por fragmentos para manejar archivos grandes
     chunks = []
     with open(input_file, 'rb') as f:
@@ -400,11 +401,11 @@ def _handle_decrypt_file(input_file):
     cipher = AES.new(key, AES_MODE, nonce=iv)
     plaintext = cipher.decrypt(ciphertext)
 
-    return plaintext,key
+    return plaintext, key
 
 
 
-def decrypt_file(input_file):
+def decrypt_file(input_file, key = None):
     """
     Desencripta un archivo individual y guarda la versión con texto plano.
 
@@ -414,10 +415,14 @@ def decrypt_file(input_file):
     Returns:
         bytes: Clave utilizada para la desencriptación (para usos posteriores).
     """
-    plaintext,key = _handle_decrypt_file(input_file)
+    if key:
+        global UNSAFE_MODE
+        UNSAFE_MODE = True
+    plaintext, key = _handle_decrypt_file(input_file, key)
     encrypted_path = input_file[:-4]  # Elimina la extensión ".enc"
     write_in_file_bytes(encrypted_path, plaintext)
-    os.remove(input_file)
+    if not UNSAFE_MODE:
+        os.remove(input_file)
     return key
 
 
@@ -426,21 +431,8 @@ def decrypt_file_unsafe(file_path, target_folder):
     for password in UNSAFE_PASSWORDS:
         key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
 
-        chunks = []
-        with open(file_path, 'rb') as f:
-            iv = f.read(IV_SIZE)  # Lee los primeros 16 bytes como IV
-            while True:
-                chunk = f.read(BLOCK_SIZE)
-                if len(chunk) == 0:
-                    break
-                chunks.append(chunk)
-        ciphertext = b''.join(chunks)
-        cipher = AES.new(key, AES_MODE, nonce=iv)
-        plaintext = cipher.decrypt(ciphertext)
-        # file name removing extension
-        file_name = os.path.basename(file_path).split('.')[0]
-        new_file = os.path.join(target_folder, file_name + FILES_COMPRESSION_FORMAT)
-        write_in_file_bytes(new_file, plaintext)
+        decrypt_file(file_path, key)
+        new_file = file_path[:-4]  # Elimina la extensión ".enc"
         # Try to unzip the file
         try:
             with zipfile.ZipFile(new_file, 'r') as zip_ref:
