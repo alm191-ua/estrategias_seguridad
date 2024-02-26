@@ -3,15 +3,23 @@ import os
 from datetime import datetime
 import shutil
 import sys
+import threading
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
 from CrearZipYCodificar import is_unsafe_mode as ium
 import GetDataUploaded as gdu
 sg.theme('Material2')
 
-data = gdu.listar_los_zips()
+data = []
 
 is_unsafe_mode_active = False
+
+
+def cargar_datos(window):
+    import time
+    time.sleep(2)
+    data = gdu.listar_los_zips()
+    window.write_event_value('-DATOS CARGADOS-', data)
 
 
 def update_unsafe_mode_text(window, is_unsafe_mode):
@@ -36,6 +44,7 @@ def create_main_window():
 
     layout = [
         [sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
+        [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-')],
         [sg.Table(values=data, headings=headings, max_col_width=25,
                   auto_size_columns=True, display_row_numbers=True,
                   justification='left', num_rows=10, key='-TABLE-',
@@ -85,6 +94,7 @@ def create_files_window(item):
 file_list = []
 
 main_window = create_main_window()
+threading.Thread(target=cargar_datos, args=(main_window,), daemon=True).start()
 with open('carga_completada.txt', 'w'):
     pass
 add_window = None
@@ -157,6 +167,10 @@ while True:
                     pass
                 shutil.rmtree(directorio_files)
                 sg.popup(f'Archivos descargados en: {folder_path}')
+    elif event == '-DATOS CARGADOS-':
+        data = values[event]
+        window['-TABLE-'].update(values=data)
+        window['-CARGANDO-'].update(visible=False)
 
 main_window.close()
 if add_window:
