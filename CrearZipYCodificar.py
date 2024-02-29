@@ -11,7 +11,6 @@ import json
 from datetime import datetime
 from Logs import LoggerConfigurator 
 import base64
-from scandir import scandir, walk
 import time
 
 
@@ -43,10 +42,10 @@ NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
 
 def is_unsafe_mode(unsafe_mode):
-    if unsafe_mode == True:
-        return UNSAFE_MODE == True
-    else:
-        return UNSAFE_MODE == False
+    global UNSAFE_MODE
+    if not UNSAFE_MODE==unsafe_mode:
+        
+        UNSAFE_MODE=unsafe_mode
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
@@ -309,6 +308,7 @@ def encrypt_file(input_file, directory,old_key=None):
     Returns:
         None.
     """
+    
     key = generate_and_save_key(input_file, directory)
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
@@ -440,6 +440,7 @@ def decrypt_file_unsafe(file_path, target_folder):
             return
         except zipfile.BadZipFile:
             logging.info(f'Password {password} is not valid')
+        finally:
             os.remove(new_file)
 
 
