@@ -4,6 +4,7 @@ from datetime import datetime
 import shutil
 import sys
 import threading
+import logging
 sys.path.append('..')
 from CrearZipYCodificar import ZipFile as zp
 from CrearZipYCodificar import is_unsafe_mode as ium
@@ -22,7 +23,8 @@ def cargar_datos(window):
         else:
             window.write_event_value('-DATOS CARGADOS-', data_cargada)
     except Exception as e:
-        print("Error al cargar datos:", e)
+        logging.error(f'Error al cargar datos: {e}')
+        # print("Error al cargar datos:", e)
         window.write_event_value('-ERROR-', str(e)) 
 
 
@@ -59,6 +61,7 @@ def create_main_window():
     ]
 
     window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
+    logging.info('Ejecutando la aplicación...')
     return window
 
     
@@ -184,6 +187,7 @@ while True:
         window['-CARGANDO-'].update(visible=False)
 
 main_window.close()
+logging.info('Cerrando la aplicación...')
 if add_window:
     add_window.close()
 if show_files_window:

@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import os
 import sys
+import logging
 sys.path.append('..')
 from CrearZipYCodificar import decrypt_file_unsafe
 
@@ -30,25 +31,22 @@ while True:
         else:
             print("Default folder:", folder)
         if not os.path.exists(folder):
-            print("Folder does not exist")
+            logging.warning("Folder does not exist")
             window['-OUTPUT-'].update("Folder does not exist")
             continue
 
         file = values['-FILEPATH-']
         if not file:
-            print("No file selected")
+            logging.info("No file selected")
             window['-OUTPUT-'].update("No file selected")
             continue
         if not os.path.exists(file):
-            print("File does not exist")
+            logging.warning("File does not exist")
             window['-OUTPUT-'].update("File does not exist")
             continue
         try:
-            print("Decrypting file")
-            # print(file)
             decrypt_file_unsafe(file, folder)
-            print("File decrypted")
             window['-OUTPUT-'].update("File decrypted")
         except Exception as e:
-            print(f'Error decrypting file: {e}') 
+            logging.warning(f'Error decrypting file: {e}')
             window['-OUTPUT-'].update(f'Error decrypting file: {e}')

@@ -1,9 +1,8 @@
 import CrearZipYCodificar as cz
 import os
-import zipfile
 import json
-import datetime
 import shutil
+import logging
 
 
 DIRECTORIO_ARCHIVOS = "files"
@@ -45,7 +44,8 @@ def getDataFromJSON(carpeta,directorio):
         with open(json_path, 'r') as json_file:
             data = json.load(json_file)
     else:
-        print(f"El archivo {json_path} no existe.")
+        logging.error(f"El archivo {json_path} no existe.")
+        # print(f"El archivo {json_path} no existe.")
     return data
 
     
@@ -66,7 +66,8 @@ def UnzipFolder(directorio_file):
     if not cz.DIRECTORIO_PROYECTO:
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
-        print("No se ha encontrado el proyecto")
+        logging.error("No se ha encontrado el proyecto")
+        # print("No se ha encontrado el proyecto")
         return None
     # Construir la ruta del archivo ZIP
     directorio = os.path.join(cz.DIRECTORIO_PROYECTO, DIRECTORIO_ARCHIVOS, directorio_file)
@@ -81,7 +82,8 @@ def UnzipFolder(directorio_file):
 
 def get_file(file, directorio_file, target_folder):
     if not cz.DIRECTORIO_PROYECTO:
-        print("No se ha encontrado el proyecto")
+        logging.warning("No se ha encontrado el proyecto")
+        # print("No se ha encontrado el proyecto")
         return None
 
     # Construir la ruta del archivo deseado dentro del directorio descomprimido
@@ -96,5 +98,6 @@ def get_file(file, directorio_file, target_folder):
         
         return True
     else:
-        print(f"El archivo '{file}' no se encontró en el ZIP.")
+        logging.warning("No se ha encontrado el proyecto")
+        # print(f"El archivo '{file}' no se encontró en el ZIP.")
         return None

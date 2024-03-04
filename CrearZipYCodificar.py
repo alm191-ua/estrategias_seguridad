@@ -4,14 +4,10 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import logging
 from uuid import uuid4 as unique_id
-import argparse
 import random
-import re
 import json
 from datetime import datetime
-from Logs import LoggerConfigurator 
 import base64
-import time
 
 
 
@@ -40,6 +36,8 @@ BLOCK_SIZE = AES.block_size # in bytes
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
+logging.basicConfig(filename='../logs/logfile.log', level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
+
 
 def is_unsafe_mode(unsafe_mode):
     global UNSAFE_MODE
@@ -75,7 +73,6 @@ def buscar_proyecto():
 
     global DIRECTORIO_PROYECTO
     exec_dir = os.getcwd()
-    # get father directory
     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 
 
@@ -99,13 +96,10 @@ def Create_Dirs(filename,newdir=FILE_DIR):
     # Primero, asegúrate de que el directorio principal 'files/' exista
     DIRECTORIO=os.path.join(DIRECTORIO, newdir)
     os.makedirs(DIRECTORIO, exist_ok=True)# Usa os.makedirs() que crea directorios intermedios necesarios
-    logging.info('Main directory created')
-
     # Luego, procede a crear el subdirectorio para el archivo específico
     directory = os.path.join(DIRECTORIO, filename)  # Es más seguro usar os.path.join()
     if not os.path.exists(directory):
         os.makedirs(directory)  # Cambiado a os.makedirs() para coherencia y para evitar futuros errores
-        LoggerConfigurator.Subdirectory("Interfaz")
     return directory
 
 
@@ -245,7 +239,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         str: Ruta completa del archivo JSON creado.
     """
 
-    logging.debug(f"Creando archivo JSON para el documento {doc_id}")
+    logging.info(f"Creando archivo JSON para el documento {doc_id}")
 
     # Extraer los nombres base de los archivos para incluirlos en el JSON
     files_base_names = [os.path.basename(file) for file in files_names]
@@ -300,6 +294,7 @@ def encrypt_file(input_file, directory,old_key=None):
     write_in_file_bytes(encrypted_path, iv + ctext)
     os.remove(path)
     encrypt_files_JSON(json_filename, key,old_key)
+    logging.info('File encrypted')
 
 
 def key_to_use(old_key,json_filename):
