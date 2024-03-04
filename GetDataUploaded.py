@@ -13,7 +13,7 @@ def listar_los_zips():
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
         return []
-    directorio=cz.buscar_directorio(DIRECTORIO_ARCHIVOS,cz.DIRECTORIO_PROYECTO)
+    directorio = cz.buscar_directorio(DIRECTORIO_ARCHIVOS, cz.DIRECTORIO_PROYECTO)
 
     if directorio:
         carpetas = os.listdir(directorio)
@@ -74,7 +74,7 @@ def UnzipFolder(directorio_file):
 
     # Descomprimir el archivo ZIP
     cz.UnZipFiles(archivo)
-    directorio=os.path.join(directorio,directorio_file)
+    directorio = os.path.join(directorio,directorio_file)
     return directorio
 
 

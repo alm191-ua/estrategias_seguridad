@@ -57,9 +57,7 @@ def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
     Returns:
         str o None: Ruta completa del directorio si se encuentra, None si no.
     """
-    
     for root, dirs, files in os.walk(ruta_inicio):
-        dirs.reverse() # Esto lo he puesto porque como lo tenemos en Users, irá más rápido
         if nombre_directorio in dirs:
             return os.path.join(root, nombre_directorio)
     return None
@@ -76,26 +74,9 @@ def buscar_proyecto():
     """
 
     global DIRECTORIO_PROYECTO
-    DIRECTORIO_PROYECTO = buscar_directorio(NOMBRE_PROYECTO)
-    return DIRECTORIO_PROYECTO
-
-def buscar_directorio_archivo_comprimido(nombre_archivo_sin_extension):
-    """
-    Busca el directorio del archivo comprimido dentro del directorio del proyecto.
-
-    Args:
-        nombre_archivo_sin_extension (str): Nombre del archivo comprimido sin la extensión.
-
-    Returns:
-        str o None: Ruta del directorio del archivo comprimido si se encuentra, None si no.
-    """
-    if not DIRECTORIO_PROYECTO:
-        buscar_proyecto()
-    if DIRECTORIO_PROYECTO:
-       return buscar_directorio(nombre_archivo_sin_extension, DIRECTORIO_PROYECTO)
-    return None
-    
-
+    exec_dir = os.getcwd()
+    # get father directory
+    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 
 
 def Create_Dirs(filename,newdir=FILE_DIR):
@@ -161,7 +142,6 @@ def ZipFile(files, title, description):
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
     
 
-
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in files:  # Itera sobre la lista de archivos
             if os.path.isfile(file):  # Verifica si el path es de un archivo
@@ -169,7 +149,7 @@ def ZipFile(files, title, description):
 
     create_and_save_document_json(directory,doc_id, title, description, files)
     encrypt_file(FileName, directory)
-    
+
     logging.info('Files compressed')
 
 

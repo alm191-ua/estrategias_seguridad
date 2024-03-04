@@ -21,7 +21,6 @@ def create_main_window():
 window = create_main_window()
 while True:
     event, values = window.read()
-    # print("a")
     if event in (sg.WIN_CLOSED, 'Exit'):
         break
     if event == '-DECRYPT-':
@@ -34,15 +33,6 @@ while True:
             print("Folder does not exist")
             window['-OUTPUT-'].update("Folder does not exist")
             continue
-            # create_folder = input('Create folder? (y/n): ')
-            # if create_folder.lower() == 'y':
-            #     try:
-            #         os.makedirs(folder)
-            #     except Exception as e:
-            #         print(f'Error creating folder: {e}')
-            #         continue
-            # else:
-            #     continue
 
         file = values['-FILEPATH-']
         if not file:
@@ -55,7 +45,6 @@ while True:
             continue
         try:
             print("Decrypting file")
-            print(file)
             decrypt_file_unsafe(file, folder)
             print("File decrypted")
             window['-OUTPUT-'].update("File decrypted")

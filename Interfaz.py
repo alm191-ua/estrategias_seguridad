@@ -20,7 +20,6 @@ def cargar_datos(window):
         if not data_cargada:
             sg.popup('No se encontraron datos')
         else:
-            print(data_cargada)
             window.write_event_value('-DATOS CARGADOS-', data_cargada)
     except Exception as e:
         print("Error al cargar datos:", e)
