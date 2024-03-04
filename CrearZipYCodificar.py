@@ -43,9 +43,7 @@ DIRECTORIO_PROYECTO=None
 
 def is_unsafe_mode(unsafe_mode):
     global UNSAFE_MODE
-    if not UNSAFE_MODE==unsafe_mode:
-        
-        UNSAFE_MODE=unsafe_mode
+    UNSAFE_MODE=unsafe_mode
 
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
@@ -427,6 +425,7 @@ def decrypt_file(input_file, key = None):
 
 
 def decrypt_file_unsafe(file_path, target_folder):
+    decrypted = False
     for password in UNSAFE_PASSWORDS:
         key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
 
@@ -436,12 +435,17 @@ def decrypt_file_unsafe(file_path, target_folder):
         try:
             with zipfile.ZipFile(new_file, 'r') as zip_ref:
                 zip_ref.extractall(target_folder)
-            logging.info(f'File decrypted with password: {password}')
+            logging.info(f'File decrypted')
+            decrypted = True
             return
         except zipfile.BadZipFile:
-            logging.info(f'Password {password} is not valid')
+            # logging.info(f'Password {password} is not valid')
+            pass
         finally:
             os.remove(new_file)
+    if not decrypted:
+        logging.error('File could not be decrypted')
+        raise Exception('File could not be decrypted')
 
 
 def generate_and_save_key(input_file,directory):
