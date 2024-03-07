@@ -36,7 +36,16 @@ BLOCK_SIZE = AES.block_size # in bytes
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
-logging.basicConfig(filename='../logs/logfile.log', level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
+log_directory = '../logs'
+
+# Verificar si el directorio existe y, si no, crearlo
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+
+# Configurar el registro con el directorio especificado
+log_file_path = os.path.join(log_directory, 'logfile.log')
+logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
 
 
 def is_unsafe_mode(unsafe_mode):
