@@ -127,31 +127,35 @@ while True:
         add_window = create_add_window()
     
     if event == '-SAVE-':
-        title = values['-TITLE-']
-        description = values['-DESCRIPTION-']
-        files = values['-FILEPATH-'].split(';')
-        unsafe_mode = is_unsafe_mode_active
-    
-        valid_files = [f for f in files if os.path.exists(f)]
+        title = values['-TITLE-'].strip()
+        description = values['-DESCRIPTION-'].strip()
+        files = values['-FILEPATH-'].strip()
 
-        try:
-            ium(unsafe_mode)
-            zp(valid_files, title, description)
-            sg.popup('Documento guardado con éxito')
-        except Exception as e:
-            sg.popup_error(f'Error al guardar el documento: {e}')
+        if not title or not description or not files:
+            sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
+        else:
+            unsafe_mode = is_unsafe_mode_active
+            valid_files = [f.strip() for f in files.split(';') if os.path.exists(f.strip())]
 
-        now = datetime.now()
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                ium(unsafe_mode)
+                zp(valid_files, title, description)
+                sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
+            except Exception as e:
+                sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
 
-        nuevo_documento = [len(data) + 1, title, description, current_time]
-        data.append(nuevo_documento)
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
-        main_window['-TABLE-'].update(values=data)
+            nuevo_documento = [len(data) + 1, title, description, current_time]
+            data.append(nuevo_documento)
 
-        add_window.close()
-        add_window = None
-        data=gdu.listar_los_zips()
+            main_window['-TABLE-'].update(values=data)
+
+            add_window.close()
+            add_window = None
+            data = gdu.listar_los_zips()
+
     if event == '-SEE-':
         if values['-TABLE-']:
             selected_row_index = values['-TABLE-'][0] 
@@ -175,12 +179,12 @@ while True:
                 sg.popup(f'Archivos descargados en: {folder_path}')
     elif event == '-BUSCAR DATOS-':
         window['-CARGANDO-'].update(visible=True)
-        threading.Thread(target=cargar_datos, args=(window,), daemon=True).start()  # Inicia la carga de datos en un hilo
+        threading.Thread(target=cargar_datos, args=(window,), daemon=True).start()
     elif event == '-DATOS CARGADOS-':
-        if values[event]:  # Asegúrate de que hay datos antes de actualizar la GUI
+        if values[event]: 
             data = values[event]
-            window['-TABLE-'].update(values=data)  # Actualiza la tabla con los nuevos datos
-            window['-CARGANDO-'].update(visible=False)  # Oculta el mensaje de "Cargando"
+            window['-TABLE-'].update(values=data)
+            window['-CARGANDO-'].update(visible=False)  
         else:
             sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
     elif event == '-ERROR-':
