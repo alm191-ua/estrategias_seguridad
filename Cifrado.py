@@ -49,9 +49,13 @@ logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctim
 
 
 def is_unsafe_mode(unsafe_mode):
+    """
+    Establece el modo seguro/inseguro.
+    Args:
+        unsafe_mode (bool): Modo seguro/inseguro.
+    """
     global UNSAFE_MODE
     UNSAFE_MODE=unsafe_mode
-
 
 def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
     """
@@ -84,7 +88,6 @@ def buscar_proyecto():
     exec_dir = os.getcwd()
     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 
-
 def Create_Dirs(filename,newdir=FILE_DIR):
     """
     Crea el directorio principal 'files/' y el subdirectorio para un archivo específico.
@@ -111,7 +114,6 @@ def Create_Dirs(filename,newdir=FILE_DIR):
         os.makedirs(directory)  # Cambiado a os.makedirs() para coherencia y para evitar futuros errores
     return directory
 
-
 def write_in_file_bytes(File, text):
     """
     Escribe bytes en un archivo.
@@ -126,8 +128,9 @@ def write_in_file_bytes(File, text):
     with open(File, 'wb') as f:
         f.write(text)
 
+# ============= ZIP =============
 
-def ZipFile(files, title, description):
+def ZipAndEncryptFile(files, title, description):
     """
     Crea un paquete comprimido de documentos con metadatos asociados y encriptación.
 
@@ -154,9 +157,6 @@ def ZipFile(files, title, description):
     encrypt_file(FileName, directory)
 
     logging.info('Files compressed')
-
-
-
 
 def UnZipFiles(file,target_folder=None):
     """
@@ -188,6 +188,7 @@ def UnZipFiles(file,target_folder=None):
         logging.error(f'Error al extraer los archivos: {e}')
         return False
 
+# ============= JSON ============
 
 def _handle_JSON_decryption(files, json_filename, old_key):
     """
@@ -272,9 +273,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
     return json_filename
 
 
-
-
-
+# ========= ENCRYPTION ==========
 
 def encrypt_file(input_file, directory,old_key=None):
     """
@@ -305,7 +304,6 @@ def encrypt_file(input_file, directory,old_key=None):
     encrypt_files_JSON(json_filename, key,old_key)
     logging.info('File encrypted')
 
-
 def key_to_use(old_key,json_filename):
     """
     Determina la clave adecuada a usar para operaciones criptográficas.
@@ -322,9 +320,6 @@ def key_to_use(old_key,json_filename):
     else:
         return old_key
         
-
-
-
 def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
     """
     Desencripta los archivos listados en un documento JSON.
@@ -349,8 +344,6 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
         decrypted_file = cipher.decrypt(ctext).decode()
         decrypted_files.append(decrypted_file)
     return decrypted_files
-
-
 
 def _handle_decrypt_file(input_file, key = None):
     """
@@ -384,8 +377,6 @@ def _handle_decrypt_file(input_file, key = None):
 
     return plaintext, key
 
-
-
 def decrypt_file(input_file, key = None):
     """
     Desencripta un archivo individual y guarda la versión con texto plano.
@@ -406,9 +397,16 @@ def decrypt_file(input_file, key = None):
         os.remove(input_file)
     return key
 
-
-
 def decrypt_file_unsafe(file_path, target_folder):
+    """
+    Descifra un archivo inseguro individual y guarda la versión con texto plano.
+
+    Args:
+        archivo_entrada (str): Ruta al archivo cifrado.
+
+    Returns:
+        bytes: Clave utilizada para la descifrado (para usos posteriores).
+    """
     decrypted = False
     for password in UNSAFE_PASSWORDS:
         key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
@@ -431,7 +429,6 @@ def decrypt_file_unsafe(file_path, target_folder):
         logging.error('File could not be decrypted')
         raise Exception('File could not be decrypted')
 
-
 def generate_and_save_key(input_file,directory):
     """
     Genera una clave aleatoria segura y la guarda en un archivo.
@@ -451,9 +448,6 @@ def generate_and_save_key(input_file,directory):
     path+=KEYS_FORMAT
     write_in_file_bytes(path,key)
     return key
-
-
-
 
 def read_key_from_file(input_file):
     """

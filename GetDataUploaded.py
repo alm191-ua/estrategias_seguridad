@@ -8,6 +8,9 @@ import logging
 DIRECTORIO_ARCHIVOS = "files"
 
 def listar_los_zips():
+    """
+    Lista los documentos en el directorio de archivos.
+    """
     if not cz.DIRECTORIO_PROYECTO:
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
@@ -38,6 +41,9 @@ def listar_los_zips():
         return []
 
 def getDataFromJSON(carpeta,directorio):
+    """
+    Obtiene la información del archivo JSON de un documento.
+    """
     data=[]
     json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
     if os.path.exists(json_path):
@@ -48,10 +54,10 @@ def getDataFromJSON(carpeta,directorio):
         # print(f"El archivo {json_path} no existe.")
     return data
 
-    
-
-
 def get_files_in_zip(file):
+    """
+    Obtiene los archivos en un documento cifrado a partir de la información del JSON.
+    """
     directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
     if not directorio:
         return []
@@ -61,8 +67,10 @@ def get_files_in_zip(file):
     all_files =filesDesencrypted
     return all_files
 
-
 def UnzipFolder(directorio_file):
+    """
+    Descomprime un archivo ZIP en el directorio de archivos.
+    """
     if not cz.DIRECTORIO_PROYECTO:
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
@@ -77,8 +85,6 @@ def UnzipFolder(directorio_file):
     cz.UnZipFiles(archivo)
     directorio = os.path.join(directorio,directorio_file)
     return directorio
-
-
 
 def get_file(file, directorio_file, target_folder):
     if not cz.DIRECTORIO_PROYECTO:
