@@ -1,0 +1,563 @@
+1
+00:00:01,010 --> 00:00:03,370
+Éste es el video presentación de la
+
+2
+00:00:03,370 --> 00:00:04,771
+primera entrega del proyecto de
+
+3
+00:00:04,771 --> 00:00:05,991
+estrategias de seguridad. Como podemos
+
+4
+00:00:06,091 --> 00:00:07,531
+ver, estamos en el directorio del
+
+5
+00:00:07,531 --> 00:00:08,891
+proyecto y dentro del directorio del
+
+6
+00:00:08,891 --> 00:00:10,731
+proyecto en la carpeta interfaces.
+
+7
+00:00:11,011 --> 00:00:13,532
+Entonces ejecutamos la
+
+8
+00:00:13,532 --> 00:00:16,112
+interfaz. Y vamos a
+
+9
+00:00:16,112 --> 00:00:18,873
+añadir los archivos, vale,
+
+10
+00:00:18,873 --> 00:00:21,673
+ponemos esto así y vamos a añadir
+
+11
+00:00:21,753 --> 00:00:24,233
+estos mismos. Vale,
+
+12
+00:00:25,073 --> 00:00:27,714
+le damos aquí a guardar y se
+
+13
+00:00:27,714 --> 00:00:30,234
+guarda dónde se guarda? Se guardará en
+
+14
+00:00:30,234 --> 00:00:32,354
+esta carpeta files, que a su vez
+
+15
+00:00:32,354 --> 00:00:34,875
+contendrá un subdirectorio
+
+16
+00:00:35,115 --> 00:00:37,715
+con ID con el identificador de
+
+17
+00:00:37,715 --> 00:00:40,515
+los archivos subidos. ¿Aquí
+
+18
+00:00:40,716 --> 00:00:43,196
+qué tendremos? El fichero encriptado, el
+
+19
+00:00:43,196 --> 00:00:44,956
+punto zip encriptado, el cual será
+
+20
+00:00:45,116 --> 00:00:46,396
+totalmente inaccesible.
+
+21
+00:00:48,857 --> 00:00:51,697
+La key, creada de forma aleatoria.
+
+22
+00:00:52,877 --> 00:00:55,317
+Y el Archivo Jason, en el que tendremos
+
+23
+00:00:55,317 --> 00:00:57,358
+toda la información disponible a
+
+24
+00:00:57,358 --> 00:01:00,198
+excepción del apartado Files, puesto que
+
+25
+00:01:00,198 --> 00:01:01,878
+consideramos que esa es la información
+
+26
+00:01:01,878 --> 00:01:04,439
+valiosa del cliente y por tanto es
+
+27
+00:01:04,439 --> 00:01:07,079
+totalmente inaccesible. ¿Sin
+
+28
+00:01:07,079 --> 00:01:09,399
+embargo, se pueden recuperar estos
+
+29
+00:01:09,399 --> 00:01:12,240
+archivos? ¿Cómo le vamos a dar aquí
+
+30
+00:01:12,240 --> 00:01:14,760
+archivos? Seleccionamos los dos a
+
+31
+00:01:14,760 --> 00:01:17,600
+descargas, seleccionamos dónde
+
+32
+00:01:17,961 --> 00:01:20,761
+y vamos a en test mismo. Vale
+
+33
+00:01:20,761 --> 00:01:23,651
+test, es aquí una carpeta. Que
+
+34
+00:01:23,651 --> 00:01:26,282
+tenemos totalmente vacía. Y si ahora le
+
+35
+00:01:26,282 --> 00:01:28,962
+damos a oh y OC?Se
+
+36
+00:01:28,962 --> 00:01:31,362
+han desencriptado estos archivos?
+
+37
+00:01:32,242 --> 00:01:34,563
+Además, también tenemos la posibilidad de
+
+38
+00:01:34,563 --> 00:01:37,203
+encriptar de forma insegura.
+
+39
+00:01:37,643 --> 00:01:40,244
+Activamos esto y ahora ponemos ins.
+
+40
+00:01:41,564 --> 00:01:43,964
+123 y vamos a
+
+41
+00:01:43,964 --> 00:01:46,884
+poner. Otra cosa que no sea lo
+
+42
+00:01:46,884 --> 00:01:49,125
+mismo que sea el ritmo
+
+43
+00:01:49,325 --> 00:01:51,765
+y este archivo
+
+44
+00:01:52,285 --> 00:01:55,166
+vale?Se guarda y como podemos
+
+45
+00:01:55,166 --> 00:01:58,046
+observar. Se ha vuelto
+
+46
+00:01:58,046 --> 00:02:00,526
+a guardar aquí? Esta es el
+
+47
+00:02:00,726 --> 00:02:03,527
+seguro, perdón. Aquí ha
+
+48
+00:02:03,527 --> 00:02:06,047
+cogido de forma aleatoria una de las 10
+
+49
+00:02:06,047 --> 00:02:08,727
+contraseñas más utilizadas y ha generado
+
+50
+00:02:08,727 --> 00:02:11,648
+con eso la clave. Eso nos permitirá
+
+51
+00:02:11,808 --> 00:02:14,288
+que ahora cuando ejecutemos el cliente
+
+52
+00:02:14,288 --> 00:02:15,008
+malicioso.
+
+53
+00:02:16,828 --> 00:02:19,149
+Podamos desencriptarlo todo sin
+
+54
+00:02:20,029 --> 00:02:22,829
+ningún problema. Vamos a hacer la prueba
+
+55
+00:02:22,829 --> 00:02:24,470
+ahora tanto
+
+56
+00:02:24,790 --> 00:02:27,070
+desencriptando el.
+
+57
+00:02:28,020 --> 00:02:30,940
+El archivo que estaba encriptado de forma
+
+58
+00:02:30,940 --> 00:02:33,861
+segura, como el que estaba
+
+59
+00:02:33,861 --> 00:02:36,701
+encriptado de forma insegura. Vale, el
+
+60
+00:02:36,701 --> 00:02:38,781
+que está encriptado de forma insegura es
+
+61
+00:02:38,781 --> 00:02:41,662
+el que acaba en EF 73.  Entonces
+
+62
+00:02:41,662 --> 00:02:43,382
+primero vamos a probar el que está
+
+63
+00:02:43,382 --> 00:02:46,222
+encriptado de forma segura y vamos a
+
+64
+00:02:46,222 --> 00:02:49,173
+volver a ponerlo en test. Vale,
+
+65
+00:02:49,173 --> 00:02:51,853
+le damos a descript y
+
+66
+00:02:51,853 --> 00:02:54,494
+ves cómo se puede observar, no se
+
+67
+00:02:54,494 --> 00:02:57,014
+puede desencriptar. Ha habido un
+
+68
+00:02:57,014 --> 00:02:58,494
+problema, sin embargo.
+
+69
+00:03:00,064 --> 00:03:02,785
+Si ahora probamos este que acaba en 73,
+
+70
+00:03:02,705 --> 00:03:04,425
+queera el que estaba encriptado de forma
+
+71
+00:03:04,425 --> 00:03:07,185
+insegura, sí se ha podido desencriptar
+
+72
+00:03:07,185 --> 00:03:09,466
+sin ningún problema. Y aquí en test
+
+73
+00:03:09,546 --> 00:03:11,586
+tenemos tanto el ritmo como el logs,
+
+74
+00:03:11,586 --> 00:03:13,186
+punto Pi que habíamos metido
+
+75
+00:03:13,586 --> 00:03:15,597
+anteriormente, así que
+
+76
+00:03:15,267 --> 00:03:17,028
+En cuanto a la traza, hemos decidido
+
+77
+00:03:17,028 --> 00:03:19,108
+utilizar la librería criptometer de
+
+78
+00:03:19,108 --> 00:03:21,109
+Python. ¿Qué tiene de peculiar esta
+
+79
+00:03:21,109 --> 00:03:23,949
+librería? Pues que no se necesita padding
+
+80
+00:03:23,949 --> 00:03:26,550
+cuando usas el modo CTR que hemos es el
+
+81
+00:03:26,550 --> 00:03:29,310
+que hemos decidido utilizar porque es
+
+82
+00:03:29,310 --> 00:03:32,071
+el el estandarizado el más utilizado.
+
+83
+00:03:32,591 --> 00:03:35,512
+También no se usa vector IV, se
+
+84
+00:03:35,512 --> 00:03:38,112
+inicializa simplemente el vector nonds.
+
+85
+00:03:38,312 --> 00:03:41,073
+Cómo lo hacemos con un I
+
+86
+00:03:41,073 --> 00:03:43,994
+V vale obteniendo by cerrando.
+
+87
+00:03:44,834 --> 00:03:47,034
+En base a este tamaño
+
+88
+00:03:47,675 --> 00:03:49,355
+son 8 bytes, no
+
+89
+00:03:49,355 --> 00:03:51,916
+ 16 vale, entonces
+
+90
+00:03:52,196 --> 00:03:54,836
+creamos aquí el chipper
+
+91
+00:03:54,996 --> 00:03:57,917
+vamos a buscar esto.
+
+92
+00:03:57,967 --> 00:04:00,567
+Con esto el archivo punto zip y vamos a
+
+93
+00:04:00,567 --> 00:04:02,688
+encriptarlo lo tenemos en texto en plano
+
+94
+00:04:02,888 --> 00:04:05,569
+y lo encriptamos con esto y
+
+95
+00:04:05,569 --> 00:04:08,289
+así lo lo escribimos
+
+96
+00:04:08,369 --> 00:04:10,930
+y eliminamos el anterior. El punto Zip
+
+97
+00:04:11,650 --> 00:04:13,810
+qué vamos a hacer después una vez
+
+98
+00:04:13,810 --> 00:04:15,611
+tengamos ya el Archivo Jason, porque
+
+99
+00:04:15,611 --> 00:04:17,251
+primero se llama una función llamada Zip
+
+100
+00:04:17,251 --> 00:04:19,612
+Files que crea el punto zip y el json en
+
+101
+00:04:19,612 --> 00:04:22,442
+plano. Vamos a obtener del
+
+102
+00:04:22,562 --> 00:04:24,683
+Json el campo files.
+
+103
+00:04:25,603 --> 00:04:28,404
+Y vamos a hacer lo mismo, vale? Vamos a
+
+104
+00:04:28,524 --> 00:04:30,124
+como podemos observar aquí se obtiene el
+
+105
+00:04:30,124 --> 00:04:32,805
+campo files y vamos encriptando 1 a 1 el
+
+106
+00:04:32,805 --> 00:04:35,063
+campo files. Eso es
+
+107
+00:04:34,866 --> 00:04:37,026
+En cuanto a la desencriptación vamos a
+
+108
+00:04:37,026 --> 00:04:39,507
+hacer lo mismo, pero a la
+
+109
+00:04:39,507 --> 00:04:42,467
+inversa. Como podemos observar,
+
+110
+00:04:42,467 --> 00:04:44,548
+bueno, esto es para controlar simplemente
+
+111
+00:04:44,548 --> 00:04:46,028
+si estamos en modo seguro o modo
+
+112
+00:04:46,028 --> 00:04:47,988
+inseguro, como podemos observar aquí.
+
+113
+00:04:48,108 --> 00:04:50,869
+Vale, y esto
+
+114
+00:04:50,949 --> 00:04:53,149
+realmente no tiene mucho que explicar, es
+
+115
+00:04:53,149 --> 00:04:54,829
+simplemente eliminar archivos. Lo
+
+116
+00:04:54,829 --> 00:04:57,710
+importante está aquí aquí. Si antes
+
+117
+00:04:57,710 --> 00:05:00,590
+teníamos un generate key, aquí
+
+118
+00:05:00,590 --> 00:05:03,391
+es un ritky from file. Vale,
+
+119
+00:05:03,391 --> 00:05:06,311
+leemos la llave. Miramos a
+
+120
+00:05:06,311 --> 00:05:09,072
+ver que que exista
+
+121
+00:05:09,192 --> 00:05:12,112
+esa llave, leemos todos los archivos
+
+122
+00:05:12,112 --> 00:05:14,592
+desde todos los datos del archivo que se
+
+123
+00:05:14,592 --> 00:05:16,673
+ha pasado como parámetro con esto.
+
+124
+00:05:18,353 --> 00:05:21,314
+Y después simplemente obtenemos aquí el
+
+125
+00:05:21,314 --> 00:05:22,234
+texto cifrado.
+
+126
+00:05:23,594 --> 00:05:25,794
+Generamos un nuevo cifrador
+
+127
+00:05:26,474 --> 00:05:28,675
+y lo desencriptamos, lo
+
+128
+00:05:28,675 --> 00:05:31,115
+desencriptamos y aquí devolveremos el
+
+129
+00:05:31,115 --> 00:05:33,956
+texto en plano y la llave para después
+
+130
+00:05:33,956 --> 00:05:36,716
+utilizarlo en este en el de Clickfiles,
+
+131
+00:05:36,996 --> 00:05:39,757
+Jason. Aquí controlamos si hay antigua
+
+132
+00:05:39,757 --> 00:05:41,637
+llave o no, porque lo que vamos a hacer
+
+133
+00:05:41,637 --> 00:05:43,917
+es cada vez que el usuario quiera hacer
+
+134
+00:05:43,917 --> 00:05:46,878
+una consulta o descargarse los archivos
+
+135
+00:05:47,238 --> 00:05:50,078
+de que ha subido. Se va a
+
+136
+00:05:50,078 --> 00:05:51,958
+volver a generar una nueva clave y con
+
+137
+00:05:51,958 --> 00:05:54,649
+ello. Se va a volver a encriptar el
+
+138
+00:05:54,649 --> 00:05:56,369
+zip y el.
+
+139
+00:05:57,399 --> 00:06:00,280
+Ámbito el apartado file del
+
+140
+00:06:00,320 --> 00:06:01,960
+Json. Todo eso con la intención de que
+
+141
+00:06:01,960 --> 00:06:04,441
+sea todavía más seguro.

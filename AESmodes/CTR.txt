@@ -1,0 +1,30 @@
+def encrypt_file(input_file, directory):
+    key = generate_and_save_key(input_file, directory)
+    iv = get_random_bytes(8)
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+    
+    with open(path, 'rb') as f:
+        plaintext = f.read()
+    
+    ctext = cipher.encrypt(plaintext)
+    encrypted_path = path + '.enc'
+    writeText(encrypted_path, iv + ctext)
+    os.remove(path)
+
+
+def decrypt_file(input_file):
+    key = read_key_from_file(input_file)
+    ciphertext = b''
+    with open(input_file, 'rb') as f:
+        iv = f.read(8)  # Lee los primeros 16 bytes como IV
+        while True:
+            chunk = f.read(AES.block_size)
+            if len(chunk) == 0:
+                break
+            ciphertext += chunk
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    plaintext = cipher.decrypt(ciphertext)
+    encrypted_path = input_file[:-4]  # Elimina la extensión ".enc"
+    writeText(encrypted_path, plaintext)
+    os.remove(input_file)

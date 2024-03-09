@@ -1,0 +1,66 @@
+def encrypt_file(input_file, directory):
+    key=generate_and_save_key(input_file,directory)
+    iv = get_random_bytes(IV_SIZE) ##IMPORTANTE ESTO PORQUE SI NO NO FUNCIONA CBC
+    cipher = AES.new(key, AES_MODE, iv=iv) ##Se podría usar AES.MODE_ECB pero es poco seguro debido a que el bloque se cifra de la misma manera. CBC añade algo de alatoriedad
+    path= os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+    with open(path, 'rb') as f:
+        plaintext = f.read()
+    padtext = pad(plaintext, AES.block_size)
+    ctext = cipher.encrypt(padtext)
+    encrypted_path = path + '.enc'  # Añadir ".enc" al nombre del archivo
+    writeText(encrypted_path, iv + ctext)  # Guardar el archivo cifrado con la extensión ".enc"
+    os.remove(path)
+
+
+def decrypt_file(input_file):
+    key=read_key_from_file(input_file)
+    ciphertext = b''
+    with open(input_file, 'rb') as f:
+        iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
+        while True:
+            chunk = f.read(BLOCK_SIZE)
+            if len(chunk) == 0:
+                break
+            ciphertext += chunk
+    cipher = AES.new(key, AES_MODE, iv=iv)
+    padded_plaintext = cipher.decrypt(ciphertext)
+   
+    plaintext = unpad(padded_plaintext, AES.block_size)
+    encrypted_path = input_file[:-4]  # Eliminar la extensión ".enc"
+    writeText(encrypted_path,plaintext)
+    os.remove(input_file)
+def decrypt_file_unsafe(file_path, target_folder):
+    for password in UNSAFE_PASSWORDS:
+        key=bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
+        ciphertext = b''
+
+        # file name removing extension
+        file_name = os.path.basename(file_path).split('.')[0]
+        # Read the encrypted file
+        with open(file_path, 'rb') as f:
+            iv = f.read(IV_SIZE)  # Read the first 16 bytes as the IV
+            # ciphertext = f.read()
+            while True:
+                chunk = f.read(BLOCK_SIZE)
+                if len(chunk) == 0:
+                    break
+                ciphertext += chunk
+        # Decrypt the file
+        cipher = AES.new(key, AES_MODE, iv=iv)
+        padded_plaintext = cipher.decrypt(ciphertext)
+
+        # Remove the padding and save the file
+        plaintext = unpad(padded_plaintext, AES.block_size)
+        new_file = os.path.join(target_folder, file_name + FILES_COMPRESSION_FORMAT)
+        writeText(new_file, plaintext)
+
+        # Try to unzip the file
+        try:
+            with zipfile.ZipFile(new_file, 'r') as zip_ref:
+                zip_ref.extractall(target_folder)
+            logging.info(f'File decrypted with password: {password}')
+            return
+        except zipfile.BadZipFile:
+            logging.info(f'Password {password} is not valid')
+            os.remove(new_file)
+
