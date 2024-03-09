@@ -1,4 +1,4 @@
-import CrearZipYCodificar as cz
+import Cifrado as cz
 import os
 import json
 import shutil

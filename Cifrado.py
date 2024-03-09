@@ -478,7 +478,7 @@ def read_key_from_file(input_file):
 parser = argparse.ArgumentParser(description='Save documents in a secure way')
 parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
 parser.add_argument('-d', '--decrypt', help='Start to decrypt a file (must be followed by File (-f))', action='store_true')
-parser.add_argument('-f', '--file', help='Indicates the file [put the directory eg: "python3 CrearZipYCodificar.py -d -f files/File2e47b658-6cdc-46ae-aa15-b3344bb3cbfd/]"')
+parser.add_argument('-f', '--file', help='Indicates the file [put the directory eg: "python3 Cifrado.py -d -f files/File2e47b658-6cdc-46ae-aa15-b3344bb3cbfd/]"')
 if(parser.parse_args().unsafe):
     UNSAFE_MODE = True
     logging.info('Unsafe mode activated')

@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 import os
 import sys
 sys.path.append('..')
-from CrearZipYCodificar import decrypt_file_unsafe
+from Cifrado import decrypt_file_unsafe
 
 # default folder
 folder = os.path.join(os.path.expanduser("~"), "Downloads")
