@@ -1,6 +1,20 @@
 # server.py
 import socket
 import struct
+
+
+def receive_Name_size(sck: socket.socket):
+    fmt="<L"
+    expected_bytes = struct.calcsize(fmt)
+    received_bytes = 0
+    stream = bytes()
+    while received_bytes < expected_bytes:
+        chunk = sck.recv(expected_bytes - received_bytes)
+        stream += chunk
+        received_bytes += len(chunk)
+    filesize = struct.unpack(fmt, stream)[0]
+    return filesize
+
 def receive_file_size(sck: socket.socket):
     # Esta función se asegura de que se reciban los bytes
     # que indican el tamaño del archivo que será enviado,
@@ -17,7 +31,11 @@ def receive_file_size(sck: socket.socket):
         received_bytes += len(chunk)
     filesize = struct.unpack(fmt, stream)[0]
     return filesize
-def receive_file(sck: socket.socket, filename):
+
+def receive_file(sck: socket.socket):
+    NameSize = receive_Name_size(sck)
+    file= sck.recv(NameSize)
+    filename = file.decode('utf-8')
     # Leer primero del socket la cantidad de 
     # bytes que se recibirán del archivo.
     filesize = receive_file_size(sck)
@@ -45,7 +63,8 @@ with socket.create_server(("localhost", 6190)) as server:
     print(f"{address[0]}:{address[1]} conectado.")
     while True:
         print("Recibiendo archivo...")
-        receive_file(conn, "Prueba.zip.enc")
+        receive_file(conn)
         print("Archivo recibido.")
+  
     
 
