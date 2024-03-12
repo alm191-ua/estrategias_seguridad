@@ -1,7 +1,8 @@
 # server.py
 import socket
 import struct
-
+import time
+import threading
 
 def receive_Name_size(sck: socket.socket):
     fmt="<L"
@@ -32,31 +33,34 @@ def receive_file_size(sck: socket.socket):
     filesize = struct.unpack(fmt, stream)[0]
     return filesize
 
+
 def receive_file(sck: socket.socket):
+    start_time = time.time()
     NameSize = receive_Name_size(sck)
     file= sck.recv(NameSize)
     filename = file.decode('utf-8')
-    # Leer primero del socket la cantidad de 
-    # bytes que se recibirán del archivo.
     filesize = receive_file_size(sck)
-    # Abrir un nuevo archivo en donde guardar
-    # los datos recibidos.
-    with open(filename, "wb") as f:
-        received_bytes = 0
-        # Recibir los datos del archivo en bloques de
-        # 1024 bytes hasta llegar a la cantidad de
-        # bytes total informada por el cliente.
-        while received_bytes < filesize:
-            remain_bytes = filesize - received_bytes
-            if remain_bytes < 1024:
-                chunk = sck.recv(remain_bytes)
-            else:
-                chunk = sck.recv(1024)
-            if chunk:
-                f.write(chunk)
-                received_bytes += len(chunk)
-        f.close()
+        
+    def receive_data():
+        with open(filename, "wb") as f:
+            received_bytes = 0
+            while received_bytes < filesize:
+                remain_bytes = filesize - received_bytes
+                chunk = sck.recv(min(remain_bytes, 1024))
+                if chunk:
+                    f.write(chunk)
+                    received_bytes += len(chunk)
+            f.close()
 
+    # Create a thread to receive data
+    thread = threading.Thread(target=receive_data)
+    thread.start()
+
+    # Wait for the thread to finish
+    thread.join()
+
+    end_time = time.time()
+    print(f"Tiempo de ejecución: {end_time - start_time} segundos")
 with socket.create_server(("localhost", 6190)) as server:
     print("Esperando al cliente...")
     conn, address = server.accept()
