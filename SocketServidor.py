@@ -1,10 +1,18 @@
 import socket
 import struct
+import os
+
+FOLDER="server"
 
 class SocketServidor:
     def __init__(self, host, port):
         self.host = host
         self.port = port
+    
+    def buscar_server_folder(self):
+        if not os.path.exists(FOLDER):
+            os.makedirs(FOLDER)
+
 
     def receive_Name_size(self, sck: socket.socket):
         fmt="<L"
@@ -41,7 +49,8 @@ class SocketServidor:
             filename = file.decode('utf-8')
             print(f"Nombre de archivo recibido: {filename}")
             filesize = self.receive_file_size(sck)
-            print(f"Tamaño del archivo: {filesize}")
+            self.buscar_server_folder()
+            filename = os.path.join(FOLDER, filename)
         except ConnectionResetError:
             raise ConnectionResetError("Conexión cerrada por el cliente.")
 
@@ -60,7 +69,7 @@ class SocketServidor:
                     raise ConnectionResetError("Conexión cerrada por el cliente.")
 
         print("Archivo recibido correctamente.")
-        
+
     def close(self):
         self.server.close()
         print("Servidor cerrado.")
