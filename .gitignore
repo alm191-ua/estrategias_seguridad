@@ -163,3 +163,4 @@ cython_debug/
 files/
 test/
 tmp/
+File*.zip.enc
