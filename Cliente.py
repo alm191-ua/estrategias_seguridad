@@ -1,46 +1,63 @@
-# client.py
-import os
-import socket
-import struct
 import sys
+from PyQt5 import QtWidgets, QtGui, QtCore
 
-SERVIDOR_IP = 'localhost'
-SERVIDOR_PUERTO = 12345
-FOLDER_PATH = 'files'
-FORMATO_ENCRIPTADO='.zip.enc'
+class LoginForm(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
 
+    def init_ui(self):
+        self.setWindowTitle("Interfaz Cliente")
+        self.setFixedSize(600, 400)
+        self.setStyleSheet("background-color: #2c3e51;")
 
-def send_file(sck: socket.socket, filename):
-    # Enviar el nombre del archivo al servidor.
-    name = os.path.basename(filename)
-    name_size = len(name)
-    sck.sendall(struct.pack("<L", name_size))
-    sck.sendall(name.encode('utf-8'))
+        layout = QtWidgets.QVBoxLayout()
 
-    # Obtener el tamaño del archivo a enviar.
-    filesize = os.path.getsize(filename)
-    # Informar primero al servidor la cantidad
-    # de bytes que serán enviados.
-    sck.sendall(struct.pack("<Q", filesize))
-    
-    # Enviar el archivo en bloques de 2048 bytes.
-    with open(filename, "rb") as f:
-        while read_bytes := f.read(2048):
-            sck.sendall(read_bytes)
+        # Campo de texto para el usuario
+        self.username_line_edit = QtWidgets.QLineEdit()
+        self.username_line_edit.setPlaceholderText("Usuario")
+        self.username_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
+        layout.addWidget(self.username_line_edit)
 
-# Crear un socket de tipo TCP/IP.
-with socket.create_connection(("localhost", 6190)) as conn:
-    print("Conectado al servidor.")
-    
-    for fileId in os.listdir(FOLDER_PATH):
-            print("Enviando archivo...")
-            file_folder_path = os.path.join(FOLDER_PATH, fileId)
-            files_path = os.path.join(file_folder_path, fileId)
-            file_path = files_path + FORMATO_ENCRIPTADO
+        # Campo de texto para la contraseña
+        self.password_line_edit = QtWidgets.QLineEdit()
+        self.password_line_edit.setPlaceholderText("Contraseña")
+        self.password_line_edit.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.password_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
+        layout.addWidget(self.password_line_edit)
 
-            send_file(conn, file_path)
+        # Botón del ojo para mostrar/ocultar contraseña
+        self.toggle_password_button = QtWidgets.QPushButton(self)
+        self.toggle_password_button.setIcon(QtGui.QIcon("eye_icon.png"))  # Asegúrate de tener un ícono 'eye_icon.png'
+        self.toggle_password_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.toggle_password_button.setStyleSheet("background: transparent; border: none;")
+        self.toggle_password_button.clicked.connect(self.toggle_password_visibility)
+        layout.addWidget(self.toggle_password_button)
 
-            print("Enviado.")
-    conn.close()
-    
-print("Conexión cerrada.")
+        # Botón para iniciar sesión
+        login_button = QtWidgets.QPushButton("Iniciar Sesión")
+        login_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        layout.addWidget(login_button)
+
+        # Enlace para registrarse
+        register_label = QtWidgets.QLabel("No tienes cuenta? Regístrate aquí")
+        register_label.setStyleSheet("color: #ecf0f1; text-decoration: underline; margin-top: 15px;")
+        layout.addWidget(register_label)
+
+        register_label.mousePressEvent = self.open_register_window
+
+        self.setLayout(layout)
+
+    def open_register_window(self, event):
+        print("Abriendo ventana de registro...")
+
+    def toggle_password_visibility(self):
+        if self.password_line_edit.echoMode() == QtWidgets.QLineEdit.Password:
+            self.password_line_edit.setEchoMode(QtWidgets.QLineEdit.Normal)
+        else:
+            self.password_line_edit.setEchoMode(QtWidgets.QLineEdit.Password)
+
+app = QtWidgets.QApplication(sys.argv)
+login_form = LoginForm()
+login_form.show()
+sys.exit(app.exec_())
