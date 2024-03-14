@@ -23,9 +23,9 @@ def send_file(sck: socket.socket, filename):
     # de bytes que serán enviados.
     sck.sendall(struct.pack("<Q", filesize))
     
-    # Enviar el archivo en bloques de 1024 bytes.
+    # Enviar el archivo en bloques de 2048 bytes.
     with open(filename, "rb") as f:
-        while read_bytes := f.read(1024):
+        while read_bytes := f.read(2048):
             sck.sendall(read_bytes)
 
 # Crear un socket de tipo TCP/IP.
@@ -42,4 +42,5 @@ with socket.create_connection(("localhost", 6190)) as conn:
 
             print("Enviado.")
     conn.close()
+    
 print("Conexión cerrada.")
