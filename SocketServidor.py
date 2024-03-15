@@ -8,14 +8,17 @@ class SocketServidor:
     SERVIDOR_IP = 'localhost'
     SERVIDOR_PUERTO = 6190
     FOLDER="server"
-    def __init__(self):
-        self.host = self.SERVIDOR_IP
-        self.port = self.SERVIDOR_PUERTO
     
     def buscar_server_folder(self):
         if not os.path.exists(self.FOLDER):
             os.makedirs(self.FOLDER)
 
+    def create_folder_4_new_file(self, filename):
+        filename = filename.split(".")[0]
+        path=os.path.join(self.FOLDER, filename)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
 
     def receive_Name_size(self, sck: socket.socket):
         fmt="<L"
@@ -53,7 +56,8 @@ class SocketServidor:
             print(f"Nombre de archivo recibido: {filename}")
             filesize = self.receive_file_size(sck)
             self.buscar_server_folder()
-            filename = os.path.join(self.FOLDER, filename)
+            folder = self.create_folder_4_new_file(filename)
+            filename = os.path.join(folder, filename)
         except ConnectionResetError:
             raise ConnectionResetError("Conexión cerrada por el cliente.")
 
@@ -77,9 +81,10 @@ class SocketServidor:
         self.server.close()
         print("Servidor cerrado.")
     
+
     def start(self):
         while True:
-            with socket.create_server((self.host, self.port)) as server:
+            with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
                 print("Esperando al cliente...")
                 try:
                     conn, address = server.accept()

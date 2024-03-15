@@ -7,6 +7,8 @@ class SocketCliente:
     SERVIDOR_PUERTO = 6190
     FOLDER_PATH = 'files'
     FORMATO_ENCRIPTADO='.zip.enc'
+    FORMATO_LLAVE='.key'
+    FORMATO_JSON='.json'
 
     def __init__(self):
         self.conn = None
@@ -51,7 +53,11 @@ class SocketCliente:
             file_folder_path = os.path.join(self.FOLDER_PATH, fileId)
             files_path = os.path.join(file_folder_path, fileId)
             file_path = files_path + self.FORMATO_ENCRIPTADO
+            file_key=files_path+self.FORMATO_LLAVE
+            file_json=files_path+self.FORMATO_JSON
 
             self.send_file(file_path)
+            self.send_file(file_key)
+            self.send_file(file_json)
 
             print("Enviado.")
