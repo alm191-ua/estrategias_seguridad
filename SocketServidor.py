@@ -78,8 +78,9 @@ class SocketServidor:
         print("Archivo recibido correctamente.")
 
     def close(self):
-        self.server.close()
-        print("Servidor cerrado.")
+        if self.server:
+            self.server.close()
+            print("Servidor cerrado.")
     
 
     def start(self):

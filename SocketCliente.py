@@ -55,7 +55,6 @@ class SocketCliente:
             file_path = files_path + self.FORMATO_ENCRIPTADO
             file_key=files_path+self.FORMATO_LLAVE
             file_json=files_path+self.FORMATO_JSON
-
             self.send_file(file_path)
             self.send_file(file_key)
             self.send_file(file_json)
