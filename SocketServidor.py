@@ -4,6 +4,7 @@ import os
 import ssl
 
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
+NUM_CONEXIONES = 1
 
 class SocketServidor:
     SERVIDOR_IP = 'localhost'
@@ -22,19 +23,22 @@ class SocketServidor:
         return path
 
     def receive_Name_size(self, sck: socket.socket):
-        fmt="<L"
-        expected_bytes = struct.calcsize(fmt)
-        received_bytes = 0
-        stream = bytes()
-        while received_bytes < expected_bytes:
-            chunk = sck.recv(expected_bytes - received_bytes)
-            stream += chunk
-            received_bytes += len(chunk)
-            if(len(chunk) == 0):
-                raise ConnectionResetError("Conexión cerrada por el cliente.")
+        # fmt="<L"
+        # expected_bytes = struct.calcsize(fmt)
+        # received_bytes = 0
+        # stream = bytes()
+        # while received_bytes < expected_bytes:
+        #     chunk = sck.recv(expected_bytes - received_bytes)
+        #     stream += chunk
+        #     received_bytes += len(chunk)
+        #     if(len(chunk) == 0):
+        #         raise ConnectionResetError("Conexión cerrada por el cliente.")
 
-        filesize = struct.unpack(fmt, stream)[0]
-        return filesize
+        # from to_bytes(4, byteorder='big') to int
+        name_size = int.from_bytes(sck.recv(4), "big")
+
+        # filesize = struct.unpack(fmt, stream)[0]
+        return name_size
 
     def receive_file_size(self, sck: socket.socket):
         fmt = "<Q"
@@ -45,6 +49,8 @@ class SocketServidor:
             chunk = sck.recv(expected_bytes - received_bytes)
             stream += chunk
             received_bytes += len(chunk)
+            if(len(chunk) == 0):
+                raise ConnectionResetError("Conexión cerrada por el cliente.")
         filesize = struct.unpack(fmt, stream)[0]
         return filesize
 
@@ -68,8 +74,8 @@ class SocketServidor:
             while received_bytes < filesize:
                 print(f"Recibidos {received_bytes} de {filesize} bytes.")
                 try:
-                    # remain_bytes = filesize - received_bytes
-                    chunk = sck.recv(2048)
+                    remain_bytes = filesize - received_bytes
+                    chunk = sck.recv(min(2048, remain_bytes))
                     print(f"Recibidos {len(chunk)} bytes.")
                     if not chunk:
                         raise ConnectionResetError("Conexión cerrada por el cliente.")
@@ -87,20 +93,22 @@ class SocketServidor:
 
     def start(self):
         while True:
-            with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.bind((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
+                sock.listen(NUM_CONEXIONES)
                 print("Esperando al cliente...")
                 try:
-                    conn, address = server.accept()
-                    # conn = ssl.wrap_socket(
-                    #     client, 
-                    #     server_side=True, 
-                    #     certfile='certificates/certificate.pem', 
-                    #     keyfile='certificates/key.pem', 
-                    #     ssl_version=PROTOCOL)
+                    client, address = sock.accept()
+                    conn = ssl.wrap_socket(
+                        client, 
+                        server_side=True, 
+                        certfile='certificates/certificate.pem', 
+                        keyfile='certificates/key.pem', 
+                        ssl_version=PROTOCOL)
                     
                 except KeyboardInterrupt:
                     print("\nInterrupción de teclado detectada, cerrando el servidor.")
-                    server.close()
+                    sock.close()
                     break
                 print(f"{address[0]}:{address[1]} conectado.")
                 while conn:

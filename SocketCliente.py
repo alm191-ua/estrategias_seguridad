@@ -16,10 +16,10 @@ class SocketCliente:
 
     def connect(self):
         # Crear un socket de tipo TCP/IP.
-        self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.conn = ssl.wrap_socket(
-        #                 sock,
-        #                 ca_certs='certificates/certificate.pem')
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conn = ssl.wrap_socket(
+                        sock,
+                        ca_certs='certificates/certificate.pem')
         
         self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
         print("Conectado al servidor.")
@@ -36,7 +36,7 @@ class SocketCliente:
         # Enviar el nombre del archivo al servidor.
         name = os.path.basename(filename)
         name_size = len(name)
-        self.conn.sendall(struct.pack("<L", name_size))
+        self.conn.sendall(name_size.to_bytes(4, byteorder='big'))
         self.conn.sendall(name.encode('utf-8'))
 
         # Obtener el tamaño del archivo a enviar.
@@ -50,6 +50,7 @@ class SocketCliente:
         with open(filename, "rb") as f:
             print("Enviando archivo...")
             while read_bytes := f.read(2048):
+                print(f"Enviados {len(read_bytes)} bytes.")
                 self.conn.sendall(read_bytes)
 
     def send_files_in_folder(self):
