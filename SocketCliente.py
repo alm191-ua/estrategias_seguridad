@@ -1,6 +1,7 @@
 import os
 import socket
 import struct
+import ssl
 
 class SocketCliente:
     SERVIDOR_IP = 'localhost'
@@ -15,7 +16,12 @@ class SocketCliente:
 
     def connect(self):
         # Crear un socket de tipo TCP/IP.
-        self.conn = socket.create_connection((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
+        self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self.conn = ssl.wrap_socket(
+        #                 sock,
+        #                 ca_certs='certificates/certificate.pem')
+        
+        self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
         print("Conectado al servidor.")
 
     def disconnect(self):
@@ -37,10 +43,12 @@ class SocketCliente:
         filesize = os.path.getsize(filename)
         # Informar primero al servidor la cantidad
         # de bytes que serán enviados.
+        print("Enviando tamaño del archivo...")
         self.conn.sendall(struct.pack("<Q", filesize))
 
         # Enviar el archivo en bloques de 2048 bytes.
         with open(filename, "rb") as f:
+            print("Enviando archivo...")
             while read_bytes := f.read(2048):
                 self.conn.sendall(read_bytes)
 
@@ -53,11 +61,14 @@ class SocketCliente:
             file_folder_path = os.path.join(self.FOLDER_PATH, fileId)
             files_path = os.path.join(file_folder_path, fileId)
             file_path = files_path + self.FORMATO_ENCRIPTADO
-            file_key=files_path+self.FORMATO_LLAVE
-            file_json=files_path+self.FORMATO_JSON
+            file_key = files_path+self.FORMATO_LLAVE
+            file_json = files_path+self.FORMATO_JSON
 
+            print("Enviando enc")
             self.send_file(file_path)
+            print("Enviando key")
             self.send_file(file_key)
+            print("Enviando json")
             self.send_file(file_json)
 
             print("Enviado.")

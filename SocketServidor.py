@@ -1,8 +1,9 @@
 import socket
 import struct
 import os
+import ssl
 
-
+PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 
 class SocketServidor:
     SERVIDOR_IP = 'localhost'
@@ -65,9 +66,11 @@ class SocketServidor:
         received_bytes = 0
         with open(filename, "wb") as f:
             while received_bytes < filesize:
+                print(f"Recibidos {received_bytes} de {filesize} bytes.")
                 try:
-                    remain_bytes = filesize - received_bytes
-                    chunk = sck.recv(min(remain_bytes, 2048))
+                    # remain_bytes = filesize - received_bytes
+                    chunk = sck.recv(2048)
+                    print(f"Recibidos {len(chunk)} bytes.")
                     if not chunk:
                         raise ConnectionResetError("Conexión cerrada por el cliente.")
                     f.write(chunk)
@@ -88,6 +91,13 @@ class SocketServidor:
                 print("Esperando al cliente...")
                 try:
                     conn, address = server.accept()
+                    # conn = ssl.wrap_socket(
+                    #     client, 
+                    #     server_side=True, 
+                    #     certfile='certificates/certificate.pem', 
+                    #     keyfile='certificates/key.pem', 
+                    #     ssl_version=PROTOCOL)
+                    
                 except KeyboardInterrupt:
                     print("\nInterrupción de teclado detectada, cerrando el servidor.")
                     server.close()
