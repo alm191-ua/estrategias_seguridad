@@ -8,6 +8,9 @@ class SocketServidor:
     SERVIDOR_IP = 'localhost'
     SERVIDOR_PUERTO = 6190
     FOLDER="server"
+    FORMATO_ENCRIPTADO='.zip.enc'
+    FORMATO_LLAVE='.key'
+    FORMATO_JSON='.json'
     
     def buscar_server_folder(self):
         if not os.path.exists(self.FOLDER):
@@ -81,8 +84,57 @@ class SocketServidor:
                 conn.close()
                 break
             print("Archivo recibido.")
+
     
-    
+    def send_file(self, filename, conn: socket.socket):
+        if not conn:
+            raise Exception("No se ha establecido una conexión.")
+
+        # Enviar el nombre del archivo al servidor.
+        name = os.path.basename(filename)
+        name_size = len(name)
+        conn.sendall(struct.pack("<L", name_size))
+        conn.sendall(name.encode('utf-8'))
+
+        # Obtener el tamaño del archivo a enviar.
+        filesize = os.path.getsize(filename)
+        # Informar primero al servidor la cantidad
+        # de bytes que serán enviados.
+        conn.sendall(struct.pack("<Q", filesize))
+
+        # Enviar el archivo en bloques de 2048 bytes.
+        with open(filename, "rb") as f:
+            while read_bytes := f.read(2048):
+                conn.sendall(read_bytes)
+
+    def send_files_in_folder(self, conn: socket.socket):
+        if not conn:
+            raise Exception("No se ha establecido una conexión.")
+        while conn:
+            files = os.listdir(self.FOLDER)
+            legnth = len(files)
+            i=0
+            for fileId in files:
+                
+                if fileId != "users.json":
+                    print("Enviando archivo...")
+                    file_folder_path = os.path.join(self.FOLDER, fileId)
+                    files_path = os.path.join(file_folder_path, fileId)
+                    file_path = files_path + self.FORMATO_ENCRIPTADO
+                    file_key=files_path+self.FORMATO_LLAVE
+                    file_json=files_path+self.FORMATO_JSON
+                    self.send_file(file_path,conn)
+                    self.send_file(file_key,conn)
+                    self.send_file(file_json,conn)
+                    print("Enviado.")
+                i+=1
+                print(i)
+                if i==legnth:
+                    conn.close()
+                    break
+            break
+                    
+
 
     def start(self):
         while True:
@@ -100,7 +152,6 @@ class SocketServidor:
                 if option == '1':
                     self.wait_files(conn)
                 elif option == '2':
-                    files = os.listdir(self.FOLDER)
-                    print(f'Enviando {len(files)} archivos al cliente...')
+                    self.send_files_in_folder(conn)
 
                 
