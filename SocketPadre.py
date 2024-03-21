@@ -1,9 +1,8 @@
-import socket
 import struct
 import os
 
 
-class Socekt:
+class SocketPadre:
     SERVIDOR_IP = 'localhost'
     SERVIDOR_PUERTO = 6190
     FORMATO_ENCRIPTADO='.zip.enc'

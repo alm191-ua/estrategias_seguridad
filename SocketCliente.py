@@ -1,7 +1,7 @@
 import socket
 import Socket
 
-class SocketCliente(Socket.Socekt):
+class SocketCliente(Socket.SocketPadre):
     FOLDER = 'files'
 
 

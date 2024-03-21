@@ -3,7 +3,7 @@ import Socket
 
 
 
-class SocketServidor(Socket.Socekt) :
+class SocketServidor(Socket.SocketPadre) :
     FOLDER="server"
                     
 
