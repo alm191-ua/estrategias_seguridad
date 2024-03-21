@@ -20,8 +20,8 @@ class SocketServidor:
             os.makedirs(path)
         return path
 
-    def receive_size(self, sck: socket.socket,fmt):
-
+    def receive_Name_size(self, sck: socket.socket):
+        fmt="<L"
         expected_bytes = struct.calcsize(fmt)
         received_bytes = 0
         stream = bytes()
@@ -34,17 +34,27 @@ class SocketServidor:
 
         filesize = struct.unpack(fmt, stream)[0]
         return filesize
-    
+
+    def receive_file_size(self, sck: socket.socket):
+        fmt = "<Q"
+        expected_bytes = struct.calcsize(fmt)
+        received_bytes = 0
+        stream = bytes()
+        while received_bytes < expected_bytes:
+            chunk = sck.recv(expected_bytes - received_bytes)
+            stream += chunk
+            received_bytes += len(chunk)
+        filesize = struct.unpack(fmt, stream)[0]
+        return filesize
+
     def receive_file(self, sck: socket.socket):
         print("Esperando el tamaño del nombre del archivo...")
         try:
-            fmt="<L"
-            NameSize = self.receive_size(sck,fmt)
+            NameSize = self.receive_Name_size(sck)
             file = sck.recv(NameSize)
             filename = file.decode('utf-8')
-            fmt="<Q"
             print(f"Nombre de archivo recibido: {filename}")
-            filesize = self.receive_size(sck,fmt)
+            filesize = self.receive_file_size(sck)
             self.buscar_server_folder()
             folder = self.create_folder_4_new_file(filename)
             filename = os.path.join(folder, filename)
@@ -72,17 +82,6 @@ class SocketServidor:
             self.server.close()
             print("Servidor cerrado.")
     
-    def wait_files(self, conn: socket.socket):
-        while conn:
-            try:
-                self.receive_file(conn)
-            except ConnectionResetError:
-                print("Conexión cerrada por el cliente.")
-                conn.close()
-                break
-            print("Archivo recibido.")
-    
-    
 
     def start(self):
         while True:
@@ -95,12 +94,12 @@ class SocketServidor:
                     server.close()
                     break
                 print(f"{address[0]}:{address[1]} conectado.")
-                option = conn.recv(1).decode('utf-8')
-                print(f"Opción seleccionada: {option}")
-                if option == '1':
-                    self.wait_files(conn)
-                elif option == '2':
-                    files = os.listdir(self.FOLDER)
-                    print(f'Enviando {len(files)} archivos al cliente...')
-
-                
+                while conn:
+                    try:
+                        self.receive_file(conn)
+                        print("Recibiendo archivo...")
+                    except ConnectionResetError:
+                        print("Conexión cerrada por el cliente.")
+                        conn.close()
+                        break
+                    print("Archivo recibido.")
