@@ -20,6 +20,7 @@ class SocketCliente:
 
     def disconnect(self):
         if self.conn:
+            self.conn.sendall(b"disc")
             self.conn.close()
             print("Conexión cerrada.")
 
@@ -37,26 +38,39 @@ class SocketCliente:
             os.makedirs(path)
         return path
 
-    def receive_size(self,fmt):
+    def receive_size(self, fmt):
 
         expected_bytes = struct.calcsize(fmt)
         received_bytes = 0
         stream = bytes()
         while received_bytes < expected_bytes:
+            print(expected_bytes - received_bytes)
             chunk = self.conn.recv(expected_bytes - received_bytes)
+            print("Su")
+            print(chunk)
+            try:
+                if chunk.decode('utf-8') == "done":
+                    return 0
+                
+                if chunk.decode('utf-8') == "disc":
+                    raise ConnectionResetError("Conexión cerrada por el cliente.")
+
+            except UnicodeDecodeError:
+                pass
             stream += chunk
             received_bytes += len(chunk)
-            if(len(chunk) == 0):
-                raise ConnectionResetError("Conexión cerrada por el servidor.")
+            
 
         filesize = struct.unpack(fmt, stream)[0]
         return filesize
     
     def receive_file(self):
-        print("Esperando el tamaño del nombre del archivo...")
+        # print("Esperando el tamaño del nombre del archivo...")
         try:
             fmt="<L"
             NameSize = self.receive_size(fmt)
+            if NameSize == 0:
+                raise ValueError("Everything sent correctly")
             file = self.conn.recv(NameSize)
             filename = file.decode('utf-8')
             fmt="<Q"
@@ -66,9 +80,9 @@ class SocketCliente:
             folder = self.create_folder_4_new_file(filename)
             filename = os.path.join(folder, filename)
         except ConnectionResetError:
-            raise ConnectionResetError("Conexión cerrada por el servidor.")
+            raise ConnectionResetError("Conexión cerrada por el cliente.")
 
-        print("Recibiendo archivo...")
+        # print("Recibiendo archivo...")
         received_bytes = 0
         with open(filename, "wb") as f:
             while received_bytes < filesize:
@@ -76,23 +90,24 @@ class SocketCliente:
                     remain_bytes = filesize - received_bytes
                     chunk = self.conn.recv(min(remain_bytes, 2048))
                     if not chunk:
-                        raise ConnectionResetError("Conexión cerrada por el servidor.")
+                        raise ConnectionResetError("Conexión cerrada por el cliente.")
                     f.write(chunk)
                     received_bytes += len(chunk)
                 except ConnectionResetError:
-                    raise ConnectionResetError("Conexión cerrada por el servidor.")
-
-        print("Archivo recibido correctamente.")
+                    raise ConnectionResetError("Conexión cerrada por el cliente.")
+            f.close()
     
     def wait_files(self):
         while self.conn:
             try:
                 self.receive_file()
             except ConnectionResetError:
-                print("Conexión cerrada.")
+                print("Conexión cerrada por el servidor.")
                 self.disconnect()
                 break
-            print("Archivo recibido.")
+            except ValueError:
+                print("archivos recibidos correctamente.")
+                return
 
     def send_file(self, filename):
         if not self.conn:
@@ -130,11 +145,6 @@ class SocketCliente:
             self.send_file(file_key)
             self.send_file(file_json)
             print("Enviado.")
-            os.remove(file_path)
-            os.remove(file_key)
-            os.remove(file_json)
-            os.rmdir(file_folder_path)
-            os.rmdir(files_path)
 
     def choose_opt(self, number):
         """
@@ -155,10 +165,9 @@ class SocketCliente:
         if number == 1:
             # Send files in the 'files' folder to the server
             self.send_files_in_folder()
-            self.disconnect()
+            self.conn.sendall(b"done")
         if number == 2:
             # Wait for files from the server
             self.wait_files()
-            self.disconnect()
     
     
