@@ -1,9 +1,9 @@
 import socket
-import Socket
+import SocketPadre
 
 
 
-class SocketServidor(Socket.SocketPadre) :
+class SocketServidor(SocketPadre.SocketPadre) :
     FOLDER="server"
                     
 
