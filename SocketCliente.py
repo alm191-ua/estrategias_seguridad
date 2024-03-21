@@ -60,3 +60,9 @@ class SocketCliente:
             self.send_file(file_json)
 
             print("Enviado.")
+    def send_int(self, number):
+        if not self.conn:
+            raise Exception("No se ha establecido una conexión.")
+        self.conn.sendall(str(number).encode('utf-8'))
+    
+    
