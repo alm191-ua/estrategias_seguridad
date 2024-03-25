@@ -1,13 +1,17 @@
-{
-	{
-		"id": 1,
-		"username": "user1",
-		"password": "vhs98wbb89whf8hw"
-	},
-	{
-		"id": 2,
-		"username": "user2",
-		"password": "srgrgw4gh984ybt98"
-	}
-
-}
+[
+    {
+        "id": 1,
+        "username": "user1",
+        "password": "vhs98wbb89whf8hw"
+    },
+    {
+        "id": 2,
+        "username": "user2",
+        "password": "srgrgw4gh984ybt98"
+    },
+    {
+        "id": 3,
+        "username": "hola",
+        "password": "14122002"
+    }
+]
