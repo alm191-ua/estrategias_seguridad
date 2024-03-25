@@ -1,7 +1,7 @@
 import socket
 import SocketPadre
 import ssl
-
+import hashlib
 
 class SocketCliente(SocketPadre.SocketPadre):
     FOLDER = 'files'
