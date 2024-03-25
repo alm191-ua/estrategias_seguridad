@@ -35,6 +35,8 @@ class LoginForm(QtWidgets.QWidget):
         # Botón para iniciar sesión
         login_button = QtWidgets.QPushButton("Iniciar Sesión")
         login_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        # Conectar el botón con la función de comprobar usuario
+        login_button.clicked.connect(lambda: self.comprobar_usuario(self.username_line_edit.text(), self.password_line_edit.text()))
         layout.addWidget(login_button)
 
         # Enlace para registrarse
@@ -62,12 +64,13 @@ class LoginForm(QtWidgets.QWidget):
             # Verificar si el usuario y la contraseña coinciden y entrar en la aplicación
             if user["username"] == username and user["password"] == password:
                 print("Usuario autenticado")
+                self.client_form = InterfazCliente()
+                self.client_form.show()
+                self.close()
                 return True
-            
 
         return False
 
-    
 
 class RegistrationForm(QtWidgets.QWidget):
     def __init__(self):
@@ -129,6 +132,42 @@ class RegistrationForm(QtWidgets.QWidget):
             self.close()
         else:
             QtWidgets.QMessageBox.warning(self, "Error", "Por favor, rellene todos los campos.")
+            
+
+class InterfazCliente(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Cliente")
+        self.setFixedSize(600, 400)
+        self.setStyleSheet("background-color: #2c3e51;")
+
+        layout = QtWidgets.QVBoxLayout()
+
+        self.message_list = QtWidgets.QListWidget()
+        self.message_list.setStyleSheet("background: #34495e; color: #ecf0f1; padding: 10px; border-radius: 10px; margin: 20px;")
+        layout.addWidget(self.message_list)
+
+        self.message_line_edit = QtWidgets.QLineEdit()
+        self.message_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
+        layout.addWidget(self.message_line_edit)
+
+        send_button = QtWidgets.QPushButton("Enviar")
+        send_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        send_button.clicked.connect(self.enviar_mensaje)
+        layout.addWidget(send_button)
+
+        self.setLayout(layout)
+
+    def enviar_mensaje(self):
+        message = self.message_line_edit.text()
+        self.cliente.enviar_mensaje(message)
+        self.message_line_edit.clear()
+
+    def recibir_mensaje(self, message):
+        self.message_list.addItem(message)
 
 app = QtWidgets.QApplication(sys.argv)
 login_form = LoginForm()
