@@ -2,6 +2,8 @@ import socket
 import SocketPadre
 import threading
 import ssl
+import os
+import json
 
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 
@@ -44,6 +46,17 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 thread = threading.Thread(target=handle_client, args=(self, address))
                 thread.start()
                 print("Active threads: ", threading.active_count())
+                
+    def compobar_usuario(self, username, password):
+        users_file = "server/users.json"
+        if not os.path.exists(users_file):
+            return False
+        with open(users_file, "r") as file:
+            users = json.load(file)
+        for user in users:
+            if user["username"] == username and user["password"] == password:
+                return True
+        return False
 
 
                 

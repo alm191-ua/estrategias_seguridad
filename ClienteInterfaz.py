@@ -2,6 +2,7 @@ import sys
 import socket
 import SocketPadre
 import SocketCliente
+import SocketServidor
 from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
@@ -53,23 +54,22 @@ class LoginForm(QtWidgets.QWidget):
         self.registration_form.show()
         
     def comprobar_usuario(self, username, password):
-        users_file = "server/users.json"
-        if os.path.exists(users_file):
-            with open(users_file, "r") as file:
-                users = json.load(file)
+        #Enviar mensaje a SockerServidor y que este lo compruebe y si esta bien que reciba el True
+        #y si esta mal que reciba el False
+        self.cliente = SocketCliente.SocketCliente()
+        #Pasar contraseña y usuario
+        self.cliente.username = username
+        self.cliente.password = password
+        self.cliente.start()
+        self.cliente.choose_option(1)
+        if self.cliente.comprobar_usuario(username, password):
+            self.interfaz_cliente = InterfazCliente()
+            self.interfaz_cliente.cliente = self.cliente
+            self.interfaz_cliente.show()
+            self.close()
         else:
-            users = []
-
-        for user in users:
-            # Verificar si el usuario y la contraseña coinciden y entrar en la aplicación
-            if user["username"] == username and user["password"] == password:
-                print("Usuario autenticado")
-                self.client_form = InterfazCliente()
-                self.client_form.show()
-                self.close()
-                return True
-
-        return False
+            QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
+            
 
 
 class RegistrationForm(QtWidgets.QWidget):
