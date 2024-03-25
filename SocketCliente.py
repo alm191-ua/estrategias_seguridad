@@ -1,13 +1,19 @@
 import socket
 import SocketPadre
+import ssl
 
 class SocketCliente(SocketPadre.SocketPadre):
     FOLDER = 'files'
 
-
     def connect(self):
         # Crear un socket de tipo TCP/IP.
-        self.conn = socket.create_connection((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conn = ssl.wrap_socket(
+            sock,
+            ca_certs='certificates/certificate.pem')
+        
+        self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
+
         print("Conectado al servidor.")
 
     def disconnect(self):
