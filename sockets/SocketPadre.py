@@ -1,10 +1,12 @@
 import struct
 import os
+import json
 
+config = json.load(open('config.json'))
 
 class SocketPadre:
-    SERVIDOR_IP = 'localhost'
-    SERVIDOR_PUERTO = 6190
+    SERVIDOR_IP = config['sockets']['host']
+    SERVIDOR_PUERTO = config['sockets']['port']
     FORMATO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'

@@ -1,0 +1,22 @@
+{
+    "sockets": {
+        "host": "localhost",
+        "port": 6190,
+        "tags": {
+            "init_comms": {
+                "register": "REG",
+                "login": "LOG"
+            },
+            "response": {
+                "incorrect_tag": "000",
+
+                "correct_login": "100",
+                "incorrect_login": "101",
+                
+                "correct_register": "200",
+                "incorrect_register": "201"
+            }
+        }
+    },
+    "encoding_format": "utf-8"
+}
