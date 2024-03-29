@@ -1,17 +1,8 @@
-[
-    {
-        "id": 1,
-        "username": "user1",
-        "password": "vhs98wbb89whf8hw"
+{
+    "test_user": {
+        "password": "$2b$12$AYl3RZ07L7DoChR2BdcayOvA22eSbCeYHSxEDUnHWFFvs5uNAqofm"
     },
-    {
-        "id": 2,
-        "username": "user2",
-        "password": "srgrgw4gh984ybt98"
-    },
-    {
-        "id": 3,
-        "username": "hola",
-        "password": "14122002"
+    "test_user2": {
+        "password": "$2b$12$hA7yVAAG0LCV.XJgVYtKWOYuZPTtz3FmZ1X0pMX7J4GiZidglUIBS"
     }
-]
+}

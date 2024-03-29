@@ -6,7 +6,11 @@ def main():
     cliente = SocketCliente.SocketCliente()
     cliente.connect()
     while True:
-        option=input("1. Enviar archivos\n2. Recibir archivos\n3. Salir\n")
+        username = input("Username: ")
+        password = input("Password: ")
+        cliente.username = username
+        cliente.password = password
+        option=input("1. Register\n2. Login\n3. Exit\n")
         if option == '3':
             cliente.disconnect()
             break

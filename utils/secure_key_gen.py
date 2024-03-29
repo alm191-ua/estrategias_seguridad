@@ -1,6 +1,7 @@
 import string
 import random
 import hashlib
+import bcrypt
 
 AMBIGUOUS = '01lIOo'
 
@@ -124,6 +125,33 @@ def generate_keys(passwd):
     login_key = full_hash[64:]
 
     return data_key, login_key
+
+def hash_password(password):
+    """
+    Hashes a password using bcrypt.
+
+    Args:
+        password (str): The password to hash.
+
+    Returns:
+        str: The hashed password.
+    """
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return hashed
+
+def check_password(password, hashed):
+    """
+    Checks if a password matches a hash.
+
+    Args:
+        password (str): The password to check.
+        hashed (str): The hashed password.
+
+    Returns:
+        bool: True if the password matches the hash, False otherwise.
+    """
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 if __name__ == '__main__':
     passwd = generate_password(12, mode=1)
