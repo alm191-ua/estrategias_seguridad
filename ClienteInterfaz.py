@@ -1,10 +1,10 @@
 import sys
 import socket
+sys.path.append('./sockets')
 import SocketPadre
 import SocketCliente
 import SocketServidor
 from PyQt5 import QtWidgets, QtGui, QtCore
-import sys
 import os
 import json
 
