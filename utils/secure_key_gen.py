@@ -2,8 +2,7 @@ import string
 import random
 import hashlib
 
-AMBIGUOUS = '01lIO'
-MORE_AMBIGUOUS = '1lIO0oO'
+AMBIGUOUS = '01lIOo'
 
 VOWELS = 'aeiouAEIOU'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyzBDFGHJKLMNPQRSTVWXYZ'
@@ -87,10 +86,8 @@ def generate_password(length, mode=0, uppercase=True, lowercase=True, digits=Tru
     if punctuation:
         characters += string.punctuation
 
-    if mode == 1:
+    if mode == 2:
         characters = ''.join([c for c in characters if c not in AMBIGUOUS])
-    elif mode == 2:
-        characters = ''.join([c for c in characters if c not in MORE_AMBIGUOUS])
 
     if not characters:
         raise ValueError("No characters selected for password generation.")
