@@ -11,6 +11,8 @@ class SocketCliente(SocketPadre.SocketPadre):
     def connect(self):
         # Crear un socket de tipo TCP/IP.
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # wrap_socket() se encarga de la encriptación de los datos
+        # mediante SSL con los certificados proporcionados.
         self.conn = ssl.wrap_socket(
             sock,
             ca_certs='certificates/certificate.pem')
