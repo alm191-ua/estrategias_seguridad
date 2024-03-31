@@ -1,16 +1,15 @@
 import sys
 import socket
 sys.path.append('./sockets')
-import SocketPadre
-import SocketCliente
-import SocketServidor
+# Importar la clase SocketCliente del módulo SocketCliente ademas de con la creación de __init__.py
+from sockets import SocketCliente
 from PyQt5 import QtWidgets, QtGui, QtCore
-import os
-import json
 
 class LoginForm(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        #Se crea una instancia de la clase SocketCliente
+        self.cliente = SocketCliente()
         self.init_ui()
 
     def init_ui(self):
@@ -54,21 +53,18 @@ class LoginForm(QtWidgets.QWidget):
         self.registration_form.show()
         
     def comprobar_usuario(self, username, password):
-        #Enviar mensaje a SockerServidor y que este lo compruebe y si esta bien que reciba el True
-        #y si esta mal que reciba el False
-        self.cliente = SocketCliente.SocketCliente()
-        #Pasar contraseña y usuario
-        self.cliente.username = username
-        self.cliente.password = password
-        self.cliente.start()
-        self.cliente.choose_option(1)
-        if self.cliente.comprobar_usuario(username, password):
-            self.interfaz_cliente = InterfazCliente()
-            self.interfaz_cliente.cliente = self.cliente
-            self.interfaz_cliente.show()
-            self.close()
-        else:
-            QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
+        try:
+            self.cliente.connect()  # Intentar conectar con el servidor
+            self.cliente.username = username
+            self.cliente.password = password
+            success = self.cliente.log_in()
+            if success:
+                QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
+                self.close()
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(self, "Error", str(e))
             
 
 
@@ -105,33 +101,19 @@ class RegistrationForm(QtWidgets.QWidget):
     def register_user(self):
         username = self.username_line_edit.text()
         password = self.password_line_edit.text()
-
-        # Aquí deberías verificar y almacenar el usuario
-        if username and password:  # Asegurarse de que ambos campos estén llenos
-            users_file = "server/users.json"
-            if os.path.exists(users_file):
-                with open(users_file, "r") as file:
-                    users = json.load(file)
+        try:
+            cliente = SocketCliente()  # Crear una nueva instancia para el registro
+            cliente.connect()  # Conectar con el servidor
+            cliente.username = username
+            cliente.password = password
+            success = cliente.register_user()  # Intentar registrar el usuario
+            if success:
+                QtWidgets.QMessageBox.information(self, "Éxito", "Usuario registrado correctamente.")
+                self.close()  # Cerrar la ventana de registro o abrir la ventana de login
             else:
-                users = []
-
-            # Verificar si el usuario ya existe
-            for user in users:
-                if user["username"] == username:
-                    QtWidgets.QMessageBox.warning(self, "Error", "El usuario ya existe.")
-                    return
-
-            # Añadir nuevo usuario
-            new_user = {"id": len(users) + 1, "username": username, "password": password}
-            users.append(new_user)
-            print(new_user)
-            with open(users_file, "w") as file:
-                json.dump(users, file, indent=4)
-
-            QtWidgets.QMessageBox.information(self, "Éxito", "Usuario registrado exitosamente.")
-            self.close()
-        else:
-            QtWidgets.QMessageBox.warning(self, "Error", "Por favor, rellene todos los campos.")
+                QtWidgets.QMessageBox.warning(self, "Error", "No se pudo registrar el usuario.")
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(self, "Error", str(e))
             
 
 class InterfazCliente(QtWidgets.QWidget):

@@ -1,6 +1,7 @@
 import sys
 sys.path.append('./sockets')
-import SocketCliente
+#import SocketCliente
+from sockets import SocketCliente
 
 def main():
     cliente = SocketCliente.SocketCliente()

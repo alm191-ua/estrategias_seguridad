@@ -4,7 +4,8 @@ import json
 import bcrypt
 sys.path.append('./sockets')
 sys.path.append('./utils')
-import SocketServidor
+#import SocketServidor
+from sockets import SocketServidor
 from secure_key_gen import hash_password
 from secure_key_gen import check_password
 

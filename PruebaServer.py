@@ -1,6 +1,7 @@
 import sys
 sys.path.append('./sockets')
-import SocketServidor
+#import SocketServidor
+from sockets import SocketServidor
 
 def main():
     server = SocketServidor.SocketServidor()
