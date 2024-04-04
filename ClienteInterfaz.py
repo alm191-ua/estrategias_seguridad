@@ -9,7 +9,7 @@ class LoginForm(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         #Se crea una instancia de la clase SocketCliente
-        self.cliente = SocketCliente()
+        self.cliente = SocketCliente.SocketCliente()
         self.init_ui()
 
     def init_ui(self):
@@ -102,7 +102,7 @@ class RegistrationForm(QtWidgets.QWidget):
         username = self.username_line_edit.text()
         password = self.password_line_edit.text()
         try:
-            cliente = SocketCliente()  # Crear una nueva instancia para el registro
+            cliente = SocketCliente.SocketCliente()  # Crear una nueva instancia para el registro
             cliente.connect()  # Conectar con el servidor
             cliente.username = username
             cliente.password = password

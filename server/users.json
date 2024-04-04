@@ -4,5 +4,8 @@
     },
     "test_user2": {
         "password": "$2b$12$hA7yVAAG0LCV.XJgVYtKWOYuZPTtz3FmZ1X0pMX7J4GiZidglUIBS"
+    },
+    "1235": {
+        "password": "$2b$12$/tWc04adeY1XcZocI1EWVu.0m8jyTRPcWRYnfpEoG3Dbe3xOdWMk2"
     }
 }
