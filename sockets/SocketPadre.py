@@ -9,9 +9,10 @@ class SocketPadre:
     SERVIDOR_PUERTO = config['sockets']['port']
     ENVIAR=config['sockets']['tags']['init_comms']['send']
     RECIBIR=config['sockets']['tags']['init_comms']['receive']
-    FORMATO_ENCRIPTADO='.zip.enc'
+    FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'
+    FORMATO_ENCRIPTADO='.enc'
     conn=None
     FOLDER=None
     def buscar_server_folder(self):
@@ -117,6 +118,7 @@ class SocketPadre:
         with open(filename, "rb") as f:
             while read_bytes := f.read(2048):
                 self.conn.sendall(read_bytes)
+        
     
     def send_files_in_folder(self):
         if not self.conn:
@@ -131,8 +133,8 @@ class SocketPadre:
                     print("Enviando archivo...")
                     file_folder_path = os.path.join(self.FOLDER, fileId)
                     files_path = os.path.join(file_folder_path, fileId)
-                    file_path = files_path + self.FORMATO_ENCRIPTADO
-                    file_key=files_path+self.FORMATO_LLAVE
+                    file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                    file_key=files_path+self.FORMATO_LLAVE+self.FORMATO_ENCRIPTADO
                     file_json=files_path+self.FORMATO_JSON
                     self.send_file(file_path)
                     self.send_file(file_key)

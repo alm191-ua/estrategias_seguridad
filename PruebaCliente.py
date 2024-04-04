@@ -8,9 +8,7 @@ def main():
     cliente = SocketCliente.SocketCliente()
     cliente.connect()
     while True:
-
-
-        if cliente.username=='' and cliente.password=='':
+        if cliente.username=='' or cliente.password=='':
             username = input("Username: ")
             password = input("Password: ")
             cliente.username = username
@@ -40,7 +38,7 @@ def main():
                 else:
                     print("Invalid option")
         else:
-            option = input("3. Send files\n4. Receive files\n5. add File\n6. Exit\n")
+            option = input("3. Send files\n4. Receive files\n8. add File\n6. Exit\n")
             option = int(option)
             if option==6:
                 cliente.disconnect()
@@ -49,19 +47,12 @@ def main():
                 cliente.choose_opt(option)
             if option==4:
                 cliente.choose_opt(option)
-            if option==5:
+            if option==8:
                 archivos = ['archivo1.txt', 'archivo2.txt']
                 # Definir el título y la descripción
                 titulo = "Paquete de documentos"
                 descripcion = "Este paquete contiene dos archivos de ejemplo."
-                path=ZipAndEncryptFile(archivos, titulo, descripcion)
-                cliente.encrypt_key(path)
-                print("Archivo creado en: ", path)
-                decr=input("Desea desencriptar el archivo? (s/n)")
-                if decr=='s':
-                    cliente.decrypt_key(path+'.enc')
-                    print("Archivo desencriptado en: ", path)
-                break
+                cliente.ZipAndEncryptFile(archivos, titulo, descripcion)
             else:
                 print("Invalid option")
 

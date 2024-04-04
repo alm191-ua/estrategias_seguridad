@@ -7,7 +7,7 @@ import json
 import sys
 sys.path.append('utils')
 from secure_key_gen import generate_keys
-from Cifrado import encrypt_file, decrypt_file
+from Cifrado import encrypt_file, decrypt_file,ZipAndEncryptFile
 
 
 config = json.load(open('config.json'))
@@ -21,7 +21,27 @@ class SocketCliente(SocketPadre.SocketPadre):
     username=''
     password=''
     data_key=''
-# def encrypt_file(input_file, directory,old_key=None,data_key=None)
+    def ZipAndEncryptFile(self, archivos, titulo, descripcion):
+        """
+        Sends files to the server.
+        Args:
+            archivos (list): The list of files to send.\n
+            titulo (str): The title of the package.\n
+            descripcion (str): The description of the package.
+        
+        """
+        self.conn.sendall(self.ENVIAR.encode('utf-8'))
+        path = ZipAndEncryptFile(archivos, titulo, descripcion)
+        self.encrypt_key(path)
+        file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_ARCHIVO_ENCRIPTADO)
+        json_file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_JSON)
+        key = path+self.FORMATO_ENCRIPTADO
+        self.send_file(file)
+        self.send_file(key)
+        self.send_file(json_file)
+        self.decrypt_key(key)
+        self.conn.sendall(b"done")
+
     def encrypt_key(self, key):
         """
         Encrypts a key using the server's public key.
@@ -29,8 +49,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         Args:
             key (str): The key to encrypt.
 
-        Returns:
-            str: The encrypted key.
+
 
         """
         file=os.path.basename(key)
@@ -43,9 +62,6 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         Args:
             key (str): The key to encrypt.
-
-        Returns:
-            str: The encrypted key.
 
         """
 
@@ -124,6 +140,51 @@ class SocketCliente(SocketPadre.SocketPadre):
         else:
             print("Usuario o contraseña incorrectos.")
             return False
+
+    def receive_file(self,):
+        print("Esperando el tamaño del nombre del archivo...")
+        try:
+            fmt = "<L"
+            NameSize = self.receive_size(fmt)
+            if NameSize == 0:
+                raise ValueError("Everything sent correctly")
+            file = self.conn.recv(NameSize)
+            filename = file.decode('utf-8')
+            fmt="<Q"
+            print(f"Nombre de archivo recibido: {filename}")
+            filesize = self.receive_size(fmt)
+            self.buscar_server_folder()
+            folder = self.create_folder_4_new_file(filename)
+            filename = os.path.join(folder, filename)
+        except ConnectionResetError:
+            raise ConnectionResetError("Conexión cerrada por el cliente.")
+
+        print("Recibiendo archivo...")
+        received_bytes = 0
+        with open(filename, "wb") as f:
+            while received_bytes < filesize:
+                try:
+                    remain_bytes = filesize - received_bytes
+                    chunk = self.conn.recv(min(remain_bytes, 2048))
+                    if not chunk:
+                        raise ConnectionResetError("Conexión cerrada por el cliente.")
+                    f.write(chunk)
+                    received_bytes += len(chunk)
+                except ConnectionResetError:
+                    raise ConnectionResetError("Conexión cerrada por el cliente.")
+            f.close()
+        formato_encrypted = self.FORMATO_LLAVE+self.FORMATO_ENCRIPTADO
+        print("filename: ", os.path.basename(filename))
+        nombre=os.path.basename(filename)
+        division = nombre.split('.', 1)
+        if(len(division)>1):
+            division[1]='.'+division[1]
+            if division[1]==formato_encrypted:
+                    self.decrypt_key(filename)
+
+        print("Archivo recibido correctamente.")
+
+
 
     def choose_opt(self, number):
         """
