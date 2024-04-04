@@ -41,6 +41,21 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.send_file(json_file)
         self.decrypt_key(key)
         self.conn.sendall(b"done")
+    
+    def get_file(self, filename):
+        """
+        gets a file to the server.
+
+        Args:
+            filename (str): The name of the file to send.
+
+        """
+        
+        self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
+        
+        self.conn.sendall(filename.encode('utf-8'))
+        self.receive_file()
+        
 
     def encrypt_key(self, key):
         """
@@ -223,8 +238,11 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Send files in the 'files' folder to the server
             self.conn.sendall(self.ENVIAR.encode('utf-8'))
             self.send_files_in_folder()
-        if number == 4:
+        if number == 4 :
             self.conn.sendall(self.RECIBIR.encode('utf-8'))
             # Wait for files from the server
+            self.wait_files()
+        if number == 5:
+            self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
             self.wait_files()
     

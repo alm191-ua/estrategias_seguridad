@@ -92,6 +92,9 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor,username):
             serverSocket.wait_files()
         elif option == serverSocket.RECIBIR:
             serverSocket.send_files_in_folder()
+        elif option ==serverSocket.RECIBIR_JSON:
+            serverSocket.send_json()
+        
         else:
             break
         
@@ -130,6 +133,11 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
                 handle_user_logged(serverSocket,username)
                 break
+        ##Enviar 1 archivo
+        elif option == serverSocket.RECIBIR_FILE:
+            serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,'Hugo')
+            serverSocket.send_encoded()
+            
             
         else:
             # TODO: hacer algo si la opción no es válida

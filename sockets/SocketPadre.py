@@ -2,6 +2,7 @@ import struct
 import os
 import json
 
+
 config = json.load(open('config.json'))
 
 class SocketPadre:
@@ -9,6 +10,8 @@ class SocketPadre:
     SERVIDOR_PUERTO = config['sockets']['port']
     ENVIAR=config['sockets']['tags']['init_comms']['send']
     RECIBIR=config['sockets']['tags']['init_comms']['receive']
+    RECIBIR_JSON=config['sockets']['tags']['init_comms']['receive_json']
+    RECIBIR_FILE=config['sockets']['tags']['init_comms']['receive_file']
     FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'
@@ -147,3 +150,4 @@ class SocketPadre:
             break
             
         return
+

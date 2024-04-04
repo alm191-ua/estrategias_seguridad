@@ -306,9 +306,11 @@ def encrypt_file(input_file, directory,old_key=None,data_key=None):
     if data_key:
         print('Data key provided')
         key = data_key
-    else:
+    elif not old_key:
         key = generate_and_save_key(input_file, directory)
         print(key)
+    if old_key:
+        key=old_key
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
     if data_key:

@@ -1,13 +1,15 @@
 {
     "sockets": {
         "host": "localhost",
-        "port": 65534,
+        "port": 65535,
         "tags": {
             "init_comms": {
                 "register": "REG",
                 "login": "LOG",
                 "send": "SND",
-                "receive": "RCV"
+                "receive": "RCV",
+                "receive_json": "RCJ",
+                "receive_file": "RCF"
             },
             "response": {
                 "incorrect_tag": "000",

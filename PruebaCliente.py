@@ -2,7 +2,6 @@ import sys
 sys.path.append('./sockets')
 #import SocketCliente
 from sockets import SocketCliente
-from Cifrado import ZipAndEncryptFile
 
 def main():
     cliente = SocketCliente.SocketCliente()
@@ -14,8 +13,8 @@ def main():
             cliente.username = username
             cliente.password = password
             option=33
-            while option!=5:
-                option=input("1. Register\n2. Login\n5. Exit\n")
+            while option!=10:
+                option=input("1. Register\n2. Login\n10. Exit\n")
                 option = int(option)
                 if option==5:
                     cliente.disconnect()
@@ -38,14 +37,15 @@ def main():
                 else:
                     print("Invalid option")
         else:
-            option = input("3. Send files\n4. Receive files\n8. add File\n6. Exit\n")
+            option = input("3. Send files(no usar)\n4. Receive files\n5.Recibir JSONs\n6. add File\n10. Exit\n")
             option = int(option)
-            if option==6:
+            print(option==5)
+            if option==10:
                 cliente.disconnect()
                 break
-            if option==3:
+            if option==3 or option==4:
                 cliente.choose_opt(option)
-            if option==4:
+            elif option==5:
                 cliente.choose_opt(option)
             if option==8:
                 archivos = ['archivo1.txt', 'archivo2.txt']
@@ -54,6 +54,7 @@ def main():
                 descripcion = "Este paquete contiene dos archivos de ejemplo."
                 cliente.ZipAndEncryptFile(archivos, titulo, descripcion)
             else:
+                print(option)
                 print("Invalid option")
 
 if __name__ == "__main__":

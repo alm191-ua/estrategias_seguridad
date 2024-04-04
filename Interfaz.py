@@ -6,7 +6,7 @@ import sys
 import threading
 import logging
 sys.path.append('..')
-sys.path.append('../sockets')
+sys.path.append('./sockets')
 from Cifrado import ZipAndEncryptFile as zp
 from Cifrado import is_unsafe_mode as ium
 import GetDataUploaded as gdu
@@ -15,6 +15,7 @@ sg.theme('Material2')
 
 data = []
 cliente = SocketCliente.SocketCliente()
+cliente.connect()
 
 is_unsafe_mode_active = False
 
@@ -37,7 +38,6 @@ def update_unsafe_mode_text(window, is_unsafe_mode):
     window['-UNSAFE-MODE-TEXT-'].update(text, text_color=text_color)
 
 def create_main_window():
-    
     headings = ['Número', 'Título', 'Descripción', 'Tiempo de Creación']
 
 
@@ -105,101 +105,112 @@ def create_files_window(item):
     return sg.Window('Archivo Comprimidos', layout, finalize=True)
 
 
-file_list = []
-
-main_window = create_main_window()
-add_window = None
-show_files_window = None
-
-while True:
-    
-    window, event, values = sg.read_all_windows()
-    
-    if event == sg.WINDOW_CLOSED and window == main_window:
-        break
-    elif event == sg.WINDOW_CLOSED and window == add_window:
-        add_window.close()
-        add_window = None
-    elif event == sg.WINDOW_CLOSED and window == show_files_window:
-        show_files_window.close()
-        show_files_window = None
-    elif event == '-UNSAFE-': 
-        is_unsafe_mode_active = values['-UNSAFE-']
-        update_unsafe_mode_text(window, is_unsafe_mode_active)
 
 
-    if event == '-ADD-' and not add_window:
-        add_window = create_add_window()
-    
-    if event == '-SAVE-':
-        title = values['-TITLE-'].strip()
-        description = values['-DESCRIPTION-'].strip()
-        files = values['-FILEPATH-'].strip()
+def main():
 
-        if not title or not description or not files:
-            sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
-        else:
-            unsafe_mode = is_unsafe_mode_active
-            valid_files = [f.strip() for f in files.split(';') if os.path.exists(f.strip())]
+    file_list = []
 
-            try:
-                ium(unsafe_mode)
-                zp(valid_files, title, description)
-                sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
-            except Exception as e:
-                sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
+    main_window = create_main_window()
+    add_window = None
+    show_files_window = None
 
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-
-            nuevo_documento = [len(data) + 1, title, description, current_time]
-            data.append(nuevo_documento)
-
-            main_window['-TABLE-'].update(values=data)
-
+    while True:
+        
+        window, event, values = sg.read_all_windows()
+        
+        if event == sg.WINDOW_CLOSED and window == main_window:
+            break
+        elif event == sg.WINDOW_CLOSED and window == add_window:
             add_window.close()
             add_window = None
-            data = gdu.listar_los_zips()
+        elif event == sg.WINDOW_CLOSED and window == show_files_window:
+            show_files_window.close()
+            show_files_window = None
+        elif event == '-UNSAFE-': 
+            is_unsafe_mode_active = values['-UNSAFE-']
+            update_unsafe_mode_text(window, is_unsafe_mode_active)
 
-    if event == '-SEE-':
-        if values['-TABLE-']:
-            selected_row_index = values['-TABLE-'][0] 
-            
-            selected_item = data[selected_row_index]
-            show_files_window = create_files_window(selected_item)
-        else:
-            sg.popup("Por favor, selecciona un elemento de la lista.")
-            
-    if event == '-DOWNLOAD-' and show_files_window is not None:
-        selected_files = values['-FILES_LIST-']
-        if selected_files:
-            folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
-            if folder_path:
-                nombre_Fichero="File"+selected_item[4]
-                print(nombre_Fichero)
-                directorio_files=gdu.UnzipFolder(nombre_Fichero)
-                for file_name in selected_files:
-                    file_name = ''.join(file_name)
-                    gdu.get_file(file_name, directorio_files,folder_path)
-                    pass
-                shutil.rmtree(directorio_files)
-                sg.popup(f'Archivos descargados en: {folder_path}')
-    elif event == '-BUSCAR DATOS-':
-        window['-CARGANDO-'].update(visible=True)
-        threading.Thread(target=cargar_datos, args=(window,), daemon=True).start()
-    elif event == '-DATOS CARGADOS-':
-        if values[event]: 
-            data = values[event]
-            window['-TABLE-'].update(values=data)
-            window['-CARGANDO-'].update(visible=False)  
-        else:
-            sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
-    elif event == '-ERROR-':
-        window['-CARGANDO-'].update(visible=False)
 
-main_window.close()
-logging.info('Cerrando la aplicación...')
-if add_window:
-    add_window.close()
-if show_files_window:
-    show_files_window.close()
+        if event == '-ADD-' and not add_window:
+            add_window = create_add_window()
+        
+        if event == '-SAVE-':
+            title = values['-TITLE-'].strip()
+            description = values['-DESCRIPTION-'].strip()
+            files = values['-FILEPATH-'].strip()
+
+            if not title or not description or not files:
+                sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
+            else:
+                unsafe_mode = is_unsafe_mode_active
+                valid_files = [f.strip() for f in files.split(';') if os.path.exists(f.strip())]
+
+                try:
+                    ium(unsafe_mode)
+                    zp(valid_files, title, description)
+                    sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
+                except Exception as e:
+                    sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
+
+                now = datetime.now()
+                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+
+                nuevo_documento = [len(data) + 1, title, description, current_time]
+                data.append(nuevo_documento)
+
+                main_window['-TABLE-'].update(values=data)
+
+                add_window.close()
+                add_window = None
+                data = gdu.listar_los_zips()
+
+        if event == '-SEE-':
+            if values['-TABLE-']:
+                selected_row_index = values['-TABLE-'][0] 
+                
+                selected_item = data[selected_row_index]
+                show_files_window = create_files_window(selected_item)
+            else:
+                sg.popup("Por favor, selecciona un elemento de la lista.")
+                
+        if event == '-DOWNLOAD-' and show_files_window is not None:
+            selected_files = values['-FILES_LIST-']
+            if selected_files:
+                folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
+                if folder_path:
+                    nombre_Fichero="File"+selected_item[4]
+                    print(nombre_Fichero)
+                    try:
+                        cliente.get_file(nombre_Fichero)
+                    except Exception as e:
+                        sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
+                    directorio_files=gdu.UnzipFolder(nombre_Fichero)
+                    for file_name in selected_files:
+                        file_name = ''.join(file_name)
+                        gdu.get_file(file_name, directorio_files,folder_path)
+                        pass
+                    shutil.rmtree(directorio_files)
+                    sg.popup(f'Archivos descargados en: {folder_path}')
+        elif event == '-BUSCAR DATOS-':
+            window['-CARGANDO-'].update(visible=True)
+            threading.Thread(target=cargar_datos, args=(window,), daemon=True).start()
+        elif event == '-DATOS CARGADOS-':
+            if values[event]: 
+                data = values[event]
+                window['-TABLE-'].update(values=data)
+                window['-CARGANDO-'].update(visible=False)  
+            else:
+                sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
+        elif event == '-ERROR-':
+            window['-CARGANDO-'].update(visible=False)
+
+    main_window.close()
+    logging.info('Cerrando la aplicación...')
+    if add_window:
+        add_window.close()
+    if show_files_window:
+        show_files_window.close()
+
+if __name__ == '__main__':
+    main()
