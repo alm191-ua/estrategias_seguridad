@@ -36,7 +36,15 @@ BLOCK_SIZE = AES.block_size # in bytes
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
-log_directory = '../logs'
+log_directory=''
+
+exec_dir = os.getcwd()
+if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+    DIRECTORIO_PROYECTO=exec_dir
+else:
+    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+log_directory=os.path.join(DIRECTORIO_PROYECTO,'logs')
+
 
 # Verificar si el directorio existe y, si no, crearlo
 if not os.path.exists(log_directory):
@@ -86,7 +94,10 @@ def buscar_proyecto():
 
     global DIRECTORIO_PROYECTO
     exec_dir = os.getcwd()
-    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+    if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+        DIRECTORIO_PROYECTO=exec_dir
+    else:
+        DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 
 def Create_Dirs(filename,newdir=FILE_DIR):
     """
@@ -105,6 +116,7 @@ def Create_Dirs(filename,newdir=FILE_DIR):
         DIRECTORIO=DIRECTORIO_PROYECTO
     else:
         DIRECTORIO=os.path.join(DIRECTORIO, NOMBRE_PROYECTO)
+    print(DIRECTORIO_PROYECTO)
     # Primero, asegúrate de que el directorio principal 'files/' exista
     DIRECTORIO=os.path.join(DIRECTORIO, newdir)
     os.makedirs(DIRECTORIO, exist_ok=True)# Usa os.makedirs() que crea directorios intermedios necesarios
@@ -144,6 +156,7 @@ def ZipAndEncryptFile(files, title, description):
     """
     doc_id = str(unique_id())
     FileName = f"{NAME_FILES}{doc_id}"
+    print(FileName)
     directory = Create_Dirs(FileName)
     zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
     
@@ -157,6 +170,8 @@ def ZipAndEncryptFile(files, title, description):
     encrypt_file(FileName, directory)
 
     logging.info('Files compressed')
+    return os.path.join(directory, FileName + KEYS_FORMAT)
+
 
 def UnZipFiles(file,target_folder=None):
     """
@@ -275,7 +290,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
 
 # ========= ENCRYPTION ==========
 
-def encrypt_file(input_file, directory,old_key=None):
+def encrypt_file(input_file, directory,old_key=None,data_key=None):
     """
     Encripta un archivo y lo guarda en la ruta especificada.
     Actualiza el archivo JSON con la información de encriptación.
@@ -288,12 +303,19 @@ def encrypt_file(input_file, directory,old_key=None):
     Returns:
         None.
     """
-    
-    key = generate_and_save_key(input_file, directory)
+    if data_key:
+        print('Data key provided')
+        key = data_key
+    else:
+        key = generate_and_save_key(input_file, directory)
+        print(key)
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
-    path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
-    json_filename = os.path.join(directory, input_file + '.json')
+    if data_key:
+        path = os.path.join(directory, input_file)
+    else:  
+        path = os.path.join(directory, input_file + FILES_COMPRESSION_FORMAT)
+        json_filename = os.path.join(directory, input_file + '.json')
     with open(path, 'rb') as f:
         plaintext = f.read()
     
@@ -301,7 +323,8 @@ def encrypt_file(input_file, directory,old_key=None):
     encrypted_path = path +FILES_ENCODE_FORMAT
     write_in_file_bytes(encrypted_path, iv + ctext)
     os.remove(path)
-    encrypt_files_JSON(json_filename, key,old_key)
+    if not data_key:
+        encrypt_files_JSON(json_filename, key,old_key)
     logging.info('File encrypted')
 
 def key_to_use(old_key,json_filename):
@@ -377,7 +400,7 @@ def _handle_decrypt_file(input_file, key = None):
 
     return plaintext, key
 
-def decrypt_file(input_file, key = None):
+def decrypt_file(input_file, key = None,data_key=None):
     """
     Desencripta un archivo individual y guarda la versión con texto plano.
 
@@ -390,6 +413,8 @@ def decrypt_file(input_file, key = None):
     if key:
         global UNSAFE_MODE
         UNSAFE_MODE = True
+    if data_key:
+        key=data_key
     plaintext, key = _handle_decrypt_file(input_file, key)
     encrypted_path = input_file[:-4]  # Elimina la extensión ".enc"
     write_in_file_bytes(encrypted_path, plaintext)

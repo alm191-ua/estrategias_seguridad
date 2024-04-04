@@ -7,6 +7,8 @@ config = json.load(open('config.json'))
 class SocketPadre:
     SERVIDOR_IP = config['sockets']['host']
     SERVIDOR_PUERTO = config['sockets']['port']
+    ENVIAR=config['sockets']['tags']['init_comms']['send']
+    RECIBIR=config['sockets']['tags']['init_comms']['receive']
     FORMATO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'
@@ -97,6 +99,7 @@ class SocketPadre:
     def send_file(self, filename):
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
+        
 
         # Enviar el nombre del archivo al servidor.
         name = os.path.basename(filename)
@@ -138,5 +141,7 @@ class SocketPadre:
                 i+=1
                 if i==legnth:
                     break
+            self.conn.sendall(b"done")
             break
+            
         return

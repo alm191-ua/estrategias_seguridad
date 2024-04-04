@@ -2,10 +2,13 @@ import socket
 import SocketPadre
 import ssl
 import hashlib
+import os
 import json
 import sys
 sys.path.append('utils')
 from secure_key_gen import generate_keys
+from Cifrado import encrypt_file, decrypt_file
+
 
 config = json.load(open('config.json'))
 login_tag = config['sockets']['tags']['init_comms']['login']
@@ -17,6 +20,39 @@ class SocketCliente(SocketPadre.SocketPadre):
     FOLDER = 'files'
     username=''
     password=''
+    data_key=''
+# def encrypt_file(input_file, directory,old_key=None,data_key=None)
+    def encrypt_key(self, key):
+        """
+        Encrypts a key using the server's public key.
+
+        Args:
+            key (str): The key to encrypt.
+
+        Returns:
+            str: The encrypted key.
+
+        """
+        file=os.path.basename(key)
+        path=os.path.dirname(key)
+        print("data_key: ", self.data_key)
+        encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
+    def decrypt_key(self, key):
+        """
+        Encrypts a key using the server's public key.
+
+        Args:
+            key (str): The key to encrypt.
+
+        Returns:
+            str: The encrypted key.
+
+        """
+
+        print("data_key: ", self.data_key)
+        decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
+
+
 
     def connect(self):
         # Crear un socket de tipo TCP/IP.
@@ -51,7 +87,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(self.username.encode('utf-8'))
 
         # use SHA3 to hash the password, and get a data and cipher keys
-        data_key, login_key = generate_keys(self.password)
+        self.data_key, login_key = generate_keys(self.password)
         self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.read().decode('utf-8')
@@ -78,7 +114,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(self.username.encode('utf-8'))
 
         # use SHA3 to hash the password, and get a data and cipher keys
-        data_key, login_key = generate_keys(self.password)
+        self.data_key, login_key = generate_keys(self.password)
         self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.read().decode('utf-8')
@@ -111,21 +147,23 @@ class SocketCliente(SocketPadre.SocketPadre):
         if number == 1:
             # Register a new user
             user_registered = self.register_user()
-            if user_registered:
-                self.log_in()
+            return user_registered
+            # if user_registered:
+            #     self.log_in()
             
         if number == 2:
             # Log in
             user_logged = self.log_in()
-            if user_logged:
-                # TODO: implementar acciones que puede realizar un usuario logueado
-                pass
-        # if number == 3:
-        #     # Send files in the 'files' folder to the server
-        #     self.send_files_in_folder()
-        #     self.conn.sendall(b"done")
-        # if number == 4:
-        #     # Wait for files from the server
-        #     self.wait_files()
-    
+            return user_logged
+            # if user_logged:
+            #     # TODO: implementar acciones que puede realizar un usuario logueado
+            #     pass
+        if number == 3:
+            # Send files in the 'files' folder to the server
+            self.conn.sendall(self.ENVIAR.encode('utf-8'))
+            self.send_files_in_folder()
+        if number == 4:
+            self.conn.sendall(self.RECIBIR.encode('utf-8'))
+            # Wait for files from the server
+            self.wait_files()
     

@@ -85,11 +85,20 @@ def register_user(username, password):
 
     return True
 
-def handle_user_logged(username):
-    # TODO: gestionar lo que puede hacer un usuario logueado
-    pass
+def handle_user_logged(serverSocket: SocketServidor.SocketServidor,username):
+    while serverSocket.conn:
+        option = serverSocket.conn.read().decode('utf-8')
+        if option == serverSocket.ENVIAR:
+            serverSocket.wait_files()
+        elif option == serverSocket.RECIBIR:
+            serverSocket.send_files_in_folder()
+        else:
+            break
+        
+
 
 def handle_client(serverSocket: SocketServidor.SocketServidor, address):
+    serverSocket.FOLDER="server"
     print(f"{address[0]}:{address[1]} conectado.")
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
@@ -118,7 +127,9 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
             else:
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
-                handle_user_logged(username)
+                serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
+                handle_user_logged(serverSocket,username)
+                break
             
         else:
             # TODO: hacer algo si la opción no es válida

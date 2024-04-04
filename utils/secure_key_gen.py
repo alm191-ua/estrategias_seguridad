@@ -119,10 +119,10 @@ def generate_keys(passwd):
     # Generar clave de datos utilizando SHA-3 (SHA3-512 / 2)
     # cada caracter en hexadecimal son 4 bits (un nibble)
     # por lo que 64 caracteres son 256 bits
-    data_key = full_hash[:64]
+    data_key = full_hash[:32]
 
     # Generar clave de login utilizando SHA-3 (SHA3-512 / 2)
-    login_key = full_hash[64:]
+    login_key = full_hash[32:]
 
     return data_key, login_key
 
