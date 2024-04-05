@@ -20,6 +20,7 @@ FILES_COMPRESSION_FORMAT='.zip'
 FILES_ENCODE_FORMAT='.enc'
 KEYS_FORMAT='.key'
 UNSAFE_MODE = False
+MALICIOUS=False
 UNSAFE_PASSWORDS = ['123456',
                     'admin',
                     'password',
@@ -192,7 +193,7 @@ def UnZipFiles(file,target_folder=None):
         fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
         Folder=os.path.basename(fileWithNoFormat)
         directorio_Final=os.path.join(target_folder,Folder)
-        if UNSAFE_MODE:
+        if MALICIOUS:
             key=decrypt_file_unsafe(file, directorio_Final)
         else:
             key=decrypt_file(file)
@@ -361,7 +362,7 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
         list: Lista de los archivos desencriptados en formato de bytes.
     """
     decrypted_files = []
-    if UNSAFE_MODE:
+    if MALICIOUS:
         for password in UNSAFE_PASSWORDS:
             key = bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
             try:

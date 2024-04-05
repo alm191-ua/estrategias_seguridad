@@ -183,12 +183,6 @@ def main():
 
         if event == '-SEE-':
             if values['-TABLE-']:
-                if cliente.username =='' or cliente.password=='':
-                    unsafe_mode = True
-                else:
-                    unsafe_mode = False
-
-                ium(unsafe_mode)
                 selected_row_index = values['-TABLE-'][0] 
                 
                 selected_item = data[selected_row_index]
@@ -205,16 +199,13 @@ def main():
                 folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                 if folder_path:
                     nombre_Fichero="File"+selected_item[4]
-                    if cliente.username =='' or cliente.password=='':
-                        unsafe_mode = True
-                    else:
-                        unsafe_mode = False
-
-                    ium(unsafe_mode)
                     try:
                         cliente.get_file(nombre_Fichero)
+                    except FileNotFoundError as e:
+                        sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                     except Exception as e:
                         sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
+                    
                     directorio_files=gdu.UnzipFolder(nombre_Fichero)
                     for file_name in selected_files:
                         file_name = ''.join(file_name)

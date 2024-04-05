@@ -96,8 +96,9 @@ class SocketPadre:
                 self.conn.close()
                 self.conn=None
                 break
-            except ValueError:
-                print("Archos recibidos correctamente.")
+            except ValueError as e:
+                print(e)
+                print("Arcihos recibidos correctamente.")
                 return
             print("Archivo recibido.")
 

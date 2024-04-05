@@ -63,10 +63,8 @@ class SocketCliente(SocketPadre.SocketPadre):
                     break
                 else:
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
-                    print("Nombre enviado.")
                     self.conn.sendall(filename.encode('utf-8'))
-                    print("Nombre enviado.")
-                    self.receive_file()
+                    self.wait_files()
                     print("Archivo recibido.")
         return
 
@@ -135,6 +133,10 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
+        if self.username == '' or self.password == '':
+            self.MALICIOSO=True
+            Cifrado.MALICIOUS=True
+            return
         self.conn.sendall(register_tag.encode('utf-8'))
         self.conn.sendall(self.username.encode('utf-8'))
 
@@ -161,7 +163,10 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
-        
+        if self.username == '' or self.password == '':
+            Cifrado.MALICIOUS=True
+            self.MALICIOSO=True
+            return
         self.conn.sendall(login_tag.encode('utf-8'))
         self.conn.sendall(self.username.encode('utf-8'))
 

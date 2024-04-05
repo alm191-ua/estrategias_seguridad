@@ -79,8 +79,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 print(file_path)
                 self.send_file(file_path)
                 print("Enviado.")
+                self.conn.sendall(b"done")
                 break
-        self.conn.sendall(b"done")
+        
         
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')
@@ -88,19 +89,26 @@ class SocketServidor(SocketPadre.SocketPadre) :
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             if self.FOLDER == "server":
-                
+                print("MALICIOSO")
                 for folderId in os.listdir(self.FOLDER):
-                    FOLDER = os.path.join(self.FOLDER, folderId)
+                    folder_path = os.path.join(self.FOLDER, folderId)
+                    print(folder_path)
                     try:
-                        self.send_enconded_file(FOLDER,name)
-                        print(FOLDER)
-                    except:
-                        continue
+                        self.send_enconded_file(folder_path, name)
+                        return
+                    except Exception as e:
+                        print("Error al enviar desde la carpeta", folder_path, ":", e)
+                        continue  # Continuar con la siguiente iteración del ciclo
                 else:
-                    self.conn.sendall(b"done")
+                    raise FileNotFoundError("El archivo no existe.")
+
             else:
-                FOLDER = self.FOLDER
-                self.send_enconded_file(FOLDER,name)
+                folder_path = self.FOLDER
+                try:
+                    self.send_enconded_file(folder_path,name)
+                    return
+                except Exception as e:
+                    print(e)   
             break
         return
         
