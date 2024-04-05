@@ -80,7 +80,8 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 self.send_file(file_path)
                 print("Enviado.")
                 self.conn.sendall(b"done")
-                break
+                return
+        raise Exception("El archivo no existe.")
         
         
     def send_encoded(self):

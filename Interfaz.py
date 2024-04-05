@@ -17,8 +17,8 @@ sg.theme('Material2')
 data = []
 cliente = SocketCliente.SocketCliente()
 cliente.connect()
-cliente.username = 'Hugo'
-cliente.password = 'Hugo'
+cliente.username = '12345'
+cliente.password = '12345'
 cliente.choose_opt(2)
 
 
