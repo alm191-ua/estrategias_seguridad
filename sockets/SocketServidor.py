@@ -67,25 +67,34 @@ class SocketServidor(SocketPadre.SocketPadre) :
             self.conn.sendall(b"done")
             break
         return
+    
+    def send_enconded_file(self, folder,name):
+        files = os.listdir(folder)
+        for fileId in files:
+            if fileId == name:
+                print("Enviando archivo...")
+                file_folder_path = os.path.join(folder, fileId)
+                files_path = os.path.join(file_folder_path, fileId)
+                file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                print(file_path)
+                self.send_file(file_path)
+                print("Enviado.")
+                break
+        self.conn.sendall(b"done")
+        
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
-            files = os.listdir(self.FOLDER)
-            for fileId in files:
-                if fileId == name:
-                    print("Enviando archivo...")
-                    file_folder_path = os.path.join(self.FOLDER, fileId)
-                    files_path = os.path.join(file_folder_path, fileId)
-                    file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
-                    print(file_path)
-                    self.send_file(file_path)
-                    print("Enviado.")
-                    break
-            self.conn.sendall(b"done")
+            if self.FOLDER == "server":
+                print("MALICIOSO")
+                FOLDER=self.FOLDER
+            else:
+                print("NO MALICIOSO")
+                FOLDER = self.FOLDER
+            self.send_enconded_file(FOLDER,name)
             break
-            
         return
         
           

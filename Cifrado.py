@@ -357,7 +357,25 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
     Returns:
         list: Lista de los archivos desencriptados en formato de bytes.
     """
-    key=key_to_use(old_key,json_filename)
+    decrypted_files = []
+    if UNSAFE_MODE:
+        for password in UNSAFE_PASSWORDS:
+            key = bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
+            try:
+                decrypted_files = try_decrypt_files_JSON(encrypted_files, key)
+                print("Contraseña encontrada:", password)
+                return decrypted_files
+            except ValueError:
+                continue
+        else:
+            raise ValueError("No se pudo encontrar la contraseña correcta en modo inseguro.")
+    else:
+        key = key_to_use(old_key, json_filename)
+        decrypted_files=try_decrypt_files_JSON(encrypted_files, key)
+        return decrypted_files
+    
+
+def try_decrypt_files_JSON(encrypted_files,key):
     decrypted_files = []
     for encrypted_file in encrypted_files:
         # Decodificar y separar el IV del texto cifrado
@@ -369,6 +387,7 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
         decrypted_file = cipher.decrypt(ctext).decode()
         decrypted_files.append(decrypted_file)
     return decrypted_files
+
 
 def _handle_decrypt_file(input_file, key = None):
     """

@@ -17,11 +17,15 @@ sg.theme('Material2')
 data = []
 cliente = SocketCliente.SocketCliente()
 cliente.connect()
+cliente.username = 'Hugo'
+cliente.password = 'Hugo'
+cliente.choose_opt(2)
 
 
 is_unsafe_mode_active = False
 
 def cargar_datos(window):
+    cliente.choose_opt(5)
     try:
         data_cargada = gdu.listar_los_zips()
         if not data_cargada:
@@ -158,7 +162,9 @@ def main():
 
                 try:
                     ium(unsafe_mode)
-                    zp(valid_files, title, description)
+                    # zp(valid_files, title, description)
+                    
+                    cliente.ZipAndEncryptFile(valid_files, title, description)
                     sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
                 except Exception as e:
                     sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
@@ -177,10 +183,19 @@ def main():
 
         if event == '-SEE-':
             if values['-TABLE-']:
+                if cliente.username =='' or cliente.password=='':
+                    unsafe_mode = True
+                else:
+                    unsafe_mode = False
+
+                ium(unsafe_mode)
                 selected_row_index = values['-TABLE-'][0] 
                 
                 selected_item = data[selected_row_index]
-                show_files_window = create_files_window(selected_item)
+                try:
+                    show_files_window = create_files_window(selected_item)
+                except Exception as e:
+                    sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
             else:
                 sg.popup("Por favor, selecciona un elemento de la lista.")
                 
@@ -222,11 +237,11 @@ def main():
         add_window.close()
     if show_files_window:
         show_files_window.close()
-    # try:
+    try:
 
-    #     shutil.rmtree('files')
-    # except:
-    #     pass
+        shutil.rmtree('files')
+    except:
+        pass
 
 if __name__ == '__main__':
     
