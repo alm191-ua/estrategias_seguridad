@@ -51,10 +51,22 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         """
         
-        self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
+        files = os.listdir(self.FOLDER)
+        for fileId in files:
+            if fileId == filename:
+                file_folder_path = os.path.join(self.FOLDER, fileId)
+                files_path = os.path.join(file_folder_path, fileId)
+                file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                if os.path.exists(file_path):
+                    break
+                else:
+                    self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
+                    self.conn.sendall(filename.encode('utf-8'))
+                    self.receive_file()
+        return
+
+
         
-        self.conn.sendall(filename.encode('utf-8'))
-        self.receive_file()
         
 
     def encrypt_key(self, key):
@@ -69,7 +81,6 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         file=os.path.basename(key)
         path=os.path.dirname(key)
-        print("data_key: ", self.data_key)
         encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
     def decrypt_key(self, key):
         """
@@ -248,6 +259,12 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Wait for files from the server
             self.wait_files()
         if number == 5:
-            self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
+            if self.username == '' or self.password == '':
+                print("No se ha iniciado sesión.")
+                self.conn.sendall(self.RECIBIR_JSON_MALICIOUS.encode('utf-8'))
+            else:
+                print('Enviando JSON')
+                self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
             self.wait_files()
+            
     

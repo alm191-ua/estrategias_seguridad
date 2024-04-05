@@ -12,6 +12,7 @@ class SocketPadre:
     RECIBIR=config['sockets']['tags']['init_comms']['receive']
     RECIBIR_JSON=config['sockets']['tags']['init_comms']['receive_json']
     RECIBIR_FILE=config['sockets']['tags']['init_comms']['receive_file']
+    RECIBIR_JSON_MALICIOUS=config['sockets']['tags']['init_comms']['recieve_json_malicious']
     FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'

@@ -40,9 +40,35 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
             
         return
+    def send_json_malicious(self):
+        self.FOLDER="server"
+        """
+        Sends a JSON file to the client.
+        """
+        if not self.conn:
+            raise Exception("No se ha establecido una conexión.")
+        while self.conn:
+            folders = os.listdir(self.FOLDER)
+            for folderId in folders:
+                if folderId != "users.json":
+                    files=os.listdir(os.path.join(self.FOLDER,folderId))
+                    legnth = len(files)
+                    i=0
+                    for fileId in files:
+                        print("Enviando archivo...")
+                        file_folder_path = os.path.join(self.FOLDER, folderId,fileId)
+                        files_path = os.path.join(file_folder_path, fileId)
+                        file_json=files_path+self.FORMATO_JSON
+                        self.send_file(file_json)
+                        print("Enviado.")
+                        i+=1
+                        if i==legnth:
+                            break
+            self.conn.sendall(b"done")
+            break
+        return
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')
-        print(name)
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:

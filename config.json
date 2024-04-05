@@ -9,7 +9,8 @@
                 "send": "SND",
                 "receive": "RCV",
                 "receive_json": "RCJ",
-                "receive_file": "RCF"
+                "receive_file": "RCF",
+                "recieve_json_malicious": "RCJM"
             },
             "response": {
                 "incorrect_tag": "000",

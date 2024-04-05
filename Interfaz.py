@@ -222,11 +222,11 @@ def main():
         add_window.close()
     if show_files_window:
         show_files_window.close()
-    try:
+    # try:
 
-        shutil.rmtree('files')
-    except:
-        pass
+    #     shutil.rmtree('files')
+    # except:
+    #     pass
 
 if __name__ == '__main__':
     

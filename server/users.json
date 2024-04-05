@@ -4,5 +4,8 @@
     },
     "test_user": {
         "password": "$2b$12$feXlAMUE2Um8KYjZvf2D7.48sFJC/4KgZYosOITze6eBYtzWnhBGy"
+    },
+    "rrrr": {
+        "password": "$2b$12$5oczmBAoVExJLm9cFxF2FeJ.BeRFH.JFzBLWqHhPYq5n.WZmAVQoa"
     }
 }
