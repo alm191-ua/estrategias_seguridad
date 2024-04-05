@@ -11,11 +11,13 @@ from Cifrado import ZipAndEncryptFile as zp
 from Cifrado import is_unsafe_mode as ium
 import GetDataUploaded as gdu
 from sockets import SocketCliente
+import time
 sg.theme('Material2')
 
 data = []
 cliente = SocketCliente.SocketCliente()
 cliente.connect()
+
 
 is_unsafe_mode_active = False
 
@@ -108,6 +110,14 @@ def create_files_window(item):
 
 
 def main():
+    
+    global data
+    global is_unsafe_mode_active
+    data = []
+    # cliente = SocketCliente.SocketCliente()
+    # cliente.connect()
+
+    is_unsafe_mode_active = False
 
     file_list = []
 
@@ -207,10 +217,17 @@ def main():
 
     main_window.close()
     logging.info('Cerrando la aplicación...')
+    cliente.disconnect()
     if add_window:
         add_window.close()
     if show_files_window:
         show_files_window.close()
+    try:
+
+        shutil.rmtree('files')
+    except:
+        pass
 
 if __name__ == '__main__':
+    
     main()
