@@ -20,7 +20,6 @@ FILES_COMPRESSION_FORMAT='.zip'
 FILES_ENCODE_FORMAT='.enc'
 KEYS_FORMAT='.key'
 UNSAFE_MODE = False
-MALICIOUS=False
 UNSAFE_PASSWORDS = ['123456',
                     'admin',
                     'password',
@@ -174,38 +173,6 @@ def ZipAndEncryptFile(files, title, description):
     return os.path.join(directory, FileName + KEYS_FORMAT)
 
 
-def UnZipFiles(file,target_folder=None):
-    """
-    Extrae y desencripta un paquete de documentos.
-
-    Args:
-        archivo_paquete (str): Ruta al archivo del paquete encriptado.
-        carpeta_destino (str, opcional): Carpeta de destino para la extracción.
-                                        Predeterminado al directorio del paquete.
-
-    Returns:
-        bool: True si la extracción y desencriptación fueron exitosas, False si no.
-    """
-    if not target_folder:
-            target_folder=os.path.dirname(file)
-    try:
-        fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
-        fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
-        Folder=os.path.basename(fileWithNoFormat)
-        directorio_Final=os.path.join(target_folder,Folder)
-        if MALICIOUS:
-            key=decrypt_file_unsafe(file, directorio_Final)
-        else:
-            key=decrypt_file(file)
-            os.makedirs(directorio_Final, exist_ok=True)  # Crea la carpeta objetivo si no existe
-            with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
-                zip_ref.extractall(directorio_Final)
-                logging.info('Files extracted')
-        encrypt_file(fileWithNoFormat,'',key)
-        return True
-    except Exception as e:
-        logging.error(f'Error al extraer los archivos: {e}')
-        return False
 
 # ============= JSON ============
 
@@ -348,36 +315,7 @@ def key_to_use(old_key,json_filename):
         return read_key_from_file(path)
     else:
         return old_key
-        
-def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
-    """
-    Desencripta los archivos listados en un documento JSON.
 
-    Args:
-        archivos_encriptados (list): Lista de representaciones base64 de los archivos encriptados.
-        nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
-        clave_anterior (bytes, opcional): Clave anterior si se desea reencriptar (predeterminado: None).
-
-    Returns:
-        list: Lista de los archivos desencriptados en formato de bytes.
-    """
-    decrypted_files = []
-    if MALICIOUS:
-        for password in UNSAFE_PASSWORDS:
-            key = bytes(password.ljust(KEY_SIZE, '0'), 'utf-8')
-            try:
-                decrypted_files = try_decrypt_files_JSON(encrypted_files, key)
-                print("Contraseña encontrada:", password)
-                return decrypted_files
-            except ValueError:
-                continue
-        else:
-            raise ValueError("No se pudo encontrar la contraseña correcta en modo inseguro.")
-    else:
-        key = key_to_use(old_key, json_filename)
-        decrypted_files=try_decrypt_files_JSON(encrypted_files, key)
-        return decrypted_files
-    
 
 def try_decrypt_files_JSON(encrypted_files,key):
     decrypted_files = []

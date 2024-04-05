@@ -17,8 +17,8 @@ sg.theme('Material2')
 data = []
 cliente = SocketCliente.SocketCliente()
 cliente.connect()
-cliente.username = '12345'
-cliente.password = '12345'
+# cliente.username = 'Hugo'
+# cliente.password = 'Hugo'
 cliente.choose_opt(2)
 
 
@@ -100,7 +100,7 @@ def create_add_window():
 
 
 def create_files_window(item):
-    files = gdu.get_files_in_zip("File"+item[4])  # Obtener la lista de archivos contenidos en el elemento seleccionado
+    files = cliente.get_files_in_zip("File"+item[4])  # Obtener la lista de archivos contenidos en el elemento seleccionado
     file_list = [[file] for file in files]  # Convertir la lista de archivos en un formato adecuado para la ventana
 
     layout = [
@@ -206,7 +206,7 @@ def main():
                     except Exception as e:
                         sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
                     
-                    directorio_files=gdu.UnzipFolder(nombre_Fichero)
+                    directorio_files=cliente.UnzipFolder(nombre_Fichero)
                     for file_name in selected_files:
                         file_name = ''.join(file_name)
                         gdu.get_file(file_name, directorio_files,folder_path)

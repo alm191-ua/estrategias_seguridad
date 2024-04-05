@@ -17,6 +17,7 @@ class SocketPadre:
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'
     FORMATO_ENCRIPTADO='.enc'
+    FORMATO_COMPRESION='.zip'
     conn=None
     FOLDER=None
     def buscar_server_folder(self):
