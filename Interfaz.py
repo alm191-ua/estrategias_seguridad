@@ -205,7 +205,12 @@ def main():
                 folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                 if folder_path:
                     nombre_Fichero="File"+selected_item[4]
-                    print(nombre_Fichero)
+                    if cliente.username =='' or cliente.password=='':
+                        unsafe_mode = True
+                    else:
+                        unsafe_mode = False
+
+                    ium(unsafe_mode)
                     try:
                         cliente.get_file(nombre_Fichero)
                     except Exception as e:
@@ -215,7 +220,10 @@ def main():
                         file_name = ''.join(file_name)
                         gdu.get_file(file_name, directorio_files,folder_path)
                         pass
-                    shutil.rmtree(directorio_files)
+                    try:
+                        shutil.rmtree(directorio_files)
+                    except:
+                        pass
                     sg.popup(f'Archivos descargados en: {folder_path}')
         elif event == '-BUSCAR DATOS-':
             window['-CARGANDO-'].update(visible=True)

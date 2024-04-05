@@ -138,6 +138,8 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 break
         elif option ==serverSocket.RECIBIR_JSON_MALICIOUS:
             serverSocket.send_json_malicious()
+        elif option == serverSocket.RECIBIR_FILE:
+            serverSocket.send_encoded()
 
         
             

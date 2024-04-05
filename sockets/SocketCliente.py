@@ -7,7 +7,7 @@ import json
 import sys
 sys.path.append('utils')
 from secure_key_gen import generate_keys
-from Cifrado import encrypt_file, decrypt_file,ZipAndEncryptFile
+import Cifrado 
 
 
 config = json.load(open('config.json'))
@@ -21,6 +21,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     username=''
     password=''
     data_key=''
+    MALICIOSO=False
     def ZipAndEncryptFile(self, archivos, titulo, descripcion):
         """
         Sends files to the server.
@@ -31,7 +32,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         
         """
         self.conn.sendall(self.ENVIAR.encode('utf-8'))
-        path = ZipAndEncryptFile(archivos, titulo, descripcion)
+        path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
         self.encrypt_key(path)
         file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_ARCHIVO_ENCRIPTADO)
         json_file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_JSON)
@@ -57,12 +58,16 @@ class SocketCliente(SocketPadre.SocketPadre):
                 file_folder_path = os.path.join(self.FOLDER, fileId)
                 files_path = os.path.join(file_folder_path, fileId)
                 file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                print("file_path: ", file_path)
                 if os.path.exists(file_path):
                     break
                 else:
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
+                    print("Nombre enviado.")
                     self.conn.sendall(filename.encode('utf-8'))
+                    print("Nombre enviado.")
                     self.receive_file()
+                    print("Archivo recibido.")
         return
 
 
@@ -81,7 +86,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         file=os.path.basename(key)
         path=os.path.dirname(key)
-        encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
+        Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
     def decrypt_key(self, key):
         """
         Encrypts a key using the server's public key.
@@ -92,7 +97,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
 
         print("data_key: ", self.data_key)
-        decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
+        Cifrado.decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
 
 
 

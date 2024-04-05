@@ -188,15 +188,18 @@ def UnZipFiles(file,target_folder=None):
     if not target_folder:
             target_folder=os.path.dirname(file)
     try:
-        key=decrypt_file(file)
         fileDesencrypted=file.replace(FILES_ENCODE_FORMAT,'')
         fileWithNoFormat=fileDesencrypted.replace(FILES_COMPRESSION_FORMAT,'')
         Folder=os.path.basename(fileWithNoFormat)
         directorio_Final=os.path.join(target_folder,Folder)
-        os.makedirs(directorio_Final, exist_ok=True)  # Crea la carpeta objetivo si no existe
-        with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
-            zip_ref.extractall(directorio_Final)
-            logging.info('Files extracted')
+        if UNSAFE_MODE:
+            key=decrypt_file_unsafe(file, directorio_Final)
+        else:
+            key=decrypt_file(file)
+            os.makedirs(directorio_Final, exist_ok=True)  # Crea la carpeta objetivo si no existe
+            with zipfile.ZipFile(fileDesencrypted, 'r') as zip_ref:
+                zip_ref.extractall(directorio_Final)
+                logging.info('Files extracted')
         encrypt_file(fileWithNoFormat,'',key)
         return True
     except Exception as e:
@@ -465,7 +468,7 @@ def decrypt_file_unsafe(file_path, target_folder):
                 zip_ref.extractall(target_folder)
             logging.info(f'File decrypted')
             decrypted = True
-            return
+            return key
         except zipfile.BadZipFile:
             # logging.info(f'Password {password} is not valid')
             pass

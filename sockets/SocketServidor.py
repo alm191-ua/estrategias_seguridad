@@ -88,12 +88,19 @@ class SocketServidor(SocketPadre.SocketPadre) :
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             if self.FOLDER == "server":
-                print("MALICIOSO")
-                FOLDER=self.FOLDER
+                
+                for folderId in os.listdir(self.FOLDER):
+                    FOLDER = os.path.join(self.FOLDER, folderId)
+                    try:
+                        self.send_enconded_file(FOLDER,name)
+                        print(FOLDER)
+                    except:
+                        continue
+                else:
+                    self.conn.sendall(b"done")
             else:
-                print("NO MALICIOSO")
                 FOLDER = self.FOLDER
-            self.send_enconded_file(FOLDER,name)
+                self.send_enconded_file(FOLDER,name)
             break
         return
         
