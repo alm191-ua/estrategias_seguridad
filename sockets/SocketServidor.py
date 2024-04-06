@@ -21,6 +21,8 @@ class SocketServidor(SocketPadre.SocketPadre) :
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             files = os.listdir(self.FOLDER)
+            length = len(files)
+            i = 0
             for fileId in files:
                 if fileId != "users.json":
                     print("Enviando archivo...")
@@ -35,7 +37,10 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     self.send_file(file_json)
                     self.send_file(file_key)
                     print("Enviado.")
-
+                i += 1
+                if i == length:
+                    break
+                
             self.conn.sendall(b"done")
             break
             
