@@ -18,10 +18,13 @@ incorrect_login_tag = config['sockets']['tags']['response']['incorrect_login']
 correct_register_tag = config['sockets']['tags']['response']['correct_register']
 incorrect_register_tag = config['sockets']['tags']['response']['incorrect_register']
 incorrect_tag = config['sockets']['tags']['response']['incorrect_tag']
+malicious_tag = config['sockets']['tags']['init_comms']['malicious']
+empty_login_tag = config['sockets']['tags']['response']['empty_login']
 
 USERS_FILE = "server/users.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
+INSECURE_MODE=False
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")
@@ -100,13 +103,25 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor,username):
         
         else:
             break
-        
+
+
+
+def handle_malicous(serverSocket: SocketServidor.SocketServidor):
+    while serverSocket.conn:
+        option = serverSocket.conn.read().decode('utf-8')
+        if option ==serverSocket.RECIBIR_JSON_MALICIOUS and INSECURE_MODE:
+            serverSocket.send_json_malicious()
+        elif option == serverSocket.RECIBIR_FILE and INSECURE_MODE:
+            serverSocket.send_encoded()
+        else:
+            break
 
 
 def handle_client(serverSocket: SocketServidor.SocketServidor, address):
     serverSocket.FOLDER="server"
     print(f"{address[0]}:{address[1]} conectado.")
     while serverSocket.conn:
+        print("Esperando opción...")
         option = serverSocket.conn.read().decode('utf-8')
 
         # REGISTRAR USUARIO
@@ -127,7 +142,13 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             #Esperar por el SocketCliente que envie el usuario y contraseña
             username = serverSocket.conn.read().decode('utf-8')
             password = serverSocket.conn.read().decode('utf-8')
-
+            if username == malicious_tag and not INSECURE_MODE:
+                serverSocket.conn.sendall(empty_login_tag.encode('utf-8'))
+            if username == malicious_tag and INSECURE_MODE:
+                print("Malicious mode")
+                serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
+                handle_malicous(serverSocket)
+                break
             user_logged = login_user(username, password)
             if not user_logged:
                 serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
@@ -136,10 +157,7 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
                 handle_user_logged(serverSocket,username)
                 break
-        elif option ==serverSocket.RECIBIR_JSON_MALICIOUS:
-            serverSocket.send_json_malicious()
-        elif option == serverSocket.RECIBIR_FILE:
-            serverSocket.send_encoded()
+
 
         
             

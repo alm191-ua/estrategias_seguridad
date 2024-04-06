@@ -10,16 +10,18 @@
                 "receive": "RCV",
                 "receive_json": "RCJ",
                 "receive_file": "RCF",
-                "recieve_json_malicious": "RCJM"
+                "recieve_json_malicious": "RCJM",
+                "malicious": "MAL"
             },
             "response": {
                 "incorrect_tag": "000",
 
                 "correct_login": "100",
                 "incorrect_login": "101",
-                
+                "empty_login": "102",
                 "correct_register": "200",
-                "incorrect_register": "201"
+                "incorrect_register": "201",
+                "empty_register": "202"
             }
         }
     },

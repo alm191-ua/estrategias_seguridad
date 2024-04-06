@@ -16,10 +16,7 @@ sg.theme('Material2')
 
 data = []
 cliente = SocketCliente.SocketCliente()
-cliente.connect()
-# cliente.username = 'Hugo'
-# cliente.password = 'Hugo'
-cliente.choose_opt(2)
+
 
 
 is_unsafe_mode_active = False
@@ -237,11 +234,15 @@ def main():
     if show_files_window:
         show_files_window.close()
     try:
-
         shutil.rmtree('files')
     except:
         pass
 
 if __name__ == '__main__':
-    
+    cliente.connect()
+    # cliente.username = '12345'
+    # cliente.password = '12345'
+    # cliente.username = 'Hugo'
+    # cliente.password = 'Hugo'
+    cliente.choose_opt(2)
     main()

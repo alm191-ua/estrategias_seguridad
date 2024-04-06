@@ -17,6 +17,8 @@ login_tag = config['sockets']['tags']['init_comms']['login']
 register_tag = config['sockets']['tags']['init_comms']['register']
 correct_login_tag = config['sockets']['tags']['response']['correct_login']
 correct_register_tag = config['sockets']['tags']['response']['correct_register']
+malicious_tag = config['sockets']['tags']['init_comms']['malicious']
+empty_login_tag = config['sockets']['tags']['response']['empty_login']
 
 class SocketCliente(SocketPadre.SocketPadre):
     FOLDER = 'files'
@@ -231,8 +233,9 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
+        
         if self.username == '' or self.password == '':
-            self.MALICIOSO=True
+            self.log_in()
             return
         self.conn.sendall(register_tag.encode('utf-8'))
         self.conn.sendall(self.username.encode('utf-8'))
@@ -260,20 +263,32 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
+        
         if self.username == '' or self.password == '':
             self.MALICIOSO=True
-            return
+        else:
+            self.MALICIOSO=False
+        #     return
         self.conn.sendall(login_tag.encode('utf-8'))
-        self.conn.sendall(self.username.encode('utf-8'))
-
-        # use SHA3 to hash the password, and get a data and cipher keys
-        self.data_key, login_key = generate_keys(self.password)
-        self.conn.sendall(login_key.encode('utf-8'))
+        
+        
+        if self.MALICIOSO:
+            print("Enviando nombre de inicio de sesión...")
+            self.conn.sendall(malicious_tag.encode('utf-8'))
+            self.conn.sendall(malicious_tag.encode('utf-8'))
+        else:
+            self.conn.sendall(self.username.encode('utf-8'))
+            # use SHA3 to hash the password, and get a data and cipher keys
+            self.data_key, login_key = generate_keys(self.password)
+            self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
             print("Log in correcto.")
             return True
+        if response == empty_login_tag:
+            print("No se ha iniciado sesión.")
+            return False
         else:
             print("Usuario o contraseña incorrectos.")
             return False
@@ -350,6 +365,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             #     self.log_in()
             
         if number == 2:
+            print("Iniciando sesión...")
             # Log in
             user_logged = self.log_in()
             return user_logged
