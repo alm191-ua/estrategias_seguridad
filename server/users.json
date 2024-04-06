@@ -10,5 +10,8 @@
     },
     "12345": {
         "password": "$2b$12$3AHdX9xxMV39tnBcLbtk6.Z0sbwIejRbnqEv8DYl18ejsjS0h58JW"
+    },
+    "user1": {
+        "password": "$2b$12$w/DT9kT3OIXFKjNJPUzv8eiGI0JDD1APsSliDQd3C/k6MUYahx.yW"
     }
 }

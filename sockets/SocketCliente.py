@@ -151,7 +151,6 @@ class SocketCliente(SocketPadre.SocketPadre):
             filename (str): The name of the file to send.
 
         """
-        
         files = os.listdir(self.FOLDER)
         for fileId in files:
             if fileId == filename:
@@ -166,11 +165,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                     self.conn.sendall(filename.encode('utf-8'))
                     self.wait_files()
                     print("Archivo recibido.")
-        return
 
-
-        
-        
 
     def encrypt_key(self, key):
         """
@@ -178,22 +173,18 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         Args:
             key (str): The key to encrypt.
-
-
-
         """
         file=os.path.basename(key)
         path=os.path.dirname(key)
         Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
+    
     def decrypt_key(self, key):
         """
         Encrypts a key using the server's public key.
 
         Args:
             key (str): The key to encrypt.
-
         """
-
         print("data_key: ", self.data_key)
         Cifrado.decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
 
@@ -234,6 +225,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         
+        # TODO: :|
         if self.username == '' or self.password == '':
             self.log_in()
             return
