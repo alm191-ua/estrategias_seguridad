@@ -157,10 +157,6 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
                 handle_user_logged(serverSocket,username)
                 break
-
-
-        
-            
             
         else:
             # TODO: hacer algo si la opción no es válida

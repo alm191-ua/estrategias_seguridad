@@ -114,14 +114,14 @@ def generate_keys(passwd):
 
     # Codificar la contraseña como bytes
     psswd_bytes = passwd.encode('utf-8')
-    full_hash = hashlib.sha3_512(psswd_bytes).hexdigest()
+    full_hash = hashlib.sha3_256(psswd_bytes).hexdigest()
 
-    # Generar clave de datos utilizando SHA-3 (SHA3-512 / 2)
+    # Generar clave de datos utilizando SHA-3 (SHA3-256 / 2)
     # cada caracter en hexadecimal son 4 bits (un nibble)
-    # por lo que 64 caracteres son 256 bits
+    # por lo que 32 caracteres son 128 bits
     data_key = full_hash[:32]
 
-    # Generar clave de login utilizando SHA-3 (SHA3-512 / 2)
+    # Generar clave de login utilizando SHA-3 (SHA3-256 / 2)
     login_key = full_hash[32:]
 
     return data_key, login_key

@@ -16,7 +16,7 @@ def main():
                 if option==10:
                     cliente.disconnect()
                     return
-                if option==1:
+                elif option==1:
                     username = input("Username: ")
                     password = input("Password: ")
                     cliente.username = username
@@ -27,7 +27,7 @@ def main():
                         print("User not registered")
                         cliente.username = ''
                         cliente.password = ''
-                if option==2:
+                elif option==2:
                     username = input("Username: ")
                     password = input("Password: ")
                     cliente.username = username
@@ -39,7 +39,7 @@ def main():
                         print("User not logged in")
                         cliente.username = ''
                         cliente.password = ''
-                if option==5:
+                elif option==5:
                     cliente.choose_opt(option)
                 else:
                     print("Invalid option")
@@ -50,11 +50,11 @@ def main():
             if option==10:
                 cliente.disconnect()
                 return
-            if option==3 or option==4:
+            elif option==3 or option==4:
                 cliente.choose_opt(option)
             elif option==5:
                 cliente.choose_opt(option)
-            if option==8:
+            elif option==8:
                 archivos = ['archivo1.txt', 'archivo2.txt']
                 # Definir el título y la descripción
                 titulo = "Paquete de documentos"
