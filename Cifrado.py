@@ -432,9 +432,14 @@ def generate_and_save_key(input_file,directory):
         key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
         key = get_random_bytes(KEY_SIZE)  # Generate a random 16-byte key
-    path=os.path.join(directory,input_file)
-    path+=KEYS_FORMAT
-    write_in_file_bytes(path,key)
+    path = os.path.join(directory,input_file)
+    path += KEYS_FORMAT + FILES_ENCODE_FORMAT
+    # cypher key
+    iv = get_random_bytes(IV_SIZE)
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    ctext = cipher.encrypt(key)
+    write_in_file_bytes(path, iv + ctext)
+    # write_in_file_bytes(path,key)
     return key
 
 def read_key_from_file(input_file):
@@ -450,6 +455,11 @@ def read_key_from_file(input_file):
     file=input_file+KEYS_FORMAT
     with open(file, 'rb') as f:
         key = f.read()
+    # decyper key
+    iv = key[:IV_SIZE]
+    ctext = key[IV_SIZE:]
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    key = cipher.decrypt(ctext)
     return key
 
 

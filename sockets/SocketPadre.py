@@ -131,24 +131,31 @@ class SocketPadre:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             files = os.listdir(self.FOLDER)
-            legnth = len(files)
-            i=0
+            # TODO: revisar esto
             for fileId in files:
-                
                 if fileId != "users.json":
                     print("Enviando archivo...")
-                    file_folder_path = os.path.join(self.FOLDER, fileId)
-                    files_path = os.path.join(file_folder_path, fileId)
-                    file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
-                    file_key=files_path+self.FORMATO_LLAVE+self.FORMATO_ENCRIPTADO
-                    file_json=files_path+self.FORMATO_JSON
+                    try:
+                        file_folder_path = os.path.join(self.FOLDER, fileId)
+                        files_path  = os.path.join(file_folder_path, fileId)
+                        if os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO) and \
+                            os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO) and \
+                            os.path.exists(files_path + self.FORMATO_JSON):
+                        
+                            file_path   = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                            file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
+                            file_json   = files_path+self.FORMATO_JSON
+                        else:
+                            raise FileNotFoundError(f"El archivo {fileId} no existe.")
+                    except FileNotFoundError as e:
+                        print("Error faltan ficheros en la carpeta", file_folder_path, ":", e)
+                        continue  # Continuar con la siguiente iteración del ciclo
+                    
                     self.send_file(file_path)
                     self.send_file(file_key)
                     self.send_file(file_json)
                     print("Enviado.")
-                i+=1
-                if i==legnth:
-                    break
+                
             self.conn.sendall(b"done")
             break
             

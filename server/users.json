@@ -1,17 +1,5 @@
 {
-    "Hugo": {
-        "password": "$2b$12$eLEhF72T/WG6pnLg6zL.luJhoEqDeE0CS/aXEm/wxlbpj.9Z6AQX6"
-    },
-    "test_user": {
-        "password": "$2b$12$feXlAMUE2Um8KYjZvf2D7.48sFJC/4KgZYosOITze6eBYtzWnhBGy"
-    },
-    "rrrr": {
-        "password": "$2b$12$5oczmBAoVExJLm9cFxF2FeJ.BeRFH.JFzBLWqHhPYq5n.WZmAVQoa"
-    },
-    "12345": {
-        "password": "$2b$12$3AHdX9xxMV39tnBcLbtk6.Z0sbwIejRbnqEv8DYl18ejsjS0h58JW"
-    },
-    "user1": {
-        "password": "$2b$12$w/DT9kT3OIXFKjNJPUzv8eiGI0JDD1APsSliDQd3C/k6MUYahx.yW"
+    "test_user1": {
+        "password": "$2b$12$2dL6zpMDu49nAd3V9xQ5geMLW3.TcORtnM7M0Ff5jfes7V9H08eDy"
     }
 }

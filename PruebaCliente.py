@@ -38,6 +38,7 @@ def main():
                 if cliente.log_in():
                     print("User logged in")
                     login_options(cliente)
+                    return
                 else:
                     print("User not logged in")
                     cliente.username = ''
@@ -59,14 +60,18 @@ def login_options(cliente: SocketCliente.SocketCliente):
                 cliente.disconnect()
                 return
             elif option==1:
-                carpeta_con_files = "files"
+                carpeta_con_files = "test"
                 title = "Documento1"
                 description = "Este es un documento de prueba"
                 files = os.listdir(carpeta_con_files)
                 encryptDoc(files, title, description)
                 # cliente.send_files()
+                cliente.conn.sendall(cliente.ENVIAR.encode('utf-8'))
+                cliente.send_files_in_folder()
             elif option==2:
-                cliente.receive_files()
+                cliente.conn.sendall(cliente.RECIBIR.encode('utf-8'))
+                # Wait for files from the server
+                cliente.wait_files()
             else:
                 print("Invalid option")
 
