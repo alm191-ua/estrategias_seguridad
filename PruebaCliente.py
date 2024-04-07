@@ -10,7 +10,7 @@ def main():
     cliente.connect()
     options_not_logged = [0, 1, 2]
     while True:
-        option = 3
+        option = -1
         while option not in options_not_logged:
             option=input("0.Exit\n1. Register\n2. Login\n")
             option = int(option)
@@ -49,12 +49,12 @@ def main():
 
 def login_options(cliente: SocketCliente.SocketCliente):        
     # Logged options
-    logged_options = [0, 1, 2] #exit, send file, receive file
+    logged_options = [0, 1, 2, 3] #exit, send file, receive file
 
     while True:
-        option = 3
+        option = -1
         while option not in logged_options:
-            option=input("0.Exit\n1. Send document\n2. Receive files\n")
+            option=input("0.Exit\n1. Send document\n2. Receive files\n3. List documents\n")
             option = int(option)
             if option==0:
                 cliente.disconnect()
@@ -69,10 +69,25 @@ def login_options(cliente: SocketCliente.SocketCliente):
                 # # cliente.send_files()
                 # cliente.conn.sendall(cliente.ENVIAR.encode('utf-8'))
                 # cliente.send_files_in_folder()
-            elif option==2:
+            elif option == 2:
                 cliente.conn.sendall(cliente.RECIBIR.encode('utf-8'))
                 # Wait for files from the server
                 cliente.wait_files()
+
+            elif option == 3:
+                cliente.conn.sendall(cliente.RECIBIR_JSON.encode('utf-8'))
+                # get the documents in jsons
+                cliente.wait_files()
+                # for every File in files
+                files = os.listdir("files")
+                for file in files:
+                    json_path = os.path.join("files", file, file + ".json")
+                    cliente.print_json_info(json_path)
+                # NOTA para Alex: cuando vayas a hacer la interfaz puedes usar
+                # el método de SocketCliente get_json_info para obtener los
+                # campos del json. El método print_json_info llama a ese
+                # método y además lo imprimer por terminal.
+
             else:
                 print("Invalid option")
 

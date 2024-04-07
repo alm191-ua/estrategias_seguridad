@@ -213,7 +213,7 @@ def encrypt_files_JSON(json_filename, key,old_key=None):
     encrypted_files = []
     for file in files:
         iv = get_random_bytes(IV_SIZE)
-        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        cipher = AES.new(key, AES_MODE, nonce=iv)
         ctext = cipher.encrypt(file.encode())
         encrypted_files.append(base64.b64encode(iv + ctext).decode())
     doc_data['files'] = encrypted_files
@@ -325,7 +325,7 @@ def try_decrypt_files_JSON(encrypted_files,key):
         iv = iv_ctext[:IV_SIZE]
         ctext = iv_ctext[IV_SIZE:]
         # Crear cifrador y desencriptar el archivo
-        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        cipher = AES.new(key, AES_MODE, nonce=iv)
         decrypted_file = cipher.decrypt(ctext).decode()
         decrypted_files.append(decrypted_file)
     return decrypted_files

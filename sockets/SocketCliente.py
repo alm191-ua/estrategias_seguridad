@@ -328,7 +328,40 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         print("Archivo recibido correctamente.")
 
+    def get_json_info(self, path):
+        """
+        Gets the information of the JSON file.
 
+        Args:
+            path (str): The path to the JSON file.
+
+        Returns:
+            tuple: The title, description, time, and files of the JSON file.
+        """
+        with open(path) as file:
+            data = json.load(file)
+        # get title
+        title = data['title']
+        description = data['description']
+        time = data['time']
+        files = data['files']
+        decrypted_files = self.decrypt_files_JSON(files, path)
+        return title, description, time, decrypted_files
+    
+    def print_json_info(self, path):
+        """
+        Prints the information of the JSON file.
+
+        Args:
+            path (str): The path to the JSON file.
+        """
+        title, description, time, files = self.get_json_info(path)
+        print(f"Title: {title}")
+        print(f"Description: {description}")
+        print(f"Time: {time}")
+        print("Files:")
+        for file in files:
+            print(f"\t{file}")
 
     def choose_opt(self, number):
         """
