@@ -21,35 +21,38 @@ class SocketServidor(SocketPadre.SocketPadre) :
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             files = os.listdir(self.FOLDER)
-            length = len(files)
-            i = 0
             for fileId in files:
                 if fileId != "users.json":
                     print("Enviando archivo...")
                     try:
                         file_folder_path = os.path.join(self.FOLDER, fileId)
                         files_path  = os.path.join(file_folder_path, fileId)
-                        file_json   = files_path + self.FORMATO_JSON
-                        file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
-                    except Exception as e:
-                        print("Error, formato de fichero incorrecto", e)
+                        if os.path.exists(file_folder_path) and \
+                            os.path.exists(files_path + self.FORMATO_JSON) and \
+                            os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO):
+
+                            file_json   = files_path + self.FORMATO_JSON
+                            file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
+                        else:
+                            raise FileNotFoundError("El archivo no existe.")
+                    except FileNotFoundError as e:
+                        print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
                         continue
+
                     self.send_file(file_json)
                     self.send_file(file_key)
                     print("Enviado.")
-                i += 1
-                if i == length:
-                    break
                 
             self.conn.sendall(b"done")
             break
             
         return
     def send_json_malicious(self):
-        self.FOLDER = SERVER_ROOT_FOLDER
         """
         Sends a JSON file to the client.
         """
+        self.FOLDER = SERVER_ROOT_FOLDER
+        
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
@@ -57,33 +60,57 @@ class SocketServidor(SocketPadre.SocketPadre) :
             for folderId in folders:
                 if folderId != "users.json":
                     files=os.listdir(os.path.join(self.FOLDER,folderId))
-                    legnth = len(files)
-                    i=0
                     for fileId in files:
                         print("Enviando archivo...")
-                        file_folder_path = os.path.join(self.FOLDER, folderId,fileId)
-                        files_path = os.path.join(file_folder_path, fileId)
-                        file_json=files_path+self.FORMATO_JSON
+                        try:
+                            file_folder_path = os.path.join(self.FOLDER, folderId,fileId)
+                            files_path = os.path.join(file_folder_path, fileId)
+                            if os.path.exists(file_folder_path) and \
+                                os.path.exists(files_path + self.FORMATO_JSON):
+
+                                file_json=files_path+self.FORMATO_JSON
+                            else:
+                                raise FileNotFoundError("El archivo no existe.")
+                        except FileNotFoundError as e:
+                            print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
+                            continue
+
                         self.send_file(file_json)
                         print("Enviado.")
-                        i+=1
-                        if i==legnth:
-                            break
+                    
             self.conn.sendall(b"done")
             break
         return
     
     def send_enconded_file(self, folder,name):
+        """
+        Sends an encoded file to the client.
+
+        Args:
+            folder (str): The folder where the file is located.
+            name (str): The name of the file to send.
+
+        """
         files = os.listdir(folder)
         for fileId in files:
             if fileId == name:
                 print("Enviando archivo...")
-                file_folder_path = os.path.join(folder, fileId)
-                files_path = os.path.join(file_folder_path, fileId)
-                file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
-                print(file_path)
-                self.send_file(file_path)
-                print("Enviado.")
+                try:
+                    file_folder_path = os.path.join(folder, fileId)
+                    files_path = os.path.join(file_folder_path, fileId)
+                    if os.path.exists(file_folder_path) and \
+                        os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO):
+
+                        file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                    else:
+                        raise FileNotFoundError("El archivo no existe.")
+                    # print(file_path)
+                    self.send_file(file_path)
+                    print("Enviado.")
+                except FileNotFoundError as e:
+                    print("Error fichero no encontrado en la carpeta", folder, ":", e)
+                    continue
+                
                 self.conn.sendall(b"done")
                 return
         raise Exception("El archivo no existe.")

@@ -64,10 +64,11 @@ def login_options(cliente: SocketCliente.SocketCliente):
                 title = "Documento1"
                 description = "Este es un documento de prueba"
                 files = os.listdir(carpeta_con_files)
-                encryptDoc(files, title, description)
-                # cliente.send_files()
-                cliente.conn.sendall(cliente.ENVIAR.encode('utf-8'))
-                cliente.send_files_in_folder()
+                cliente.send_encrypted_files(files, title, description)
+                # encryptDoc(files, title, description)
+                # # cliente.send_files()
+                # cliente.conn.sendall(cliente.ENVIAR.encode('utf-8'))
+                # cliente.send_files_in_folder()
             elif option==2:
                 cliente.conn.sendall(cliente.RECIBIR.encode('utf-8'))
                 # Wait for files from the server
@@ -130,7 +131,7 @@ def login_options(cliente: SocketCliente.SocketCliente):
         #         # Definir el título y la descripción
         #         titulo = "Paquete de documentos"
         #         descripcion = "Este paquete contiene dos archivos de ejemplo."
-        #         cliente.ZipAndEncryptFile(archivos, titulo, descripcion)
+        #         cliente.send_encrypted_files(archivos, titulo, descripcion)
         #     else:
         #         print(option)
         #         print("Invalid option")

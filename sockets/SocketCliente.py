@@ -26,7 +26,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     password=''
     data_key=''
     MALICIOSO=False
-    def ZipAndEncryptFile(self, archivos, titulo, descripcion):
+    def send_encrypted_files(self, archivos, titulo, descripcion):
         """
         Sends files to the server.
         Args:

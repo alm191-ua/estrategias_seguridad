@@ -131,24 +131,25 @@ class SocketPadre:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
             files = os.listdir(self.FOLDER)
-            # TODO: revisar esto
             for fileId in files:
                 if fileId != "users.json":
                     print("Enviando archivo...")
                     try:
                         file_folder_path = os.path.join(self.FOLDER, fileId)
                         files_path  = os.path.join(file_folder_path, fileId)
-                        if os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO) and \
+                        if os.path.exists(file_folder_path) and \
+                            os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO) and \
                             os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO) and \
                             os.path.exists(files_path + self.FORMATO_JSON):
                         
                             file_path   = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
                             file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
-                            file_json   = files_path+self.FORMATO_JSON
+                            file_json   = files_path + self.FORMATO_JSON
                         else:
                             raise FileNotFoundError(f"El archivo {fileId} no existe.")
                     except FileNotFoundError as e:
                         print("Error faltan ficheros en la carpeta", file_folder_path, ":", e)
+                        print("Aaaaaa")
                         continue  # Continuar con la siguiente iteración del ciclo
                     
                     self.send_file(file_path)

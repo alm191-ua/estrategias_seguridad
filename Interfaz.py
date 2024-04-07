@@ -161,7 +161,7 @@ def main():
                     ium(unsafe_mode)
                     # zp(valid_files, title, description)
                     
-                    cliente.ZipAndEncryptFile(valid_files, title, description)
+                    cliente.send_encrypted_files(valid_files, title, description)
                     sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
                 except Exception as e:
                     sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
