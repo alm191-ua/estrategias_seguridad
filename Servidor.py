@@ -1,3 +1,5 @@
+import argparse
+import logging
 import sys
 import os
 import json
@@ -172,6 +174,13 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Save documents in a secure way')
+    parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
+    if(parser.parse_args().unsafe):
+        global INSECURE_MODE
+        INSECURE_MODE = True
+        logging.info('Unsafe mode activated :(')
+
     server = SocketServidor.SocketServidor()
     server.start(handle_client)
 
