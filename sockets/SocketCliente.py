@@ -6,8 +6,11 @@ import json
 import sys
 import logging
 import zipfile
-sys.path.append('utils')
-from secure_key_gen import generate_keys
+#Me daba error el import de secure_key_gen, asi que lo importe de esta manera
+ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
+sys.path.append(ruta_secure_key_gen)
+from utils.secure_key_gen import generate_keys
+##############################################
 import Cifrado 
 import GetDataUploaded
 
@@ -220,29 +223,32 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         Raises:
             Exception: If no connection has been established.
-
+            ValueError: If username or password are empty.
+        Returns:
+            bool: True if user was successfully registered, False otherwise.
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
-        
-        # TODO: :|
-        if self.username == '' or self.password == '':
-            self.log_in()
-            return
+
+        if not self.username or not self.password:
+            raise ValueError("El nombre de usuario y la contraseña no pueden estar vacíos.")
+
         self.conn.sendall(register_tag.encode('utf-8'))
         self.conn.sendall(self.username.encode('utf-8'))
 
-        # use SHA3 to hash the password, and get a data and cipher keys
+        # Genera y envía la clave derivada de la contraseña
         self.data_key, login_key = generate_keys(self.password)
         self.conn.sendall(login_key.encode('utf-8'))
 
-        response = self.conn.read().decode('utf-8')
+        response = self.conn.recv(1024).decode('utf-8')
+        print("response: ", response)
         if response == correct_register_tag:
             print("Usuario registrado correctamente.")
             return True
         else:
-            print("El usuario ya existe.")
+            print("No se pudo registrar el usuario. El usuario ya existe o hubo un error.")
             return False
+
 
 
     def log_in(self):

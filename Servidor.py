@@ -6,8 +6,13 @@ sys.path.append('./sockets')
 sys.path.append('./utils')
 #import SocketServidor
 from sockets import SocketServidor
-from secure_key_gen import hash_password
-from secure_key_gen import check_password
+
+ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
+sys.path.append(ruta_secure_key_gen)
+from utils.secure_key_gen import hash_password
+from utils.secure_key_gen import check_password
+#from secure_key_gen import hash_password
+#from secure_key_gen import check_password
 
 config = json.load(open('config.json'))
 

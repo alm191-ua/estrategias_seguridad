@@ -1,5 +1,8 @@
 {
     "test_user1": {
         "password": "$2b$12$2dL6zpMDu49nAd3V9xQ5geMLW3.TcORtnM7M0Ff5jfes7V9H08eDy"
+    },
+    "aaaaa": {
+        "password": "$2b$12$ochCfzJpPj8N2k68aoMWOOGk.4oTUx7Gb/NAVtN1A2zzKaijmz/0."
     }
 }

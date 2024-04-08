@@ -4,6 +4,8 @@ sys.path.append('./sockets')
 # Importar la clase SocketCliente del módulo SocketCliente ademas de con la creación de __init__.py
 from sockets import SocketCliente
 from PyQt5 import QtWidgets, QtGui, QtCore
+sys.path.append('..')  # Ajusta según sea necesario para tu estructura de proyecto
+from interfaces.Interfaz import ClienteUI
 
 class LoginForm(QtWidgets.QWidget):
     def __init__(self):
@@ -61,10 +63,15 @@ class LoginForm(QtWidgets.QWidget):
             if success:
                 QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
                 self.close()
+                #Abrir Interfaz del cliente que se encuentra en interfaces/Interfaz.py
+                #Completa
+                ui = ClienteUI()
+                ui.run()
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", str(e))
+            print(e)
             
 
 
