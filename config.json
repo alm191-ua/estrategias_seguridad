@@ -21,7 +21,9 @@
                 "empty_login": "102",
                 "correct_register": "200",
                 "incorrect_register": "201",
-                "empty_register": "202"
+                "empty_register": "202",
+
+                "file_does_not_exist": "300"
             }
         }
     },

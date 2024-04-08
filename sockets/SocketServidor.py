@@ -9,6 +9,7 @@ PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 SERVER_ROOT_FOLDER = "server"
 
 config = json.load(open('config.json'))
+file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 
 class SocketServidor(SocketPadre.SocketPadre) :
     FOLDER = SERVER_ROOT_FOLDER
@@ -99,13 +100,19 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     file_folder_path = os.path.join(folder, fileId)
                     files_path = os.path.join(file_folder_path, fileId)
                     if os.path.exists(file_folder_path) and \
-                        os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO):
+                        os.path.exists(files_path + self.FORMATO_ARCHIVO_ENCRIPTADO) and \
+                        os.path.exists(files_path + self.FORMATO_JSON) and \
+                        os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO):
 
-                        file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                        file_path   = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                        file_json   = files_path + self.FORMATO_JSON
+                        file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
                     else:
                         raise FileNotFoundError("El archivo no existe.")
                     # print(file_path)
                     self.send_file(file_path)
+                    self.send_file(file_json)
+                    self.send_file(file_key)
                     print("Enviado.")
                 except FileNotFoundError as e:
                     print("Error fichero no encontrado en la carpeta", folder, ":", e)
@@ -141,6 +148,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     self.send_enconded_file(folder_path,name)
                     return
                 except Exception as e:
+                    self.conn.sendall(file_does_not_exist_tag.encode('utf-8'))
                     print(e)   
             break
         return
