@@ -16,6 +16,27 @@ from utils.secure_key_gen import check_password
 #from secure_key_gen import hash_password
 #from secure_key_gen import check_password
 
+NOMBRE_PROYECTO="estrategias_seguridad"
+DIRECTORIO_PROYECTO=None
+log_directory=''
+
+exec_dir = os.getcwd()
+if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+    DIRECTORIO_PROYECTO=exec_dir
+else:
+    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+log_directory=os.path.join(DIRECTORIO_PROYECTO,'logs')
+
+
+# Verificar si el directorio existe y, si no, crearlo
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+
+# Configurar el registro con el directorio especificado
+log_file_path = os.path.join(log_directory, 'logfile_server.log')
+logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
+
+
 config = json.load(open('config.json'))
 
 register_tag = config['sockets']['tags']['init_comms']['register']
@@ -59,7 +80,7 @@ def login_user(username, password):
         with open(USERS_FILE) as file:
             users = json.load(file)
             if username in users and check_password(password, users[username]['password']):
-                logging.info(f"Usuario {username} ha iniciado sesión.")
+                logging.info(f"Usuario {username} ha iniciado sesion.")
                 return True
     return False  
 
@@ -94,28 +115,33 @@ def register_user(username, password):
             users = {username: {"password": hashed}}
             json.dump(users, file, indent=4)
 
+    # crear directorio de usuario
+    user_folder = os.path.join("server", username)
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+
     logging.info(f"Usuario {username} ha sido registrado.")
     return True
 
-def handle_user_logged(serverSocket: SocketServidor.SocketServidor,username):
+def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
         if option == serverSocket.ENVIAR:
-            logging.info("Recibiendo archivos...")
+            logging.info(f"Recibiendo archivos del usuario {username}")
             serverSocket.wait_files()
         elif option == serverSocket.RECIBIR:
-            logging.info("Enviando archivos...")
+            logging.info(f"Enviando archivos al usuario {username}")
             serverSocket.send_files_in_folder()
         ##Enviar 1 archivo
         elif option == serverSocket.RECIBIR_FILE:
-            logging.info("Enviando archivo...")
+            logging.info(f"Enviando archivo al usuario {username}")
             serverSocket.send_encoded()
         elif option ==serverSocket.RECIBIR_JSON:
-            logging.info("Enviando JSON...")
+            logging.info(f"Enviando JSON al usuario {username}")
             serverSocket.send_json()
         
         else:
-            logging.info("Opción inválida recibida.")
+            logging.info("Opcion invalida recibida.")
             break
 
 
@@ -154,10 +180,10 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             else:
                 serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
 
-        # INICIAR SESIÓN
+        # INICIAR SESION
         elif option == login_tag:
-            logging.info("Iniciando sesión...")
-            print("Iniciando sesión...")
+            logging.info("Iniciando sesion...")
+            print("Iniciando sesion...")
             #Esperar por el SocketCliente que envie el usuario y contraseña
             username = serverSocket.conn.read().decode('utf-8')
             password = serverSocket.conn.read().decode('utf-8')
@@ -175,11 +201,12 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
                 serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
                 handle_user_logged(serverSocket,username)
+                logging.info(f"Usuario {username} ha cerrado sesion.")
                 break
             
         else:
             # TODO: hacer algo si la opción no es válida
-            logging.info("Opción inválida recibida.")
+            logging.info("Opcion invalida recibida.")
             # serverSocket.conn.sendall(incorrect_tag.encode('utf-8'))
             break
         

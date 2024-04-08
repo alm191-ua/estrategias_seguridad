@@ -1,5 +1,11 @@
 {
     "test_user1": {
         "password": "$2b$12$gQo6N2HUC4knklOfKm03wuo4f9witVowEEMZxO9e7k7NFNpYf5z7."
+    },
+    "user2": {
+        "password": "$2b$12$7iNlGi09D9RnEnKpT.Dst.8KVIvy8Mok/FsquAet/7mh67.vHaAiG"
+    },
+    "user1": {
+        "password": "$2b$12$JzRl.iIb0.BBc8W.q1.kKe8Kaf8EqpjRoKus55wv2qTNDWEk5kXM6"
     }
 }
