@@ -59,6 +59,7 @@ def login_user(username, password):
         with open(USERS_FILE) as file:
             users = json.load(file)
             if username in users and check_password(password, users[username]['password']):
+                logging.info(f"Usuario {username} ha iniciado sesión.")
                 return True
     return False  
 
@@ -90,8 +91,8 @@ def register_user(username, password):
                 json.dump(users, file, indent=4)
     else:
         with open(USERS_FILE, "w") as file:
-            users = {username: hashed}
-            json.dump(users, file)
+            users = {username: {"password": hashed}}
+            json.dump(users, file, indent=4)
 
     return True
 
