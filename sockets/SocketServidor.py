@@ -151,8 +151,10 @@ class SocketServidor(SocketPadre.SocketPadre) :
             with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
                 print("Esperando al cliente...")
                 try:
+                    # Accept the connection
                     client, address = server.accept()
 
+                    # Wrap the socket in an SSL context
                     self.conn = ssl.wrap_socket(
                         client, 
                         server_side=True, 
