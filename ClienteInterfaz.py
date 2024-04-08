@@ -6,6 +6,7 @@ from sockets import SocketCliente
 from PyQt5 import QtWidgets, QtGui, QtCore
 sys.path.append('..')  # Ajusta según sea necesario para tu estructura de proyecto
 from interfaces.Interfaz import ClienteUI
+from utils.secure_key_gen import generate_password
 
 class LoginForm(QtWidgets.QWidget):
     def __init__(self):
@@ -101,7 +102,38 @@ class RegistrationForm(QtWidgets.QWidget):
         register_button.clicked.connect(self.register_user)
         layout.addWidget(register_button)
 
+        # Estilización del QComboBox para seleccionar la complejidad de la contraseña
+        self.complexity_combo = QtWidgets.QComboBox()
+        self.complexity_combo.addItem("Baja", 0)
+        self.complexity_combo.addItem("Media", 1)
+        self.complexity_combo.addItem("Alta", 2)
+        self.complexity_combo.setStyleSheet("QComboBox { height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e; }")
+
+        # Estilización del botón para generar la contraseña
+        generate_password_button = QtWidgets.QPushButton("Generar Contraseña")
+        generate_password_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        generate_password_button.clicked.connect(self.generate_password)
+
+        layout.addWidget(self.complexity_combo)
+        layout.addWidget(generate_password_button)
+
         self.setLayout(layout)
+
+        
+    def generate_password(self):
+        complexity = self.complexity_combo.currentData()
+        if complexity == 0:
+            # Baja complejidad: solo letras minúsculas y longitud 8
+            password = generate_password(length=8, uppercase=False, digits=False, punctuation=False)
+        elif complexity == 1:
+            # Complejidad media: letras y números, longitud 10
+            password = generate_password(length=10, uppercase=True, punctuation=False)
+        else:
+            # Alta complejidad: todos los caracteres, longitud 12
+            password = generate_password(length=12)
+        
+        self.password_line_edit.setText(password)
+
 
     def register_user(self):
         username = self.username_line_edit.text()
