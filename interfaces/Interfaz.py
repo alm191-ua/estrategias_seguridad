@@ -19,13 +19,14 @@ cliente = SocketCliente.SocketCliente()
 is_unsafe_mode_active = False
 
 class ClienteUI:
-    def __init__(self):
+    def __init__(self, username=""):
         self.main_window = None
         self.add_window = None
         self.show_files_window = None
         self.data = []
         self.cliente = SocketCliente.SocketCliente()
-        self.is_unsafe_mode_active = False  
+        self.is_unsafe_mode_active = False
+        self.username = username
     
     def run(self):
         main_window = self.create_main_window()
@@ -146,31 +147,35 @@ class ClienteUI:
     def create_main_window(self):
         
         headings = ['Número', 'Título', 'Descripción', 'Tiempo de Creación']
-
+        
+        user_display_column = [
+            [sg.Text(f'Usuario: {self.username}', justification='right')]
+        ]
+        
         unsafe_mode_column = [
             [sg.Checkbox('', default=False, enable_events=True, key='-UNSAFE-'),
-            sg.Text('Modo Seguro Activado', key='-UNSAFE-MODE-TEXT-', text_color='green')]
+             sg.Text('Modo Seguro Activado', key='-UNSAFE-MODE-TEXT-', text_color='green')]
         ]
         
         buttons_column = [
             [sg.Text('', size=(10, 1)),
-            sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
-            sg.Text('', size=(10, 1)),
-            sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
-            sg.Text('', size=(10, 1)),
-            sg.Button('Buscar Datos', key='-BUSCAR DATOS-', button_color=('white', 'brown'), font=("Helvetica", 12))]
+             sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
+             sg.Text('', size=(10, 1)),
+             sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
+             sg.Text('', size=(10, 1)),
+             sg.Button('Buscar Datos', key='-BUSCAR DATOS-', button_color=('white', 'brown'), font=("Helvetica", 12))]
         ]
-
+        
         layout = [
-            [sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
+            [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
-            [sg.Table(values=data, headings=headings, max_col_width=25,
-                    auto_size_columns=True, display_row_numbers=True,
-                    justification='left', num_rows=10, key='-TABLE-',
-                    row_height=25, text_color='black', alternating_row_color='lightblue')],
+            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
+                      auto_size_columns=True, display_row_numbers=True,
+                      justification='left', num_rows=10, key='-TABLE-',
+                      row_height=25, text_color='black', alternating_row_color='lightblue')],
             [sg.Column(buttons_column, element_justification='center')]
         ]
-
+        
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')
         return window

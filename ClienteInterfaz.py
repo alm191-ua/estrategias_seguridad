@@ -56,16 +56,14 @@ class LoginForm(QtWidgets.QWidget):
         
     def comprobar_usuario(self, username, password):
         try:
-            self.cliente.connect()  # Intentar conectar con el servidor
+            self.cliente.connect()
             self.cliente.username = username
             self.cliente.password = password
             success = self.cliente.log_in()
             if success:
                 QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
                 self.close()
-                #Abrir Interfaz del cliente que se encuentra en interfaces/Interfaz.py
-                #Completa
-                ui = ClienteUI()
+                ui = ClienteUI(username)
                 ui.run()
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
