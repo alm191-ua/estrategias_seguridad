@@ -149,8 +149,7 @@ class SocketPadre:
                             raise FileNotFoundError(f"El archivo {fileId} no existe.")
                     except FileNotFoundError as e:
                         print("Error faltan ficheros en la carpeta", file_folder_path, ":", e)
-                        print("Aaaaaa")
-                        continue  # Continuar con la siguiente iteración del ciclo
+                        continue
                     
                     self.send_file(file_path)
                     self.send_file(file_key)
