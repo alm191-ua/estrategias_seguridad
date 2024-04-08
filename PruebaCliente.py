@@ -12,6 +12,7 @@ def main():
     while True:
         option = -1
         while option not in options_not_logged:
+            print("-"*20)
             option=input("0.Exit\n1. Register\n2. Login\n")
             option = int(option)
             if option==0:
@@ -23,7 +24,7 @@ def main():
                 cliente.username = username
                 cliente.password = password
                 if cliente.register_user():
-                    print("User registered")
+                    # print("User registered")
                     continue
                 else:
                     print("User not registered")
@@ -36,7 +37,7 @@ def main():
                 cliente.username = username
                 cliente.password = password
                 if cliente.log_in():
-                    print("User logged in")
+                    # print("User logged in")
                     login_options(cliente)
                     return
                 else:
@@ -49,12 +50,13 @@ def main():
 
 def login_options(cliente: SocketCliente.SocketCliente):        
     # Logged options
-    logged_options = [0, 1, 2, 3] #exit, send file, receive file
+    logged_options = [0, 1, 2, 3, 4] #exit, send file, receive file
 
     while True:
         option = -1
         while option not in logged_options:
-            option=input("0.Exit\n1. Send document\n2. Receive files\n3. List documents\n")
+            print("-"*20)
+            option=input("0.Exit\n1. Send document\n2. Receive files\n3. List documents\n4. Receive one file\n")
             option = int(option)
             if option==0:
                 cliente.disconnect()
@@ -80,13 +82,24 @@ def login_options(cliente: SocketCliente.SocketCliente):
                 cliente.wait_files()
                 # for every File in files
                 files = os.listdir("files")
-                for file in files:
+                print("="*20)
+                for i, file in enumerate(files):
                     json_path = os.path.join("files", file, file + ".json")
+                    print(f"[File ID]: {file}")
                     cliente.print_json_info(json_path)
+                    print("-"*20)
+                    print()
                 # NOTA para Alex: cuando vayas a hacer la interfaz puedes usar
                 # el método de SocketCliente get_json_info para obtener los
                 # campos del json. El método print_json_info llama a ese
                 # método y además lo imprimer por terminal.
+
+            elif option == 4:
+                cliente.conn.sendall(cliente.RECIBIR_FILE.encode('utf-8'))
+                file_name = input("File ID: ")
+                cliente.conn.sendall(file_name.encode('utf-8'))
+                # Wait for files from the server
+                cliente.wait_files()
 
             else:
                 print("Invalid option")

@@ -4,6 +4,7 @@ import json
 
 
 config = json.load(open('config.json'))
+file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 
 class SocketPadre:
     SERVIDOR_IP = config['sockets']['host']
@@ -36,7 +37,9 @@ class SocketPadre:
         received_bytes = 0
         stream = bytes()
         while received_bytes < expected_bytes:
-            chunk = self.conn.recv(expected_bytes - received_bytes)
+            chunk = self.conn.recv(expected_bytes - received_bytes)       
+            if chunk == file_does_not_exist_tag.encode('utf-8'):
+                raise FileNotFoundError("El archivo no existe.")
             try:
                 if chunk.decode('utf-8') == "done":
                     return 0
@@ -99,8 +102,11 @@ class SocketPadre:
                 break
             except ValueError as e:
                 print(e)
-                print("Arcihos recibidos correctamente.")
-                return
+                print("Archivos recibidos correctamente.")
+                break
+            except FileNotFoundError as e:
+                print(e)
+                break
             print("Archivo recibido.")
 
     def send_file(self, filename):
