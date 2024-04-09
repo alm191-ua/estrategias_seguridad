@@ -193,6 +193,32 @@ def _handle_JSON_decryption(files, json_filename, old_key):
         return decrypt_files_JSON(files,json_filename,old_key)
     else:
         return files
+    
+#Lo he recuperado de la rama main
+def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
+    """
+    Desencripta los archivos listados en un documento JSON.
+
+    Args:
+        archivos_encriptados (list): Lista de representaciones base64 de los archivos encriptados.
+        nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
+        clave_anterior (bytes, opcional): Clave anterior si se desea reencriptar (predeterminado: None).
+
+    Returns:
+        list: Lista de los archivos desencriptados en formato de bytes.
+    """
+    key=key_to_use(old_key,json_filename)
+    decrypted_files = []
+    for encrypted_file in encrypted_files:
+        # Decodificar y separar el IV del texto cifrado
+        iv_ctext = base64.b64decode(encrypted_file)
+        iv = iv_ctext[:IV_SIZE]
+        ctext = iv_ctext[IV_SIZE:]
+        # Crear cifrador y desencriptar el archivo
+        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        decrypted_file = cipher.decrypt(ctext).decode()
+        decrypted_files.append(decrypted_file)
+    return decrypted_files
 
 def encrypt_files_JSON(json_filename, key,old_key=None):
     """
