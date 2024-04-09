@@ -64,7 +64,7 @@ class LoginForm(QtWidgets.QWidget):
             if success:
                 QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
                 self.close()
-                ui = ClienteUI(username)
+                ui = ClienteUI(username, self.cliente)
                 ui.run()
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")

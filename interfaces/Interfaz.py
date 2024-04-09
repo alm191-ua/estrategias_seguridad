@@ -19,15 +19,18 @@ cliente = SocketCliente.SocketCliente()
 is_unsafe_mode_active = False
 
 class ClienteUI:
-    def __init__(self, username=""):
+    def __init__(self, username="", cliente=None):
         self.main_window = None
         self.add_window = None
         self.show_files_window = None
         self.data = []
-        self.cliente = SocketCliente.SocketCliente()
+        if cliente:
+            self.cliente = cliente
+        else:
+            self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
-        self.conectar_al_servidor()
+        # self.conectar_al_servidor()
 
     def conectar_al_servidor(self):
         try:
@@ -44,6 +47,10 @@ class ClienteUI:
             window, event, values = sg.read_all_windows()
             
             if event == sg.WINDOW_CLOSED and window == main_window:
+                try:
+                    self.cliente.disconnect()
+                except Exception as e:
+                    logging.error(f'Error al desconectar del servidor: {e}')
                 break
             elif event == sg.WINDOW_CLOSED and window == add_window:
                 add_window.close()
@@ -72,9 +79,10 @@ class ClienteUI:
                         continue  # Vuelve al inicio del bucle para que el usuario pueda corregirlo
                     
                     try:
-                        if not self.cliente.conn:
-                            self.conectar_al_servidor()
+                        # if not self.cliente.conn:
+                        #     self.conectar_al_servidor()
 
+                        print("Enviando archivos...")
                         self.cliente.send_encrypted_files(valid_files, title, description)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
                     except Exception as e:
@@ -145,7 +153,11 @@ class ClienteUI:
 
 
     def cargar_datos(self,window):
+        # recibir los datos del servidor
+        self.cliente.conn.sendall(self.cliente.RECIBIR_JSON.encode('utf-8'))
+        self.cliente.wait_files()
         try:
+
             data_cargada = gdu.listar_los_zips()
             if not data_cargada:
                 sg.popup('No se encontraron datos')
