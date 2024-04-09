@@ -33,22 +33,63 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         Sends files to the server.
         Args:
-            archivos (list): The list of files to send.\n
-            titulo (str): The title of the package.\n
+            archivos (list): The list of files to send.
+            titulo (str): The title of the package.
             descripcion (str): The description of the package.
-        
         """
-        self.conn.sendall(self.ENVIAR.encode('utf-8'))
-        path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
-        self.encrypt_key(path)
-        file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_ARCHIVO_ENCRIPTADO)
-        json_file = str.replace(path, self.FORMATO_LLAVE,self.FORMATO_JSON)
-        key = path+self.FORMATO_ENCRIPTADO
-        self.send_file(file)
-        self.send_file(key)
-        self.send_file(json_file)
-        self.decrypt_key(key)
-        self.conn.sendall(b"done")
+        try:
+            # Verificar si la conexión está establecida
+            if self.conn is None:
+                raise Exception("La conexión con el servidor no está establecida.")
+            
+            self.conn.sendall(self.ENVIAR.encode('utf-8'))
+            path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
+            self.encrypt_key(path)
+            file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
+            json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
+            key = path + self.FORMATO_ENCRIPTADO
+            self.send_file(file)
+            self.send_file(key)
+            self.send_file(json_file)
+            self.decrypt_key(key)
+            self.conn.sendall(b"done")
+            
+            respuesta = self.conn.recv(1024)
+            if respuesta.decode('utf-8') != "ConfirmacionEsperada":
+                raise Exception("La confirmación del servidor no es la esperada.")
+            
+        except Exception as e:
+            print(f"Error al enviar archivos: {e}")
+            
+    #Tengo que arreglarlo       
+    def send_files_in_folder(self):
+        """
+        Envía los archivos de una carpeta al servidor, organizándolos por nombre de usuario.
+        """
+        try:
+            if not self.conn:
+                raise Exception("La conexión con el servidor no está establecida.")
+
+            source_folder = os.path.join(self.FOLDER, self.username)
+
+            zip_path = self.zip_files(source_folder)
+
+            filesize = os.path.getsize(zip_path)
+
+            self.conn.sendall(f"{os.path.basename(zip_path)}{self.SEPARATOR}{filesize}".encode())
+
+            # Enviar el archivo ZIP
+            with open(zip_path, 'rb') as f:
+                while True:
+                    bytes_read = f.read(self.BUFFER_SIZE)
+                    if not bytes_read:
+                        break
+                    self.conn.sendall(bytes_read)
+            
+            print("Archivos enviados correctamente.")
+        except Exception as e:
+            print(f"Error al enviar archivos: {e}")
+
 
 
     def decrypt_files_JSON(self,encrypted_files, json_filename,old_key=None):

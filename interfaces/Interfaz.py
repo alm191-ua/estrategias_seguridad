@@ -27,6 +27,13 @@ class ClienteUI:
         self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
+        self.conectar_al_servidor()
+
+    def conectar_al_servidor(self):
+        try:
+            self.cliente.connect()
+        except Exception as e:
+            sg.popup_error(f"Error al conectar con el servidor: {e}")
     
     def run(self):
         main_window = self.create_main_window()
@@ -48,40 +55,40 @@ class ClienteUI:
                 self.is_unsafe_mode_active = values['-UNSAFE-']
                 self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
 
-
-
             if event == '-ADD-' and not add_window:
                 add_window = self.create_add_window()
             
             if event == '-SAVE-':
                 title = values['-TITLE-'].strip()
                 description = values['-DESCRIPTION-'].strip()
-                files = values['-FILEPATH-'].strip()
+                file_paths = values['-FILEPATH-'].strip().split(';')  # Asume que los archivos están separados por ';'
 
-                if not title or not description or not files:
+                if not title or not description or not file_paths:
                     sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
                 else:
-                    unsafe_mode = is_unsafe_mode_active
-                    valid_files = [f.strip() for f in files.split(';') if os.path.exists(f.strip())]
-
+                    valid_files = [file_path for file_path in file_paths if os.path.isfile(file_path)]
+                    if not valid_files:
+                        sg.popup_error('Algunos archivos no existen. Por favor, verifica las rutas.', title='Error')
+                        continue  # Vuelve al inicio del bucle para que el usuario pueda corregirlo
+                    
                     try:
-                        ium(unsafe_mode)
-                        zp(valid_files, title, description)
-                        sg.popup('Documento guardado con éxito', title='Guardado Exitoso')
+                        if not self.cliente.conn:
+                            self.conectar_al_servidor()
+
+                        self.cliente.send_encrypted_files(valid_files, title, description)
+                        sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
                     except Exception as e:
-                        sg.popup_error(f'Error al guardar el documento: {e}', title='Error')
+                        sg.popup_error(f'Error al enviar los documentos: {e}', title='Error')
 
                     now = datetime.now()
                     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-
                     nuevo_documento = [len(self.data) + 1, title, description, current_time]
                     self.data.append(nuevo_documento)
-
                     main_window['-TABLE-'].update(values=self.data)
-
                     add_window.close()
                     add_window = None
                     self.data = gdu.listar_los_zips()
+
 
             if event == '-SEE-':
                 if values['-TABLE-']:
@@ -244,8 +251,6 @@ class ClienteUI:
             info_window.close()
         except Exception as e:
             sg.popup_error(f"Error al cargar la información JSON: {e}")
-
-
 
 
 if __name__ == '__main__':
