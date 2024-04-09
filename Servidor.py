@@ -52,7 +52,7 @@ empty_login_tag = config['sockets']['tags']['response']['empty_login']
 USERS_FILE = "server/users.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
-INSECURE_MODE=False
+INSECURE_MODE=True
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")
@@ -131,12 +131,10 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
             serverSocket.wait_files()
             serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
         elif option == serverSocket.RECIBIR:
-            print(f"Enviando archivos al usuario {username}")
             logging.info(f"Enviando archivos al usuario {username}")
             serverSocket.send_files_in_folder()
         ##Enviar 1 archivo
         elif option == serverSocket.RECIBIR_FILE:
-            print(f"Enviando archivo al usuario {username}")
             logging.info(f"Enviando archivo al usuario {username}")
             serverSocket.send_encoded()
         elif option ==serverSocket.RECIBIR_JSON:

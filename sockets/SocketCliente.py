@@ -201,12 +201,9 @@ class SocketCliente(SocketPadre.SocketPadre):
                 file_folder_path = os.path.join(self.FOLDER, fileId)
                 files_path = os.path.join(file_folder_path, fileId)
                 file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
-                print("file_path: ", file_path)
                 if os.path.exists(file_path):
                     break
                 else:
-                    print("El archivo no existe.")
-                    print(self.conn)
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
                     self.wait_files()

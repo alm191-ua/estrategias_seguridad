@@ -71,6 +71,7 @@ class ClienteUI:
                         sg.popup_error('Algunos archivos no existen. Por favor, verifica las rutas.', title='Error')
                         continue
                     try:
+                        ium(self.is_unsafe_mode_active)
                         print("Enviando archivos...")
                         self.cliente.send_encrypted_files(valid_files, title, description)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
@@ -92,7 +93,10 @@ class ClienteUI:
                     selected_row_index = values['-TABLE-'][0] 
                     
                     selected_item = self.data[selected_row_index]
-                    show_files_window = self.create_files_window(selected_item)
+                    try:
+                        show_files_window = self.create_files_window(selected_item)
+                    except Exception as e:
+                        sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
             #Evento para descargar archivos    
@@ -103,13 +107,14 @@ class ClienteUI:
                     if folder_path:
                         nombre_Fichero="File"+selected_item[4]
                         try:
+                            print(self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
                         
-                        directorio_files=cliente.UnzipFolder(nombre_Fichero)
+                        directorio_files=self.cliente.UnzipFolder(nombre_Fichero)
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
@@ -152,12 +157,14 @@ class ClienteUI:
             add_window.close()
         if show_files_window:
             show_files_window.close()
+        try:
+            shutil.rmtree('files')
+        except:
+            pass
 
 
     def cargar_datos(self,window):
-        # recibir los datos del servidor
-        self.cliente.conn.sendall(self.cliente.RECIBIR_JSON.encode('utf-8'))
-        self.cliente.wait_files()
+        self.cliente.choose_opt(5)
         try:
 
             data_cargada = gdu.listar_los_zips()
@@ -242,7 +249,7 @@ class ClienteUI:
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        files = gdu.get_files_in_zip("File"+item[4])
+        files = self.cliente.get_files_in_zip("File"+item[4])
         file_list = [[file] for file in files]  
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
