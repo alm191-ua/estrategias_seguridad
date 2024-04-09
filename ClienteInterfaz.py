@@ -102,14 +102,12 @@ class RegistrationForm(QtWidgets.QWidget):
         register_button.clicked.connect(self.register_user)
         layout.addWidget(register_button)
 
-        # Estilización del QComboBox para seleccionar la complejidad de la contraseña
         self.complexity_combo = QtWidgets.QComboBox()
         self.complexity_combo.addItem("Baja", 0)
         self.complexity_combo.addItem("Media", 1)
         self.complexity_combo.addItem("Alta", 2)
         self.complexity_combo.setStyleSheet("QComboBox { height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e; }")
 
-        # Estilización del botón para generar la contraseña
         generate_password_button = QtWidgets.QPushButton("Generar Contraseña")
         generate_password_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
         generate_password_button.clicked.connect(self.generate_password)

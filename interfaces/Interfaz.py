@@ -44,9 +44,10 @@ class ClienteUI:
             elif event == sg.WINDOW_CLOSED and window == show_files_window:
                 show_files_window.close()
                 show_files_window = None
-            elif event == '-UNSAFE-': 
-                is_unsafe_mode_active = values['-UNSAFE-']
-                self.update_unsafe_mode_text(window, is_unsafe_mode_active)
+            elif event == '-UNSAFE-':
+                self.is_unsafe_mode_active = values['-UNSAFE-']
+                self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
+
 
 
             if event == '-ADD-' and not add_window:
@@ -73,20 +74,20 @@ class ClienteUI:
                     now = datetime.now()
                     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
-                    nuevo_documento = [len(data) + 1, title, description, current_time]
-                    data.append(nuevo_documento)
+                    nuevo_documento = [len(self.data) + 1, title, description, current_time]
+                    self.data.append(nuevo_documento)
 
-                    main_window['-TABLE-'].update(values=data)
+                    main_window['-TABLE-'].update(values=self.data)
 
                     add_window.close()
                     add_window = None
-                    data = gdu.listar_los_zips()
+                    self.data = gdu.listar_los_zips()
 
             if event == '-SEE-':
                 if values['-TABLE-']:
                     selected_row_index = values['-TABLE-'][0] 
                     
-                    selected_item = data[selected_row_index]
+                    selected_item = self.data[selected_row_index]
                     show_files_window = self.create_files_window(selected_item)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
@@ -105,13 +106,23 @@ class ClienteUI:
                             pass
                         shutil.rmtree(directorio_files)
                         sg.popup(f'Archivos descargados en: {folder_path}')
+            if event == '-INFO JSON-':
+                if values['-TABLE-']:
+                    selected_row_indices = values['-TABLE-']
+                    for index in selected_row_indices:
+                        selected_item = self.data[index]
+                        file_name = "File"+selected_item[4]
+                        json_path = os.path.join("files", file_name, file_name + ".json")
+                        self.show_json_info(json_path)
+                else:
+                    sg.popup("Por favor, selecciona un elemento de la lista.")
             elif event == '-BUSCAR DATOS-':
                 window['-CARGANDO-'].update(visible=True)
                 threading.Thread(target=self.cargar_datos, args=(window,), daemon=True).start()
             elif event == '-DATOS CARGADOS-':
                 if values[event]: 
-                    data = values[event]
-                    window['-TABLE-'].update(values=data)
+                    self.data = values[event]
+                    window['-TABLE-'].update(values=self.data)
                     window['-CARGANDO-'].update(visible=False)  
                 else:
                     sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
@@ -159,12 +170,14 @@ class ClienteUI:
         
         buttons_column = [
             [sg.Text('', size=(10, 1)),
-             sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
-             sg.Text('', size=(10, 1)),
-             sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
-             sg.Text('', size=(10, 1)),
-             sg.Button('Buscar Datos', key='-BUSCAR DATOS-', button_color=('white', 'brown'), font=("Helvetica", 12))]
+            sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
+            sg.Text('', size=(10, 1)),
+            sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
+            sg.Text('', size=(10, 1)),
+            sg.Button('Buscar Datos', key='-BUSCAR DATOS-', button_color=('white', 'brown'), font=("Helvetica", 12)),
+            sg.Button('Info Documento', key='-INFO JSON-', button_color=('white', 'orange'), font=("Helvetica", 12))]
         ]
+
         
         layout = [
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
@@ -213,6 +226,26 @@ class ClienteUI:
             [sg.Button('Descargar Archivo', key='-DOWNLOAD-')]
         ]
         return sg.Window('Archivo Comprimidos', layout, finalize=True)
+    
+    def show_json_info(self, json_path):
+        try:
+            title, description, time, decrypted_files = self.cliente.get_json_info(json_path)
+            info_layout = [
+                [sg.Text(f"Title: {title}")],
+                [sg.Text(f"Description: {description}")],
+                [sg.Text(f"Time: {time}")],
+                [sg.Text("Files:")]] + [[sg.Text(f)] for f in decrypted_files]
+            
+            info_window = sg.Window("Info JSON", info_layout, modal=True)
+            while True:
+                event, values = info_window.read()
+                if event == sg.WINDOW_CLOSED:
+                    break
+            info_window.close()
+        except Exception as e:
+            sg.popup_error(f"Error al cargar la información JSON: {e}")
+
+
 
 
 if __name__ == '__main__':
