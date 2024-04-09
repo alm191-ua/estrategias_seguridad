@@ -10,5 +10,8 @@
     },
     "aaaaa": {
         "password": "$2b$12$Nby0.M0LU5fk71W2/tvztu4TqsoHTBRRCppAKxaUMo405zgxRq9wC"
+    },
+    "12345": {
+        "password": "$2b$12$b0SyhKojQLFbDER/Eh7Y3.wVgrgGHBnWQGUGYuYTW43moFs/DVcgW"
     }
 }

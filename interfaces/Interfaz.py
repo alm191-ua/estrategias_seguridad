@@ -113,13 +113,22 @@ class ClienteUI:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
                         nombre_Fichero="File"+selected_item[4]
-                        print(nombre_Fichero)
-                        directorio_files=gdu.UnzipFolder(nombre_Fichero)
+                        try:
+                            cliente.get_file(nombre_Fichero)
+                        except FileNotFoundError as e:
+                            sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
+                        except Exception as e:
+                            sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
+                        
+                        directorio_files=cliente.UnzipFolder(nombre_Fichero)
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
                             pass
-                        shutil.rmtree(directorio_files)
+                        try:
+                            shutil.rmtree(directorio_files)
+                        except:
+                            pass
                         sg.popup(f'Archivos descargados en: {folder_path}')
             if event == '-INFO JSON-':
                 if values['-TABLE-']:
