@@ -205,6 +205,8 @@ class SocketCliente(SocketPadre.SocketPadre):
                 if os.path.exists(file_path):
                     break
                 else:
+                    print("El archivo no existe.")
+                    print(self.conn)
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
                     self.wait_files()
@@ -457,7 +459,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 print("No se ha iniciado sesión.")
                 self.conn.sendall(self.RECIBIR_JSON_MALICIOUS.encode('utf-8'))
             else:
-                print('Enviando JSON')
+                print('Recibiendo JSON')
                 self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
             self.wait_files()
             

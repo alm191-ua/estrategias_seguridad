@@ -103,7 +103,7 @@ class ClienteUI:
                     if folder_path:
                         nombre_Fichero="File"+selected_item[4]
                         try:
-                            cliente.get_file(nombre_Fichero)
+                            self.cliente.get_file(nombre_Fichero)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
