@@ -30,13 +30,6 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
-        # self.conectar_al_servidor()
-
-    def conectar_al_servidor(self):
-        try:
-            self.cliente.connect()
-        except Exception as e:
-            sg.popup_error(f"Error al conectar con el servidor: {e}")
     
     def run(self):
         main_window = self.create_main_window()
@@ -61,14 +54,14 @@ class ClienteUI:
             elif event == '-UNSAFE-':
                 self.is_unsafe_mode_active = values['-UNSAFE-']
                 self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
-
+            #Evento para abrir la ventana de añadir
             if event == '-ADD-' and not add_window:
                 add_window = self.create_add_window()
-            
+            #Evento para guardar los archivos
             if event == '-SAVE-':
                 title = values['-TITLE-'].strip()
                 description = values['-DESCRIPTION-'].strip()
-                file_paths = values['-FILEPATH-'].strip().split(';')  # Asume que los archivos están separados por ';'
+                file_paths = values['-FILEPATH-'].strip().split(';')
 
                 if not title or not description or not file_paths:
                     sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
@@ -76,12 +69,8 @@ class ClienteUI:
                     valid_files = [file_path for file_path in file_paths if os.path.isfile(file_path)]
                     if not valid_files:
                         sg.popup_error('Algunos archivos no existen. Por favor, verifica las rutas.', title='Error')
-                        continue  # Vuelve al inicio del bucle para que el usuario pueda corregirlo
-                    
+                        continue
                     try:
-                        # if not self.cliente.conn:
-                        #     self.conectar_al_servidor()
-
                         print("Enviando archivos...")
                         self.cliente.send_encrypted_files(valid_files, title, description)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
@@ -97,7 +86,7 @@ class ClienteUI:
                     add_window = None
                     self.data = gdu.listar_los_zips()
 
-
+            #Evento para abrir la ventana de archivos
             if event == '-SEE-':
                 if values['-TABLE-']:
                     selected_row_index = values['-TABLE-'][0] 
@@ -106,7 +95,7 @@ class ClienteUI:
                     show_files_window = self.create_files_window(selected_item)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
-                    
+            #Evento para descargar archivos    
             if event == '-DOWNLOAD-' and show_files_window is not None:
                 selected_files = values['-FILES_LIST-']
                 if selected_files:
@@ -130,6 +119,7 @@ class ClienteUI:
                         except:
                             pass
                         sg.popup(f'Archivos descargados en: {folder_path}')
+            #Evento para mostrar la información de un documento
             if event == '-INFO JSON-':
                 if values['-TABLE-']:
                     selected_row_indices = values['-TABLE-']
@@ -140,9 +130,11 @@ class ClienteUI:
                         self.show_json_info(json_path)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
+            #Evento para buscar los datos
             elif event == '-BUSCAR DATOS-':
                 window['-CARGANDO-'].update(visible=True)
                 threading.Thread(target=self.cargar_datos, args=(window,), daemon=True).start()
+            #Evento para cargar los datos
             elif event == '-DATOS CARGADOS-':
                 if values[event]: 
                     self.data = values[event]
@@ -150,6 +142,7 @@ class ClienteUI:
                     window['-CARGANDO-'].update(visible=False)  
                 else:
                     sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
+            #Evento para mostrar un error
             elif event == '-ERROR-':
                 window['-CARGANDO-'].update(visible=False)
 
@@ -179,6 +172,9 @@ class ClienteUI:
 
 
     def update_unsafe_mode_text(self,window, is_unsafe_mode):
+        """
+        Actualiza el texto de la ventana principal para indicar si el modo inseguro está activado o no.
+        """
         text_color = 'red' if is_unsafe_mode else 'green'
         text = 'Modo Inseguro Activado' if is_unsafe_mode else 'Modo Seguro Activado'
         window['-UNSAFE-MODE-TEXT-'].update(text, text_color=text_color)
@@ -206,7 +202,6 @@ class ClienteUI:
             sg.Button('Info Documento', key='-INFO JSON-', button_color=('white', 'orange'), font=("Helvetica", 12))]
         ]
 
-        
         layout = [
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
@@ -220,7 +215,6 @@ class ClienteUI:
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')
         return window
-
         
 
     def create_add_window(self):
@@ -245,17 +239,22 @@ class ClienteUI:
 
 
     def create_files_window(self,item):
-        files = gdu.get_files_in_zip("File"+item[4])  # Obtener la lista de archivos contenidos en el elemento seleccionado
-        file_list = [[file] for file in files]  # Convertir la lista de archivos en un formato adecuado para la ventana
-
+        """
+        Crea la ventana para mostrar los archivos de un elemento seleccionado.
+        """
+        files = gdu.get_files_in_zip("File"+item[4])
+        file_list = [[file] for file in files]  
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
-            [sg.Listbox(values=file_list, size=(100, 10), select_mode='extended', key='-FILES_LIST-')],  # Listbox con select_mode='extended'        
+            [sg.Listbox(values=file_list, size=(100, 10), select_mode='extended', key='-FILES_LIST-')],       
             [sg.Button('Descargar Archivo', key='-DOWNLOAD-')]
         ]
         return sg.Window('Archivo Comprimidos', layout, finalize=True)
     
     def show_json_info(self, json_path):
+        """
+        Muestra la información de un archivo JSON.
+        """
         try:
             title, description, time, decrypted_files = self.cliente.get_json_info(json_path)
             info_layout = [
