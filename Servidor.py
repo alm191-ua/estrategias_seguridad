@@ -129,6 +129,7 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         if option == serverSocket.ENVIAR:
             logging.info(f"Recibiendo archivos del usuario {username}")
             serverSocket.wait_files()
+            serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
         elif option == serverSocket.RECIBIR:
             logging.info(f"Enviando archivos al usuario {username}")
             serverSocket.send_files_in_folder()
