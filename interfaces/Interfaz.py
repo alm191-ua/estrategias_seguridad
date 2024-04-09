@@ -201,7 +201,7 @@ class ClienteUI:
         
         buttons_column = [
             [sg.Text('', size=(10, 1)),
-            sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12)),
+            sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12), visible=not self.cliente.MALICIOSO),
             sg.Text('', size=(10, 1)),
             sg.Button('Archivos', key='-SEE-', button_color=('white', 'blue'), font=("Helvetica", 12)),
             sg.Text('', size=(10, 1)),
