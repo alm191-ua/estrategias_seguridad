@@ -99,7 +99,6 @@ class RegistrationForm(QtWidgets.QWidget):
         #Campo de texto para la contraseña
         self.password_line_edit = QtWidgets.QLineEdit()
         self.password_line_edit.setPlaceholderText("Nueva Contraseña")
-        self.password_line_edit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.password_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
         layout.addWidget(self.password_line_edit)
 
@@ -109,36 +108,41 @@ class RegistrationForm(QtWidgets.QWidget):
         register_button.clicked.connect(self.register_user)
         layout.addWidget(register_button)
 
-        #Enlace para generar contraseña segura
-        self.complexity_combo = QtWidgets.QComboBox()
-        self.complexity_combo.addItem("Baja", 0)
-        self.complexity_combo.addItem("Media", 1)
-        self.complexity_combo.addItem("Alta", 2)
-        self.complexity_combo.setStyleSheet("QComboBox { height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e; }")
+        #Slider para seleccionar la longitud
+        self.length_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.length_slider.setMinimum(5)
+        self.length_slider.setMaximum(15)
+        self.length_slider.setValue(8)  # Valor inicial
+        self.length_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        self.length_slider.setTickInterval(1)
+        layout.addWidget(self.length_slider)
+
+        #Checkboxes para tipos de caracteres
+        self.uppercase_checkbox = QtWidgets.QCheckBox("Incluir mayúsculas")
+        self.lowercase_checkbox = QtWidgets.QCheckBox("Incluir minúsculas", checked=True)
+        self.digits_checkbox = QtWidgets.QCheckBox("Incluir números")
+        self.punctuation_checkbox = QtWidgets.QCheckBox("Incluir símbolos")
+        layout.addWidget(self.uppercase_checkbox)
+        layout.addWidget(self.lowercase_checkbox)
+        layout.addWidget(self.digits_checkbox)
+        layout.addWidget(self.punctuation_checkbox)
 
         #Botón para generar contraseña
         generate_password_button = QtWidgets.QPushButton("Generar Contraseña")
         generate_password_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
         generate_password_button.clicked.connect(self.generate_password)
-
-        layout.addWidget(self.complexity_combo)
         layout.addWidget(generate_password_button)
 
         self.setLayout(layout)
 
-        
+    # Y actualiza generate_password en la misma clase para hacer uso de los nuevos controles
     def generate_password(self):
-        complexity = self.complexity_combo.currentData()
-        if complexity == 0:
-            #Baja complejidad: solo letras minúsculas y longitud 8
-            password = generate_password(length=8, uppercase=False, digits=False, punctuation=False)
-        elif complexity == 1:
-            #Complejidad media: letras y números, longitud 10
-            password = generate_password(length=10, uppercase=True, punctuation=False)
-        else:
-            #Alta complejidad: todos los caracteres, longitud 12
-            password = generate_password(length=12)
-        
+        length = self.length_slider.value()
+        use_uppercase = self.uppercase_checkbox.isChecked()
+        use_lowercase = self.lowercase_checkbox.isChecked()
+        use_digits = self.digits_checkbox.isChecked()
+        use_punctuation = self.punctuation_checkbox.isChecked()
+        password = generate_password(length=length, use_uppercase=use_uppercase, use_lowercase=use_lowercase, use_digits=use_digits, use_punctuation=use_punctuation)
         self.password_line_edit.setText(password)
 
 

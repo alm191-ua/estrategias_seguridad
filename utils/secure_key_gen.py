@@ -47,57 +47,37 @@ def easy_to_say_password(length, characters):
     return password
 
 
-def generate_password(length, mode=0, uppercase=True, lowercase=True, digits=True, punctuation=True):
+def generate_password(length=8, use_uppercase=True, use_lowercase=True, use_digits=True, use_punctuation=True):
     """
-    Generates a random (and secure) password of the specified length.
-
+    Generates a random password.
+    
     Args:
-        length (int): The length of the password.
-        mode (int, optional): The mode of the password. Defaults to 0.
-            0: All characters allowed.
-            1: Easy to say characters only (avoid numbers and punctuation).
-            2: Easy to read characters only (avoid similar/ambiguous characters and punctuation).
-        uppercase (bool, optional): Include uppercase letters. Defaults to True.
-        lowercase (bool, optional): Include lowercase letters. Defaults to True.
-        digits (bool, optional): Include digits. Defaults to True.
-        punctuation (bool, optional): Include punctuation. Defaults to True.
-
+        length (int): Length of the password. Min 5, Max 15.
+        use_uppercase (bool): Include uppercase letters if True.
+        use_lowercase (bool): Include lowercase letters if True.
+        use_digits (bool): Include digits if True.
+        use_punctuation (bool): Include punctuation symbols if True.
+        
     Returns:
         str: The generated password.
-
-    Raises:
-        ValueError: If no characters are selected for password generation.
     """
-    characters = ''
-    if mode == 1:
-        digits = False
-        punctuation = False
-    elif mode == 2:
-        digits = False
-        punctuation = False
-        uppercase = True
-        lowercase = True
+    if length < 5 or length > 15:
+        raise ValueError("Length must be between 5 and 15.")
     
-    if uppercase:
+    characters = ""
+    if use_uppercase:
         characters += string.ascii_uppercase
-    if lowercase:
+    if use_lowercase:
         characters += string.ascii_lowercase
-    if digits:
+    if use_digits:
         characters += string.digits
-    if punctuation:
+    if use_punctuation:
         characters += string.punctuation
 
-    if mode == 2:
-        characters = ''.join([c for c in characters if c not in AMBIGUOUS])
-
     if not characters:
-        raise ValueError("No characters selected for password generation.")
-
-    if mode == 1:
-        password = easy_to_say_password(length, characters)
-    else:
-        password = ''.join(random.choice(characters) for i in range(length))
-    return password
+        raise ValueError("At least one character type must be selected.")
+    
+    return ''.join(random.choice(characters) for _ in range(length))
 
 def generate_keys(passwd):
     """
