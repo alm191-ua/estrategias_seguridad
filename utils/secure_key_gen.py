@@ -47,37 +47,35 @@ def easy_to_say_password(length, characters):
     return password
 
 
-def generate_password(length=8, use_uppercase=True, use_lowercase=True, use_digits=True, use_punctuation=True):
+def generate_password(length=8, use_uppercase=True, use_lowercase=True, use_digits=True, use_punctuation=True, easy_to_read=False, easy_to_say=False):
     """
-    Generates a random password.
-    
-    Args:
-        length (int): Length of the password. Min 5, Max 15.
-        use_uppercase (bool): Include uppercase letters if True.
-        use_lowercase (bool): Include lowercase letters if True.
-        use_digits (bool): Include digits if True.
-        use_punctuation (bool): Include punctuation symbols if True.
-        
-    Returns:
-        str: The generated password.
+    Generates a random password considering the given parameters.
     """
-    if length < 5 or length > 15:
-        raise ValueError("Length must be between 5 and 15.")
-    
-    characters = ""
-    if use_uppercase:
-        characters += string.ascii_uppercase
-    if use_lowercase:
-        characters += string.ascii_lowercase
-    if use_digits:
-        characters += string.digits
-    if use_punctuation:
-        characters += string.punctuation
+    if easy_to_read:
+        use_digits = False
+        use_punctuation = False
+
+    if easy_to_say:
+        characters = string.ascii_lowercase + string.ascii_uppercase if use_uppercase else ''
+    else:
+        characters = ''
+        if use_uppercase:
+            characters += string.ascii_uppercase
+        if use_lowercase:
+            characters += string.ascii_lowercase
+        if use_digits:
+            characters += string.digits
+        if use_punctuation:
+            characters += string.punctuation
+
+    if easy_to_read:
+        characters = ''.join(c for c in characters if c not in 'l1Io0O')
 
     if not characters:
         raise ValueError("At least one character type must be selected.")
-    
+
     return ''.join(random.choice(characters) for _ in range(length))
+
 
 def generate_keys(passwd):
     """
