@@ -132,13 +132,14 @@ class RegistrationForm(QtWidgets.QWidget):
         char_types_layout.addWidget(self.digits_checkbox)
         char_types_layout.addWidget(self.punctuation_checkbox)
 
-        #Añadir checkboxes para facilidades
-        facilities_layout = QtWidgets.QVBoxLayout()
-        self.easy_to_read_checkbox = QtWidgets.QCheckBox("Fácil de leer")
-        self.easy_to_say_checkbox = QtWidgets.QCheckBox("Fácil de decir")
-        facilities_layout.addWidget(self.easy_to_read_checkbox)
-        facilities_layout.addWidget(self.easy_to_say_checkbox)
 
+        facilities_layout = QtWidgets.QVBoxLayout()
+        self.easy_to_read_radio = QtWidgets.QRadioButton("Fácil de leer")
+        self.easy_to_say_radio = QtWidgets.QRadioButton("Fácil de decir")
+        facilities_layout.addWidget(self.easy_to_read_radio)
+        facilities_layout.addWidget(self.easy_to_say_radio)
+        
+        
         #Añadir los layouts de checkboxes al layout horizontal
         checkboxes_layout.addLayout(char_types_layout)
         checkboxes_layout.addLayout(facilities_layout)
@@ -160,10 +161,28 @@ class RegistrationForm(QtWidgets.QWidget):
         use_lowercase = self.lowercase_checkbox.isChecked()
         use_digits = self.digits_checkbox.isChecked()
         use_punctuation = self.punctuation_checkbox.isChecked()
-        easy_to_read = self.easy_to_read_checkbox.isChecked()
-        easy_to_say = self.easy_to_say_checkbox.isChecked()
-        password = generate_password(length=length, use_uppercase=use_uppercase, use_lowercase=use_lowercase, use_digits=use_digits, use_punctuation=use_punctuation, easy_to_read=easy_to_read, easy_to_say=easy_to_say)
-        self.password_line_edit.setText(password)
+        easy_to_read = self.easy_to_read_radio.isChecked()
+        easy_to_say = self.easy_to_say_radio.isChecked()
+
+        if easy_to_read and easy_to_say:
+            QtWidgets.QMessageBox.warning(self, "Error", "Selecciona 'Fácil de leer' o 'Fácil de decir', no ambos.")
+            return
+
+        try:
+            password = generate_password(
+                length=length, 
+                use_uppercase=use_uppercase, 
+                use_lowercase=use_lowercase, 
+                use_digits=use_digits, 
+                use_punctuation=use_punctuation, 
+                easy_to_read=easy_to_read, 
+                easy_to_say=easy_to_say
+            )
+            self.password_line_edit.setText(password)
+        except ValueError as e:
+            QtWidgets.QMessageBox.critical(self, "Error al generar la contraseña", str(e))
+
+
 
 
 
