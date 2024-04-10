@@ -5,13 +5,15 @@ import bcrypt
 
 AMBIGUOUS = '01lIOo'
 
-VOWELS = 'aeiouAEIOU'
-CONSONANTS = 'bcdfghjklmnpqrstvwxyzBDFGHJKLMNPQRSTVWXYZ'
+VOWELS_MIN = 'aeiou'
+VOWELS_MAJ = 'AEIOU'
+CONSONANTS_MIN = 'bcdfghjklmnpqrstvwxyz'
+CONSONANTS_MAJ = 'BCDFGHJKLMNPQRSTVWXYZ'
 # GRAPHIES = ['ch', 'll', 'rr', 'rs', 'st', 'rt']
 
 # intercalate vowels and consonants, or know graphies like ch or ll, rr, etc.
 # lo de las grafías mejor no :)
-def next_char(char):
+def next_char(char, lowercase=True, uppercase=True):
     """
     Returns the next character in the sequence of easy to say characters.
 
@@ -21,28 +23,44 @@ def next_char(char):
     Returns:
         str: The next character in the sequence.
     """
-    if char in VOWELS:
-        return random.choice(CONSONANTS)
-    elif char in CONSONANTS:
-        return random.choice(VOWELS)
+    vowels = (VOWELS_MIN if lowercase else '') + (VOWELS_MAJ if uppercase else '')
+    consonants = (CONSONANTS_MIN if lowercase else '') + (CONSONANTS_MAJ if uppercase else '')
+    if not lowercase and not uppercase:
+        vowels = VOWELS_MIN
+        consonants = CONSONANTS_MIN
+    if char in vowels:
+        return random.choice(consonants)
+    elif char in consonants:
+        return random.choice(vowels)
     else:
-        return VOWELS[0]
+        return random.choice(consonants)
 
-def easy_to_say_password(length, characters):
+def easy_to_say_password(length, lowercase=True, uppercase=True):
     """
     Generates a random (and secure) password of the specified length, using only easy to say characters.
-
+    The password will alternate between vowels and consonants, and only letters will be used.
+    If no character type is selected, lowercase characters will be used by default.
+    
     Args:
         length (int): The length of the password.
-        characters (str): The characters to use for password generation.
+        lowercase (bool): Whether to include lowercase characters.
+        uppercase (bool): Whether to include uppercase characters.
 
     Returns:
         str: The generated password.
     """
+    characters = ''
+    if lowercase:
+        characters += string.ascii_lowercase
+    if uppercase:
+        characters += string.ascii_uppercase
+    if not characters:
+        characters = string.ascii_lowercase
+
     first_char = random.choice(characters)
     password = str(first_char)
     for i in range(length-1):
-        password += next_char(password[-1])
+        password += next_char(password[-1], lowercase, uppercase)
 
     return password
 
@@ -51,22 +69,21 @@ def generate_password(length=8, use_uppercase=True, use_lowercase=True, use_digi
     """
     Generates a random password considering the given parameters.
     """
-    if easy_to_read:
+    if easy_to_read or easy_to_say:
         use_digits = False
         use_punctuation = False
 
+    characters = ''
+    if use_uppercase:
+        characters += string.ascii_uppercase
+    if use_lowercase:
+        characters += string.ascii_lowercase
+    if use_digits:
+        characters += string.digits
+    if use_punctuation:
+        characters += string.punctuation
     if easy_to_say:
-        characters = string.ascii_lowercase + string.ascii_uppercase if use_uppercase else ''
-    else:
-        characters = ''
-        if use_uppercase:
-            characters += string.ascii_uppercase
-        if use_lowercase:
-            characters += string.ascii_lowercase
-        if use_digits:
-            characters += string.digits
-        if use_punctuation:
-            characters += string.punctuation
+        return easy_to_say_password(length, use_lowercase, use_uppercase)
 
     if easy_to_read:
         characters = ''.join(c for c in characters if c not in 'l1Io0O')
