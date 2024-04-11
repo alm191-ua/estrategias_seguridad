@@ -480,8 +480,12 @@ def read_key_from_file(input_file):
         bytes: Clave leída del archivo.
     """
     file=input_file+KEYS_FORMAT
-    with open(file, 'rb') as f:
-        key = f.read()
+    try:
+        with open(file, 'rb') as f:
+            key = f.read()
+    except FileNotFoundError:
+        logging.error(f'Key file not found: {file}')
+        raise
     # decyper key
     # iv = key[:IV_SIZE]
     # ctext = key[IV_SIZE:]

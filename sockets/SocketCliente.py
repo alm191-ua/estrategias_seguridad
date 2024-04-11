@@ -189,10 +189,10 @@ class SocketCliente(SocketPadre.SocketPadre):
 
     def get_file(self, filename):
         """
-        gets a file to the server.
+        gets a document from the server.
 
         Args:
-            filename (str): The name of the file to send.
+            filename (str): The name of the file to receive.
 
         """
         files = os.listdir(self.FOLDER)
