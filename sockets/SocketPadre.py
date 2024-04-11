@@ -7,6 +7,10 @@ config = json.load(open('config.json'))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 
 class SocketPadre:
+    """
+    Clase padre para la comunicación entre el servidor y el cliente.
+    Permite ralizar el envío y recepción de archivos, ya sea desde el servidor al cliente o viceversa.
+    """
     SERVIDOR_IP = config['sockets']['host']
     SERVIDOR_PUERTO = config['sockets']['port']
     ENVIAR=config['sockets']['tags']['init_comms']['send']
@@ -21,18 +25,35 @@ class SocketPadre:
     FORMATO_COMPRESION='.zip'
     conn=None
     FOLDER=None
+
     def buscar_server_folder(self):
+        """
+        Busca la carpeta del servidor en la que se guardarán los archivos.
+        Si no existe, la crea.
+        """
         if not os.path.exists(self.FOLDER):
             os.makedirs(self.FOLDER)
 
     def create_folder_4_new_file(self, filename):
+        """
+        Crea una carpeta para un nuevo archivo.
+        """
         filename = filename.split(".")[0]
         path=os.path.join(self.FOLDER, filename)
         if not os.path.exists(path):
             os.makedirs(path)
         return path
+    
     def receive_size(self, fmt):
+        """
+        Recibe el tamaño de un archivo.
+        
+        Args:
+            fmt (str): El formato del tamaño del archivo.
 
+        Returns:
+            int: El tamaño del archivo.
+        """
         expected_bytes = struct.calcsize(fmt)
         received_bytes = 0
         stream = bytes()
@@ -57,6 +78,9 @@ class SocketPadre:
         return filesize
     
     def receive_file(self,):
+        """
+        Recibe un archivo.
+        """
         print("Esperando el tamaño del nombre del archivo...")
         try:
             fmt = "<L"
@@ -92,11 +116,14 @@ class SocketPadre:
         print("Archivo recibido correctamente.")
 
     def wait_files(self):
+        """
+        Espera a recibir archivos.
+        """
         while self.conn:
             try:
                 self.receive_file()
             except ConnectionResetError:
-                print("Conexión cerrada por el cliente.")
+                print("Conexión cerrada.")
                 self.conn.close()
                 self.conn=None
                 break
@@ -110,10 +137,12 @@ class SocketPadre:
             print("Archivo recibido.")
 
     def send_file(self, filename):
+        """
+        Envia un archivo.
+        """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         
-
         # Enviar el nombre del archivo al servidor.
         name = os.path.basename(filename)
         name_size = len(name)
@@ -133,6 +162,9 @@ class SocketPadre:
         
     
     def send_files_in_folder(self):
+        """
+        Envia los archivos en el directorio seleccionado.
+        """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
