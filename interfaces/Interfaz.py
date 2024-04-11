@@ -36,6 +36,11 @@ class ClienteUI:
         add_window = None
         show_files_window = None
 
+        # block -UNSAFE- to permanently checked the checkbox
+        if self.cliente.MALICIOSO:
+            main_window['-UNSAFE-'].update(disabled=True, value=True)
+            self.update_unsafe_mode_text(main_window, True)
+
         while True:
             window, event, values = sg.read_all_windows()
             
@@ -182,6 +187,8 @@ class ClienteUI:
         """
         Actualiza el texto de la ventana principal para indicar si el modo inseguro está activado o no.
         """
+        if self.cliente.MALICIOSO:
+            is_unsafe_mode = True
         text_color = 'red' if is_unsafe_mode else 'green'
         text = 'Modo Inseguro Activado' if is_unsafe_mode else 'Modo Seguro Activado'
         window['-UNSAFE-MODE-TEXT-'].update(text, text_color=text_color)
