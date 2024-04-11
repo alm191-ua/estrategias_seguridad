@@ -18,7 +18,7 @@ class LoginForm(QtWidgets.QWidget):
     def init_ui(self):
         self.setWindowTitle("Login")
         self.setFixedSize(600, 400)
-        self.setStyleSheet("background-color: #2c3e51;")
+        self.setStyleSheet("background-color: #2c3e51; color:white;")
 
         layout = QtWidgets.QVBoxLayout()
 
@@ -71,7 +71,9 @@ class LoginForm(QtWidgets.QWidget):
                 ui = ClienteUI(username, self.cliente)
                 ui.run()
             else:
-                QtWidgets.QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos.")
+                QtWidgets.QMessageBox().warning(self, "Error", "Usuario o contraseña incorrectos.")
+
+
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", str(e))
             print(e)
@@ -86,7 +88,7 @@ class RegistrationForm(QtWidgets.QWidget):
     def init_ui(self):
         self.setWindowTitle("Registro")
         self.setFixedSize(600, 350)
-        self.setStyleSheet("background-color: #2c3e51;")
+        self.setStyleSheet("background-color: #2c3e51; color: white;")
 
         self.main_layout = QtWidgets.QVBoxLayout(self)
 
