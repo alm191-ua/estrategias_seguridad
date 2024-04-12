@@ -256,6 +256,7 @@ def main():
         global INSECURE_MODE
         INSECURE_MODE = True
         logging.info('Unsafe mode activated :(')
+        print("HABILITADO MODO INSEGURO")
 
     server = SocketServidor.SocketServidor()
     server.start(handle_client)
