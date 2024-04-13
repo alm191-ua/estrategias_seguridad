@@ -13,5 +13,8 @@
     },
     "12345": {
         "password": "$2b$12$b0SyhKojQLFbDER/Eh7Y3.wVgrgGHBnWQGUGYuYTW43moFs/DVcgW"
+    },
+    "Entrega2": {
+        "password": "$2b$12$ye2bosTAZPN7Ylw9jqc6b.coL2PSx2fbp/b/6/vNSbdYZBmA1t7I6"
     }
 }
