@@ -68,6 +68,18 @@ def easy_to_say_password(length, lowercase=True, uppercase=True):
 def generate_password(length=8, use_uppercase=True, use_lowercase=True, use_digits=True, use_punctuation=True, easy_to_read=False, easy_to_say=False):
     """
     Generates a random password considering the given parameters.
+
+    Args:
+        length (int): The length of the password.
+        use_uppercase (bool, optional): Include uppercase letters. Defaults to True.
+        use_lowercase (bool, optional): Include lowercase letters. Defaults to True.
+        use_digits (bool, optional): Include digits. Defaults to True.
+        use_punctuation (bool, optional): Include punctuation. Defaults to True.
+        easy_to_read (bool, optional): Generate a password that is easy to read. Defaults to False.
+        easy_to_say (bool, optional): Generate a password that is easy to say. Defaults to False.
+
+    Returns:
+        str: The generated password.
     """
     if easy_to_read or easy_to_say:
         use_digits = False

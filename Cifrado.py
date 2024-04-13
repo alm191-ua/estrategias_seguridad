@@ -9,11 +9,10 @@ import json
 from datetime import datetime
 import base64
 
-
-
-# directorio de los ficheros
+# Modo de cifrado
 AES_MODE = AES.MODE_CTR
 
+# directorio de los ficheros
 FILE_DIR='files'
 NAME_FILES='File'
 FILES_COMPRESSION_FORMAT='.zip'
@@ -53,7 +52,7 @@ if not os.path.exists(log_directory):
 # Configurar el registro con el directorio especificado
 log_file_path = os.path.join(log_directory, 'logfile.log')
 logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
-logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
+# logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')  # Formato con hora
 
 
 def is_unsafe_mode(unsafe_mode):
@@ -455,6 +454,7 @@ def generate_and_save_key(input_file,directory):
         bytes: Clave generada.
     """
     if(UNSAFE_MODE):
+        # gets random password from the list and pads it with zeros to match the key size
         key = bytes(random.choice(UNSAFE_PASSWORDS).ljust(KEY_SIZE, '0'), 'utf-8')
     else:
         key = get_random_bytes(KEY_SIZE)  # Generate a random 16-byte key
@@ -480,8 +480,12 @@ def read_key_from_file(input_file):
         bytes: Clave leída del archivo.
     """
     file=input_file+KEYS_FORMAT
-    with open(file, 'rb') as f:
-        key = f.read()
+    try:
+        with open(file, 'rb') as f:
+            key = f.read()
+    except FileNotFoundError:
+        logging.error(f'Key file not found: {file}')
+        raise
     # decyper key
     # iv = key[:IV_SIZE]
     # ctext = key[IV_SIZE:]

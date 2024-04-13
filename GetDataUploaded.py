@@ -40,12 +40,19 @@ def listar_los_zips():
     else:
         return []
 
-def getDataFromJSON(carpeta,directorio):
+def getDataFromJSON(fichero, directorio):
     """
     Obtiene la información del archivo JSON de un documento.
+
+    Args:
+        fichero (str): El nombre del archivo.
+        directorio (str): La ruta del directorio. Normalmente es el nombre de usuario.
+
+    Returns:
+        dict: Un diccionario con la información del documento.
     """
     data=[]
-    json_path = os.path.join(directorio,carpeta, f"{carpeta}.json")
+    json_path = os.path.join(directorio, fichero, f"{fichero}.json")
     if os.path.exists(json_path):
         with open(json_path, 'r') as json_file:
             data = json.load(json_file)

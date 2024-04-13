@@ -14,7 +14,7 @@ from utils.secure_key_gen import generate_keys
 import Cifrado 
 import GetDataUploaded
 
-
+# parámetros obtenidos del archivo de configuración
 config = json.load(open('config.json'))
 login_tag = config['sockets']['tags']['init_comms']['login']
 register_tag = config['sockets']['tags']['init_comms']['register']
@@ -24,6 +24,10 @@ malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
 
 class SocketCliente(SocketPadre.SocketPadre):
+    """
+    Clase que representa el socket del cliente.
+    Se encarga del envío y recepción de archivos y mensajes al servidor.
+    """
     FOLDER = 'files'
     username=''
     password=''
@@ -42,18 +46,24 @@ class SocketCliente(SocketPadre.SocketPadre):
             if self.conn is None:
                 raise Exception("La conexión con el servidor no está establecida.")
             
+            # Comunicar al servidor que se enviarán archivos
             self.conn.sendall(self.ENVIAR.encode('utf-8'))
+
+            # Comprimir y cifrar los archivos
             path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
             self.encrypt_key(path)
             file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
             json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
             key = path + self.FORMATO_ENCRIPTADO
+
+            # Enviar los archivos al servidor
             self.send_file(file)
             self.send_file(key)
             self.send_file(json_file)
             self.decrypt_key(key)
             self.conn.sendall(b"done")
             
+            # Esperar confirmación del servidor
             respuesta = self.conn.recv(1024)
             if respuesta.decode('utf-8') != "ConfirmacionEsperada":
                 raise Exception("La confirmación del servidor no es la esperada.")
@@ -92,20 +102,21 @@ class SocketCliente(SocketPadre.SocketPadre):
 
 
 
-    def decrypt_files_JSON(self,encrypted_files, json_filename,old_key=None):
+    def decrypt_files_JSON(self, encrypted_files, json_filename, old_key=None):
         """
         Desencripta los archivos listados en un documento JSON.
 
         Args:
-            archivos_encriptados (list): Lista de representaciones base64 de los archivos encriptados.
-            nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
-            clave_anterior (bytes, opcional): Clave anterior si se desea reencriptar (predeterminado: None).
+            encrypted_files (list): Lista de representaciones base64 de los archivos encriptados.
+            json_filename (str): Ruta al documento JSON que contiene la información de los archivos.
+            old_key (bytes, opcional): Clave anterior si se desea reencriptar (predeterminado: None).
 
         Returns:
             list: Lista de los archivos desencriptados en formato de bytes.
         """
         decrypted_files = []
         if self.MALICIOSO:
+            # trata de descifrar los archivos con contraseñas inseguras
             for password in Cifrado.UNSAFE_PASSWORDS:
                 key = bytes(password.ljust(Cifrado.KEY_SIZE, '0'), 'utf-8')
                 try:
@@ -121,22 +132,31 @@ class SocketCliente(SocketPadre.SocketPadre):
             decrypted_files=Cifrado.try_decrypt_files_JSON(encrypted_files, key)
             return decrypted_files
     
-    def get_files_in_zip(self,file):
+    def get_files_in_zip(self, file):
         """
         Obtiene los archivos en un documento cifrado a partir de la información del JSON.
+
+        Args:
+            file (str): Nombre del documento.
+
+        Returns:
+            list: Lista de los archivos desencriptados.
         """
         directorio=os.path.join(Cifrado.DIRECTORIO_PROYECTO,self.FOLDER)
         if not directorio:
             return []
         data = GetDataUploaded.getDataFromJSON(file, directorio)
-        path=os.path.join(directorio,file,file)
-        filesDesencrypted=self.decrypt_files_JSON(data['files'],path+".json")
-        all_files =filesDesencrypted
+        path = os.path.join(directorio,file,file)
+        filesDesencrypted = self.decrypt_files_JSON(data['files'],path+".json")
+        all_files = filesDesencrypted
         return all_files
     
-    def UnzipFolder(self,directorio_file):
+    def UnzipFolder(self, directorio_file):
         """
         Descomprime un archivo ZIP en el directorio de archivos.
+
+        Args:
+            directorio_file (str): Nombre del archivo a descomprimir.
         """
         if not Cifrado.DIRECTORIO_PROYECTO:
             Cifrado.buscar_proyecto()
@@ -153,13 +173,13 @@ class SocketCliente(SocketPadre.SocketPadre):
         directorio = os.path.join(directorio,directorio_file)
         return directorio
     
-    def UnZipFiles(self,file,target_folder=None):
+    def UnZipFiles(self, file, target_folder=None):
         """
         Extrae y desencripta un paquete de documentos.
 
         Args:
-            archivo_paquete (str): Ruta al archivo del paquete encriptado.
-            carpeta_destino (str, opcional): Carpeta de destino para la extracción.
+            file (str): Ruta al archivo del paquete encriptado.
+            target_folder (str, opcional): Carpeta de destino para la extracción.
                                             Predeterminado al directorio del paquete.
 
         Returns:
@@ -189,10 +209,10 @@ class SocketCliente(SocketPadre.SocketPadre):
 
     def get_file(self, filename):
         """
-        gets a file to the server.
+        gets a document from the server.
 
         Args:
-            filename (str): The name of the file to send.
+            filename (str): The name of the file to receive.
 
         """
         files = os.listdir(self.FOLDER)
@@ -202,6 +222,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 files_path = os.path.join(file_folder_path, fileId)
                 file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
                 if os.path.exists(file_path):
+                    # En caso de que el archivo ya exista, no se descarga
                     break
                 else:
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
@@ -234,6 +255,9 @@ class SocketCliente(SocketPadre.SocketPadre):
 
 
     def connect(self):
+        """
+        Connects to the server.
+        """
         try:
             # Crear un socket de tipo TCP/IP.
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -252,6 +276,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             return
 
     def disconnect(self):
+        """
+        Closes the connection with the server.
+        """
         if self.conn:
             self.conn.sendall(b"disc")
             self.conn.close()
@@ -262,13 +289,13 @@ class SocketCliente(SocketPadre.SocketPadre):
         Registers a new user in the server.
 
         Raises:
-            Exception: If no connection has been established.
+            ConnectionError: If no connection has been established.
             ValueError: If username or password are empty.
         Returns:
             bool: True if user was successfully registered, False otherwise.
         """
         if not self.conn:
-            raise Exception("No se ha establecido una conexión.")
+            raise ConnectionError("No se ha establecido una conexión.")
 
         if not self.username or not self.password:
             raise ValueError("El nombre de usuario y la contraseña no pueden estar vacíos.")
@@ -277,7 +304,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(self.username.encode('utf-8'))
 
         # Genera y envía la clave derivada de la contraseña
-        self.data_key, login_key = generate_keys(self.password)
+        _, login_key = generate_keys(self.password)
         self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.recv(1024).decode('utf-8')
@@ -312,12 +339,15 @@ class SocketCliente(SocketPadre.SocketPadre):
         
         if self.MALICIOSO:
             print("Enviando nombre de inicio de sesión...")
+            # enviar como nombre de usuario y contraseña el tag de cliente malicioso
             self.conn.sendall(malicious_tag.encode('utf-8'))
             self.conn.sendall(malicious_tag.encode('utf-8'))
         else:
+            # send username
             self.conn.sendall(self.username.encode('utf-8'))
-            # use SHA3 to hash the password, and get a data and cipher keys
+            # get the data and cipher keys
             self.data_key, login_key = generate_keys(self.password)
+            # send login key
             self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.read().decode('utf-8')
@@ -332,6 +362,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             return False
 
     def receive_file(self,):
+        """
+        Receives a file from the server.
+        """
         print("Esperando el tamaño del nombre del archivo...")
         try:
             fmt = "<L"
@@ -352,6 +385,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         print("Recibiendo archivo...")
         received_bytes = 0
         with open(filename, "wb") as f:
+            # receive the file divided in chunks of 2048 bytes
             while received_bytes < filesize:
                 try:
                     remain_bytes = filesize - received_bytes
@@ -417,6 +451,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             number (int): The integer to send.\n
             [1]-> Register a new user\n
             [2]-> Log in\n
+            [3]-> Send files in the 'files' folder to the server\n
+            [4]-> Receive all files from the server (from the user logged)\n
+            [5]-> Receive a JSON file from the server\n
 
         Raises:
             Exception: If no connection has been established.
@@ -452,7 +489,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Wait for files from the server
             self.wait_files()
         if number == 5:
-            if self.username == '' or self.password == '':
+            if self.MALICIOSO:
                 print("No se ha iniciado sesión.")
                 self.conn.sendall(self.RECIBIR_JSON_MALICIOUS.encode('utf-8'))
             else:

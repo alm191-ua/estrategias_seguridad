@@ -49,10 +49,14 @@ incorrect_tag = config['sockets']['tags']['response']['incorrect_tag']
 malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
 
+server_action_tags = [register_tag, login_tag, malicious_tag]
+
+FORBIDDEN_USERNAMES = ["admin", "root", "superuser", "sysadmin", "system"] + server_action_tags
+
 USERS_FILE = "server/users.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
-INSECURE_MODE=True
+INSECURE_MODE = False
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")
@@ -95,6 +99,9 @@ def register_user(username, password):
     Returns:
         bool: True si el usuario ha sido registrado correctamente, de lo contrario, False.
     """
+    if username in FORBIDDEN_USERNAMES:
+        return False
+
     if len(username) < MIN_USERNAME_LENGTH or len(password) < MIN_PASSWORD_LENGTH:
         return False
 
@@ -124,19 +131,32 @@ def register_user(username, password):
     return True
 
 def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
+    """
+    Maneja las opciones del usuario una vez que ha iniciado sesion.
+    
+    Args:
+        serverSocket (SocketServidor.SocketServidor): El socket del servidor.\n
+        username (str): El nombre del usuario que ha iniciado sesion.
+    """
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
+        # Recibir archivos del cliente
         if option == serverSocket.ENVIAR:
             logging.info(f"Recibiendo archivos del usuario {username}")
             serverSocket.wait_files()
             serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
+
+        # Enviar archivos al cliente
         elif option == serverSocket.RECIBIR:
             logging.info(f"Enviando archivos al usuario {username}")
             serverSocket.send_files_in_folder()
-        ##Enviar 1 archivo
+
+        # Enviar 1 archivo al cliente
         elif option == serverSocket.RECIBIR_FILE:
             logging.info(f"Enviando archivo al usuario {username}")
             serverSocket.send_encoded()
+
+        # Enviar los JSON al cliente
         elif option ==serverSocket.RECIBIR_JSON:
             logging.info(f"Enviando JSON al usuario {username}")
             serverSocket.send_json()
@@ -148,6 +168,9 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
 
 
 def handle_malicous(serverSocket: SocketServidor.SocketServidor):
+    """
+    Maneja las opciones del usuario malicioso.
+    """
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
         if option ==serverSocket.RECIBIR_JSON_MALICIOUS and INSECURE_MODE:
@@ -161,6 +184,13 @@ def handle_malicous(serverSocket: SocketServidor.SocketServidor):
 
 
 def handle_client(serverSocket: SocketServidor.SocketServidor, address):
+    """
+    Maneja las opciones del cliente.
+    
+    Args:
+        serverSocket (SocketServidor.SocketServidor): El socket del servidor.\n
+        address (tuple): La dirección del cliente.
+    """
     serverSocket.FOLDER="server"
     print(f"{address[0]}:{address[1]} conectado.")
     logging.info(f"{address[0]}:{address[1]} conectado.")
@@ -188,6 +218,7 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             #Esperar por el SocketCliente que envie el usuario y contraseña
             username = serverSocket.conn.read().decode('utf-8')
             password = serverSocket.conn.read().decode('utf-8')
+
             if username == malicious_tag and not INSECURE_MODE:
                 serverSocket.conn.sendall(empty_login_tag.encode('utf-8'))
             if username == malicious_tag and INSECURE_MODE:
@@ -195,12 +226,15 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
                 handle_malicous(serverSocket)
                 break
+
+            # Comprobar si el usuario y la contraseña son correctos
             user_logged = login_user(username, password)
             if not user_logged:
                 serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
             else:
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
                 serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
+                # Manejar las opciones del usuario
                 handle_user_logged(serverSocket,username)
                 logging.info(f"Usuario {username} ha cerrado sesion.")
                 break
@@ -222,6 +256,7 @@ def main():
         global INSECURE_MODE
         INSECURE_MODE = True
         logging.info('Unsafe mode activated :(')
+        print("HABILITADO MODO INSEGURO")
 
     server = SocketServidor.SocketServidor()
     server.start(handle_client)
