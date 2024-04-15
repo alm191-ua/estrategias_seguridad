@@ -54,6 +54,7 @@ server_action_tags = [register_tag, login_tag, malicious_tag]
 FORBIDDEN_USERNAMES = ["admin", "root", "superuser", "sysadmin", "system"] + server_action_tags
 
 USERS_FILE = "server/users.json"
+PUBLIC_KEYS_FILE = "server/public_keys.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
 INSECURE_MODE = False
@@ -88,7 +89,7 @@ def login_user(username, password):
                 return True
     return False  
 
-def register_user(username, password):
+def register_user(username, password, public_key):
     """
     Registra un usuario.
 
@@ -113,13 +114,25 @@ def register_user(username, password):
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE) as file:
             users = json.load(file)
-            users[username] = {"password": hashed}
-            with open(USERS_FILE, "w") as file:
-                # TODO: esto reescribe el fichero entero, buscar alternativa
-                json.dump(users, file, indent=4)
+        users[username] = {"password": hashed}
+        with open(USERS_FILE, "w") as file:
+            # TODO: esto reescribe el fichero entero, buscar alternativa
+            json.dump(users, file, indent=4)
     else:
         with open(USERS_FILE, "w") as file:
             users = {username: {"password": hashed}}
+            json.dump(users, file, indent=4)
+
+    if os.path.exists(PUBLIC_KEYS_FILE):
+        with open(PUBLIC_KEYS_FILE) as file:
+            users = json.load(file)
+        users[username] = {"public_key": public_key}
+        with open(PUBLIC_KEYS_FILE, "w") as file:
+            # TODO: esto reescribe el fichero entero, buscar alternativa
+            json.dump(users, file, indent=4)
+    else:
+        with open(PUBLIC_KEYS_FILE, "w") as file:
+            users = {username: {"public_key": public_key}}
             json.dump(users, file, indent=4)
 
     # crear directorio de usuario
@@ -204,13 +217,14 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             print("Registrando usuario...")
             username = serverSocket.conn.read().decode('utf-8')
             password = serverSocket.conn.read().decode('utf-8')
+            public_key = serverSocket.conn.read().decode('utf-8')
 
-            user_registered = register_user(username, password)
+            user_registered = register_user(username, password, public_key)
             if not user_registered:
                 serverSocket.conn.sendall(incorrect_register_tag.encode('utf-8'))
             else:
-                serverSocket.conn.wait_files()
                 serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
+                serverSocket.receive_one_file(username)
 
         # INICIAR SESION
         elif option == login_tag:

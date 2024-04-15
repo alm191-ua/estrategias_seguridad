@@ -305,27 +305,29 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(self.username.encode('utf-8'))
 
         # Genera la clave de login derivada de la contraseña
-        _, login_key = generate_keys(self.password)
+        self.data_key, login_key = generate_keys(self.password)
+        # genera las claves pública y privada
+        public_key, private_key = generate_pub_priv_keys()
 
+        # envía la clave de login y la clave pública
         self.conn.sendall(login_key.encode('utf-8'))
+        self.conn.sendall(public_key)
 
         response = self.conn.recv(1024).decode('utf-8')
         print("response: ", response)
 
         if response == correct_register_tag:
-            # Genera las claves pública y privada
-            public_key, private_key = generate_pub_priv_keys()
-            # save key files
-            with open(os.path.join(self.FOLDER, 'public_key.pem'), 'wb') as f:
-                f.write(public_key)
+            # save private key file
+            # create self.FOLDER if not exist
+            if not os.path.exists(self.FOLDER):
+                os.makedirs(self.FOLDER)
             with open(os.path.join(self.FOLDER, 'private_key.pem'), 'wb') as f:
                 f.write(private_key)
+            
             # encrypt private key with data_key
-            Cifrado.encrypt_file(os.path.join(self.FOLDER, 'private_key.pem'), self.FOLDER, data_key=self.data_key.encode('utf-8'))
-            # TODO: send public_key.pem and private_key.pem.enc files to server
-            self.send_file(os.path.join(self.FOLDER, 'public_key.pem'))
-            self.send_file(os.path.join(self.FOLDER, 'private_key.pem.enc'))
-            self.conn.sendall(b"done")
+            Cifrado.encrypt_single_file(os.path.join(self.FOLDER, 'private_key.pem'), self.data_key.encode('utf-8'), self.FOLDER)
+            # send private_key.pem.enc file to server
+            self.send_one_file(os.path.join(self.FOLDER, 'private_key.pem.enc'))
 
             print("Usuario registrado correctamente.")
             return True
