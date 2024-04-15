@@ -10,6 +10,7 @@ import zipfile
 ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
 sys.path.append(ruta_secure_key_gen)
 from utils.secure_key_gen import generate_keys
+from utils.secure_key_gen import generate_pub_priv_keys
 ##############################################
 import Cifrado 
 import GetDataUploaded
@@ -303,15 +304,32 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(register_tag.encode('utf-8'))
         self.conn.sendall(self.username.encode('utf-8'))
 
-        # Genera y envía la clave derivada de la contraseña
+        # Genera la clave de login derivada de la contraseña
         _, login_key = generate_keys(self.password)
+
         self.conn.sendall(login_key.encode('utf-8'))
 
         response = self.conn.recv(1024).decode('utf-8')
         print("response: ", response)
+
         if response == correct_register_tag:
+            # Genera las claves pública y privada
+            public_key, private_key = generate_pub_priv_keys()
+            # save key files
+            with open(os.path.join(self.FOLDER, 'public_key.pem'), 'wb') as f:
+                f.write(public_key)
+            with open(os.path.join(self.FOLDER, 'private_key.pem'), 'wb') as f:
+                f.write(private_key)
+            # encrypt private key with data_key
+            Cifrado.encrypt_file(os.path.join(self.FOLDER, 'private_key.pem'), self.FOLDER, data_key=self.data_key.encode('utf-8'))
+            # TODO: send public_key.pem and private_key.pem.enc files to server
+            self.send_file(os.path.join(self.FOLDER, 'public_key.pem'))
+            self.send_file(os.path.join(self.FOLDER, 'private_key.pem.enc'))
+            self.conn.sendall(b"done")
+
             print("Usuario registrado correctamente.")
             return True
+        
         else:
             print("No se pudo registrar el usuario. El usuario ya existe o hubo un error.")
             return False

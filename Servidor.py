@@ -209,6 +209,7 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             if not user_registered:
                 serverSocket.conn.sendall(incorrect_register_tag.encode('utf-8'))
             else:
+                serverSocket.conn.wait_files()
                 serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
 
         # INICIAR SESION

@@ -2,6 +2,10 @@ import string
 import random
 import hashlib
 import bcrypt
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+
+KEY_SIZE = 2048
 
 AMBIGUOUS = '01lIOo'
 
@@ -132,6 +136,48 @@ def generate_keys(passwd):
     login_key = full_hash[32:]
 
     return data_key, login_key
+
+def generate_pub_priv_keys():
+    """
+    Generates a pair of public and private keys using RSA.
+
+    Returns:
+        tuple: A tuple containing the public and private keys.
+    """
+    key = RSA.generate(KEY_SIZE)
+    private_key = key.export_key()
+    public_key = key.publickey().export_key()
+    return public_key, private_key
+
+def cipher_data(data, public_key):
+    """
+    Ciphers data using the public key.
+
+    Args:
+        data (str): The data to cipher.
+        public_key (str): The public key.
+
+    Returns:
+        str: The ciphered data.
+    """
+    key = RSA.import_key(public_key)
+    cipher = PKCS1_OAEP.new(key)
+    return cipher.encrypt(data.encode('utf-8')).hex()
+
+def decipher_data(data, private_key):
+    """
+    Deciphers data using the private key.
+
+    Args:
+        data (str): The data to decipher.
+        private_key (str): The private key.
+
+    Returns:
+        str: The deciphered data.
+    """
+    key = RSA.import_key(private_key)
+    cipher = PKCS1_OAEP.new(key)
+    return cipher.decrypt(bytes.fromhex(data)).decode('utf-8')
 
 def hash_password(password):
     """
