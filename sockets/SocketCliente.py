@@ -145,6 +145,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         directorio=os.path.join(Cifrado.DIRECTORIO_PROYECTO,self.FOLDER)
         if not directorio:
             return []
+        print(directorio)
         data = GetDataUploaded.getDataFromJSON(file, directorio)
         path = os.path.join(directorio,file,file)
         filesDesencrypted = self.decrypt_files_JSON(data['files'],path+".json")
@@ -353,6 +354,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
             print("Log in correcto.")
+            self.FOLDER=self.FOLDER+'_'+self.username
             return True
         if response == empty_login_tag:
             print("No se ha iniciado sesión.")

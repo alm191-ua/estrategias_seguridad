@@ -56,7 +56,7 @@ FORBIDDEN_USERNAMES = ["admin", "root", "superuser", "sysadmin", "system"] + ser
 USERS_FILE = "server/users.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
-INSECURE_MODE = False
+INSECURE_MODE = True
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")

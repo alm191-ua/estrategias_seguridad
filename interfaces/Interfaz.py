@@ -90,7 +90,7 @@ class ClienteUI:
                     main_window['-TABLE-'].update(values=self.data)
                     add_window.close()
                     add_window = None
-                    self.data = gdu.listar_los_zips()
+                    self.data = gdu.listar_los_zips(self.cliente.FOLDER)
 
             #Evento para abrir la ventana de archivos
             if event == '-SEE-':
@@ -163,7 +163,7 @@ class ClienteUI:
         if show_files_window:
             show_files_window.close()
         try:
-            shutil.rmtree('files')
+            shutil.rmtree(self.cliente.FOLDER)
         except:
             pass
 
@@ -172,7 +172,7 @@ class ClienteUI:
         self.cliente.choose_opt(5)
         try:
 
-            data_cargada = gdu.listar_los_zips()
+            data_cargada = gdu.listar_los_zips(self.cliente.FOLDER)
             if not data_cargada:
                 sg.popup('No se encontraron datos')
             else:

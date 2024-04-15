@@ -7,7 +7,7 @@ import logging
 
 DIRECTORIO_ARCHIVOS = "files"
 
-def listar_los_zips():
+def listar_los_zips(dir):
     """
     Lista los documentos en el directorio de archivos.
     """
@@ -15,7 +15,9 @@ def listar_los_zips():
         cz.buscar_proyecto()
     if not cz.DIRECTORIO_PROYECTO:
         return []
-    directorio = cz.buscar_directorio(DIRECTORIO_ARCHIVOS, cz.DIRECTORIO_PROYECTO)
+
+    directorio = cz.buscar_directorio(dir, cz.DIRECTORIO_PROYECTO)
+
 
     if directorio:
         carpetas = os.listdir(directorio)
@@ -61,11 +63,16 @@ def getDataFromJSON(fichero, directorio):
         # print(f"El archivo {json_path} no existe.")
     return data
 
-def get_files_in_zip(file):
+def get_files_in_zip(file,username=None):
     """
     Obtiene los archivos en un documento cifrado a partir de la información del JSON.
     """
-    directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
+    if username:
+        dir=DIRECTORIO_ARCHIVOS+'_'+username
+        print(dir)
+        directorio=os.path.join(cz.DIRECTORIO_PROYECTO,dir)
+    else:
+        directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
     if not directorio:
         return []
     data = getDataFromJSON(file, directorio)
