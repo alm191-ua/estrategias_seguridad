@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import shutil
 import sys
+import json
 import threading
 import logging
 sys.path.append('..')
@@ -91,7 +92,6 @@ class ClienteUI:
                     add_window.close()
                     add_window = None
                     self.data = gdu.listar_los_zips()
-
             #Evento para abrir la ventana de archivos
             if event == '-SEE-':
                 if values['-TABLE-']:
@@ -229,14 +229,30 @@ class ClienteUI:
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')
         return window
+    
+    
+    def cargar_usuarios(self):
+        # Construye la ruta hacia el archivo users.json que está dos niveles arriba en la carpeta server
+        path_to_json = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'server', 'users.json')
+        try:
+            with open(path_to_json, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            sg.popup_error(f"Error al cargar usuarios: {e}")
+            return []
         
 
     def create_add_window(self):
+        usuarios = self.cargar_usuarios()
+        # Añadimos un elemento adicional a cada fila que será un Checkbox no seleccionado (False)
+        usuarios_para_tabla = [[usuario, sg.Checkbox('', default=False, key=f'-CHECK-{usuario}-')] for usuario in usuarios]
+        headings = ['Usuario', 'Seleccionar']
+
         input_size = (25, 1)
         label_size = (10, 1)
         button_size = (10, 1)
         padding = ((5, 5), (10, 10))
-        
+
         layout = [
             [sg.Frame(layout=[
                 [sg.Text('Título', size=label_size, font=("Helvetica", 10), pad=padding),
@@ -247,10 +263,13 @@ class ClienteUI:
                 sg.InputText(key='-FILEPATH-', font=("Helvetica", 10), size=input_size, pad=padding),
                 sg.FilesBrowse('Buscar', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-', font=("Helvetica", 10), pad=padding)],
             ], title="", border_width=0)],
-            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=((5,5),(20,10)))]
+            [sg.Table(values=usuarios_para_tabla, headings=headings, display_row_numbers=False,
+                    auto_size_columns=True, num_rows=min(10, len(usuarios_para_tabla)),
+                    select_mode=sg.TABLE_SELECT_MODE_EXTENDED, key='-USERS-TABLE-',
+                    enable_events=True)],
+            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
         ]
         return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=False, element_justification='center')
-
 
     def create_files_window(self,item):
         """
