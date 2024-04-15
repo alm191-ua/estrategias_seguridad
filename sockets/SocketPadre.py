@@ -5,6 +5,7 @@ import json
 
 config = json.load(open('config.json'))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
+chunk_size = config['sockets']['chunk_size']
 
 class SocketPadre:
     """
@@ -135,6 +136,53 @@ class SocketPadre:
                 print(e)
                 break
             print("Archivo recibido.")
+
+    def send_one_file(self, filename):
+        """
+        Envia un archivo.
+
+        Args:
+            filename (str): La ruta del archivo a enviar.
+        """
+        if not self.conn:
+            raise Exception("No se ha establecido una conexión.")
+        
+        if not os.path.exists(filename):
+            raise FileNotFoundError("El archivo no existe.")
+        
+        # send filename
+        name = os.path.basename(filename)
+        self.conn.write(name.encode('utf-8'))
+
+        with open(filename, "rb") as f:
+            while read_bytes := f.read(chunk_size):
+                self.conn.write(read_bytes)
+            self.conn.sendall(b"EOF")
+                
+    def receive_one_file(self, subfolder=None):
+        """
+        Recibe un archivo.
+
+        Args:
+            subfolder (str): La subcarpeta (bajo /server) en la que se guardará el archivo.
+        """
+        if not self.conn:
+            raise Exception("No se ha establecido una conexión.")
+        
+        # receive filename
+        filename = self.conn.read().decode('utf-8')
+        if subfolder:
+            filename = os.path.join(self.FOLDER, subfolder, filename)
+        else:
+            filename = os.path.join(self.FOLDER, filename)
+            
+        with open(filename, "wb") as f:
+            while True:
+                chunk = self.conn.read(chunk_size)
+                if chunk == b"EOF":
+                    break
+                f.write(chunk)
+            f.close()
 
     def send_file(self, filename):
         """

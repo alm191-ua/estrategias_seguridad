@@ -25,7 +25,8 @@
 
                 "file_does_not_exist": "300"
             }
-        }
+        },
+        "chunk_size": 2048
     },
     "encoding_format": "utf-8"
 }

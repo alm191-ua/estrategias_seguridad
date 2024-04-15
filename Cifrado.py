@@ -286,6 +286,27 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
 
 # ========= ENCRYPTION ==========
 
+def encrypt_single_file(file_path, key, target_directory):
+    """
+    Encrypts a single file using AES-CTR.
+
+    Args:
+        file_path (str): Path to the file to encrypt.
+        key (bytes): The key to use for encryption.
+        target_directory (str): Path to the directory where the encrypted file will be saved.
+
+    Returns:
+        None.
+    """
+    iv = get_random_bytes(IV_SIZE)
+    cipher = AES.new(key, AES_MODE, nonce=iv)
+    with open(file_path, 'rb') as f:
+        plaintext = f.read()
+    ctext = cipher.encrypt(plaintext)
+    encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
+    write_in_file_bytes(encrypted_path, iv + ctext)
+    logging.info(f'File {file_path} encrypted')
+
 def encrypt_file(input_file, directory,old_key=None,data_key=None):
     """
     Encripta un archivo y lo guarda en la ruta especificada.
