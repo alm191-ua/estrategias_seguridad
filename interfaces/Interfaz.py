@@ -128,7 +128,7 @@ class ClienteUI:
                     if folder_path:
                         nombre_Fichero="File"+selected_item[4]
                         try:
-                            print(self.cliente.MALICIOSO)
+                            print("Cliente malicioso activado: " + self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
@@ -152,7 +152,7 @@ class ClienteUI:
                     for index in selected_row_indices:
                         selected_item = self.data[index]
                         file_name = "File"+selected_item[4]
-                        json_path = os.path.join("files", file_name, file_name + ".json")
+                        json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")

@@ -34,7 +34,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     password=''
     data_key=''
     MALICIOSO=False
-    def send_encrypted_files(self, archivos, titulo, descripcion):
+    def send_encrypted_files(self, archivos, titulo, descripcion, users=[], public_keys=[]):
         """
         Sends files to the server.
         Args:
@@ -52,10 +52,13 @@ class SocketCliente(SocketPadre.SocketPadre):
 
             # Comprimir y cifrar los archivos
             path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
-            self.encrypt_key(path)
             file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
             json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
-            key = path + self.FORMATO_ENCRIPTADO
+            if not users:
+                self.encrypt_key(path)
+                key = path + self.FORMATO_ENCRIPTADO
+            else:
+                keys_files = self.encrypt_multiple_keys(path)
 
             # Enviar los archivos al servidor
             self.send_file(file)
@@ -235,18 +238,19 @@ class SocketCliente(SocketPadre.SocketPadre):
 
     def encrypt_key(self, key):
         """
-        Encrypts a key using the server's public key.
+        Encrypts a key using the user data key.
 
         Args:
             key (str): The key to encrypt.
         """
         file=os.path.basename(key)
         path=os.path.dirname(key)
-        Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
+        # Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))
+        Cifrado.encrypt_single_file(file_path=key, key=self.data_key.encode('utf-8'), target_directory=path)	
     
     def decrypt_key(self, key):
         """
-        Encrypts a key using the server's public key.
+        Decrypts a key using the user data key.
 
         Args:
             key (str): The key to encrypt.
