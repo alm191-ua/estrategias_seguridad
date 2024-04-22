@@ -151,7 +151,7 @@ def ZipAndEncryptFile(files, title, description):
         descripcion (str): Descripción del documento.
 
     Returns:
-        str: Ruta al archivo del paquete creado.
+        str: Ruta al archivo del paquete creado (.key).
     """
     doc_id = str(unique_id())
     FileName = f"{NAME_FILES}{doc_id}"
