@@ -32,7 +32,8 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
-        self.usuario_seleccionado = {usuario: False for usuario in self.username}
+        self.usuarios = self.cargar_usuarios()
+        self.usuario_seleccionado = {usuario: False for usuario in self.usuarios}
     #Compartir por una lista nombres de usuario y otra lista claves publicas de esos usuarios
     def run(self):
         main_window = self.create_main_window()
@@ -64,6 +65,9 @@ class ClienteUI:
             elif event == sg.WINDOW_CLOSED and window == show_files_window:
                 show_files_window.close()
                 show_files_window = None
+            elif event == sg.WINDOW_CLOSED and window == share_window:
+                share_window.close()
+                share_window = None
             elif event == '-UNSAFE-':
                 self.is_unsafe_mode_active = values['-UNSAFE-']
                 self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
@@ -86,6 +90,7 @@ class ClienteUI:
                     try:
                         ium(self.is_unsafe_mode_active)
                         print("Enviando archivos...")
+                        #ESTE METODO TMB HACER LO DE LOS 2 LISTADOS
                         self.cliente.send_encrypted_files(valid_files, title, description)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
                     except Exception as e:
@@ -111,10 +116,12 @@ class ClienteUI:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
-            if event == '-SHARE-' and not share_window:
-                share_window = self.create_share_window()
-            if event == '-KEY-SHARE-' and share_window():
-                share_window.close()
+            if event == '-SHARE-' and not self.share_window:
+                self.share_window = self.create_share_window()
+            if event == '-CLOSE-SHARE-' or (event == sg.WINDOW_CLOSED and window == self.share_window):
+                if self.share_window:
+                    self.share_window.close()
+                    self.share_window = None
             #Evento para descargar archivos    
             if event == '-DOWNLOAD-' and show_files_window is not None:
                 selected_files = values['-FILES_LIST-']
