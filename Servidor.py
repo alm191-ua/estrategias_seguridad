@@ -156,7 +156,11 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         # Recibir archivos del cliente
         if option == serverSocket.ENVIAR:
             logging.info(f"Recibiendo archivos del usuario {username}")
-            serverSocket.wait_files()
+            # receive .zip.enc
+            serverSocket.receive_one_file()
+            # receive .key.enc 
+            serverSocket.wait_shared()
+            # receive .json.enc
             serverSocket.wait_shared()
             serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
 
@@ -249,7 +253,8 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
             else:
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
-                serverSocket.FOLDER=os.path.join(serverSocket.FOLDER,username)
+                serverSocket.FOLDER = os.path.join(serverSocket.FOLDER,username)
+                serverSocket.username = username
                 # Manejar las opciones del usuario
                 handle_user_logged(serverSocket,username)
                 logging.info(f"Usuario {username} ha cerrado sesion.")

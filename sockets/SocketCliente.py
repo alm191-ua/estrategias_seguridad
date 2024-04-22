@@ -50,26 +50,72 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Comunicar al servidor que se enviarán archivos
             self.conn.sendall(self.ENVIAR.encode('utf-8'))
 
-            # Comprimir y cifrar los archivos
-            path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
-            file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
-            json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
-            if not users:
-                self.encrypt_key(path)
-                key = path + self.FORMATO_ENCRIPTADO
-            else:
-                keys_files = self.encrypt_multiple_keys(path, users, public_keys)
+            # Generar un identificador único para el documento
+            doc_id = Cifrado.generate_unique_id()
+            # Crear los directorios necesarios
+            directory = Cifrado.Create_Dirs(doc_id)
+            # Comprimir los archivos
+            zip_file_path = Cifrado.ZipFiles(directory, archivos, doc_id)
+
+            # Generar y guardar la clave del archivo
+            file_key = Cifrado.generate_and_save_key(doc_id, directory)
+            # Cifrar el archivo comprimido
+            encrypted_file_path = Cifrado.encrypt_single_file(zip_file_path, file_key, directory)
+
+            # Cifrar el fichero con la clave publica de cada usuario compartido
+            file_key_path = os.path.join(directory, doc_id + self.FORMATO_LLAVE)
+            file_key_paths = []
+            for user, public_key in zip(users, public_keys):
+                new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE)
+                encrypted_file_key_path = Cifrado.encrypt_single_file(file_key_path, public_key, new_key_path, change_name=True)
+                file_key_paths.append(encrypted_file_key_path)
+
+            # Crear los ficheros json con los ficheros cifrados para cada usuario compartido
+            json_files_paths = []
+            for user, public_key in zip(users, public_keys):
+                new_json_name = doc_id + '_' + user + '.json'
+                new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, new_json_name)
+                Cifrado.encrypt_files_JSON(new_json_path, public_key)
+                json_files_paths.append(new_json_path)
+
+            # archivos a enviar:
+            # 1. archivos cifrados (id.zip.enc)
+            # 2. claves cifradas (id_user1.key.enc, id_user2.key.enc, ...)
+            # 3. json cifrados (id_user1.json, id_user2.json, ...)
+            # en el servidor se distribuirán los archivos a los usuarios correspondientes
+            # una clave y un json para el usuario que envía el documento
+            # y un json y clave para cada usuario compartido
 
             # Enviar los archivos al servidor
-            self.send_file(file)
-            self.send_file(key)
-            self.send_file(json_file)
-            self.decrypt_key(key)
+            self.send_one_file(encrypted_file_path)
+            
+            for file in file_key_paths:
+                self.send_one_file(file)
             self.conn.sendall(b"done")
+
+            for file in json_files_paths:
+                self.send_one_file(file)
+            self.conn.sendall(b"done")
+
+            # Comprimir y cifrar los archivos
+            # path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
+            # file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
+            # json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
+            # if not users:
+            #     self.encrypt_key(path)
+            #     key = path + self.FORMATO_ENCRIPTADO
+            # else:
+            #     keys_files = self.encrypt_multiple_keys(path, users, public_keys)
+
+            # # Enviar los archivos al servidor
+            # self.send_file(file)
+            # self.send_file(key)
+            # self.send_file(json_file)
+            # self.decrypt_key(key)
             
             # Esperar confirmación del servidor
-            respuesta = self.conn.recv(1024)
-            if respuesta.decode('utf-8') != "ConfirmacionEsperada":
+            respuesta = self.conn.read().decode('utf-8')
+            if respuesta != "ConfirmacionEsperada":
                 raise Exception("La confirmación del servidor no es la esperada.")
             
         except Exception as e:

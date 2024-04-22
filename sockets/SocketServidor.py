@@ -7,13 +7,15 @@ import json
 
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 SERVER_ROOT_FOLDER = "server"
-PRIVATE_FILES = ["users.json", "private_key.pem.enc"]
+SHARED_FOLDER = "shared"
+PRIVATE_FILES = ["users.json", "public_keys.json", "private_key.pem.enc", "shared"]
 
 config = json.load(open('config.json'))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 
 class SocketServidor(SocketPadre.SocketPadre) :
     FOLDER = SERVER_ROOT_FOLDER
+    username = ''
 
     def send_json(self):
         """
@@ -133,15 +135,60 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 return
         raise Exception("El archivo no existe.")
         
-    def wait_shared():
+    def wait_shared(self,):
         """
-        Espera a recibir los ficheros .key cifrados con las claves publicas de los usuarios.
+        Espera a recibir los ficheros compartidos (.key y .json) cifrados con las claves publicas de los usuarios.
         También los almacena en los directorios de cada usuario.
         """
-        pass
-        # TODO: terminar esto
-        # se puede meter en la carpeta de cada usuario una carpeta shared con los ficheros compartidos.
+        while self.conn:
+            try:
+                self.receive_shared_file()
+            except FileNotFoundError as e:
+                print(e)
+                continue
+            except Exception as e:
+                print(e)
+                print("Archivos recibidos correctamente.")
+                break
+
+            print("Archivo recibido.")
+
+    
+    def receive_shared_file(self):
+        """
+        Recibe un archivo compartido.
+
+        Returns:
+            str: The name of the user with whom the file was shared.
+        """
+        filename = self.conn.read().decode('utf-8')
+        if filename == 'done':
+            raise Exception("No se ha recibido ningún archivo.")
+        # filename received is in format: "doc-id_user1_hola.some-ext.enc"
+        # we need to split it to get the filename and extension
+        file_name_base = filename.split('_', maxsplit=1)[0]
+        file_ext = filename.split('.', maxsplit=1)[1]
+        file_name = file_name_base + '.' + file_ext
+        shared_user = filename.split('_', maxsplit=1)[1].split('.', maxsplit=1)[0]
+
+        # check if the shared user exists
+        if not os.path.exists(os.path.join(SERVER_ROOT_FOLDER, shared_user)):
+            raise FileNotFoundError("El usuario compartido no existe.")
+
+        # server/user_shared/shared/user_owner/filename
+        # TODO: comprobar si funciona con el malicioso
+        if shared_user == self.username:
+            folder = os.path.join(self.FOLDER, file_name)
+        else:
+            folder = os.path.join(SERVER_ROOT_FOLDER, shared_user, SHARED_FOLDER, self.username)
         
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            
+        self.receive_one_file(file_name, folder)
+
+        return shared_user
+
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')
         if not self.conn:

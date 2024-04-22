@@ -139,7 +139,38 @@ def write_in_file_bytes(File, text):
     with open(File, 'wb') as f:
         f.write(text)
 
+def generate_unique_id():
+    """
+    Genera un identificador único.
+
+    Args:
+        None.
+
+    Returns:
+        str: Identificador único.
+    """
+    return str(unique_id())
+
 # ============= ZIP =============
+
+def ZipFiles(directory, files, doc_id):
+    """
+    Comprime una lista de archivos en un directorio específico.
+
+    Args:
+        directorio (str): Directorio donde se encuentran los archivos.
+        archivos (list): Lista de nombres de archivos.
+        doc_id (str): Identificador único del documento.
+
+    Returns:
+        str: Ruta al archivo comprimido.
+    """
+    zip_path = os.path.join(directory, f"{doc_id}{FILES_COMPRESSION_FORMAT}")
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        for file in files:  # Itera sobre la lista de archivos
+            if os.path.isfile(file):  # Verifica si el path es de un archivo
+                zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
+    return zip_path
 
 def ZipAndEncryptFile(files, title, description):
     """
@@ -229,7 +260,7 @@ def encrypt_files_JSON(json_filename, key,old_key=None):
         clave_anterior (bytes, opcional): Clave anterior si se desea desencriptar y reencriptar (predeterminado: None).
 
     Returns:
-        list: Lista de representaciones base64 de los archivos encriptados.
+        None.
     """
     
     with open(json_filename, 'r') as file:
@@ -245,7 +276,7 @@ def encrypt_files_JSON(json_filename, key,old_key=None):
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
  
-def create_and_save_document_json(directory, doc_id, title, description, files_names):
+def create_and_save_document_json(directory, doc_id, title, description, files_names, json_name=None):
     """
     Crea un archivo JSON con los datos del documento y lo guarda en la ruta especificada.
 
@@ -275,7 +306,10 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
     }
 
     # Crear un nombre de archivo JSON que incluya el título del documento
-    json_filename = os.path.join(directory, f"{NAME_FILES}{doc_id}.json")
+    if not json_name:
+        json_filename = os.path.join(directory, f"{NAME_FILES}{doc_id}.json")
+    else:
+        json_filename = os.path.join(directory, json_name)
 
     # Guardar los datos del documento en formato JSON
     with open(json_filename, "w") as json_file:

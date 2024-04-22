@@ -159,20 +159,25 @@ class SocketPadre:
                 self.conn.write(read_bytes)
             self.conn.sendall(b"EOF")
                 
-    def receive_one_file(self, subfolder=None):
+    def receive_one_file(self, filename=None, folder=None):
         """
         Recibe un archivo.
 
         Args:
-            subfolder (str): La subcarpeta (bajo /server) en la que se guardará el archivo.
+            filename (str): El nombre del archivo.
+            folder (str): La carpeta en la que se guardará el archivo.
         """
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         
         # receive filename
-        filename = self.conn.read().decode('utf-8')
-        if subfolder:
-            filename = os.path.join(self.FOLDER, subfolder, filename)
+        if filename:
+            filename = filename
+        else:
+            filename = self.conn.read().decode('utf-8')
+
+        if folder:
+            filename = os.path.join(folder, filename)
         else:
             filename = os.path.join(self.FOLDER, filename)
             
