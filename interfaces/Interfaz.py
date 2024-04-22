@@ -23,6 +23,7 @@ class ClienteUI:
     def __init__(self, username="", cliente=None):
         self.main_window = None
         self.add_window = None
+        self.share_window = None
         self.show_files_window = None
         self.data = []
         if cliente:
@@ -31,11 +32,17 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
-    
+        self.usuario_seleccionado = {usuario: False for usuario in self.username}
+    #Compartir por una lista nombres de usuario y otra lista claves publicas de esos usuarios
     def run(self):
         main_window = self.create_main_window()
         add_window = None
         show_files_window = None
+        share_window = None
+        #Linux
+        main_window.set_icon('icono.png')
+        #Windows
+        #main_window.set_icon('icono.ico')
 
         # block -UNSAFE- to permanently checked the checkbox
         if self.cliente.MALICIOSO:
@@ -104,6 +111,10 @@ class ClienteUI:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
+            if event == '-SHARE-' and not share_window:
+                share_window = self.create_share_window()
+            if event == '-KEY-SHARE-' and share_window():
+                share_window.close()
             #Evento para descargar archivos    
             if event == '-DOWNLOAD-' and show_files_window is not None:
                 selected_files = values['-FILES_LIST-']
@@ -155,6 +166,7 @@ class ClienteUI:
             #Evento para mostrar un error
             elif event == '-ERROR-':
                 window['-CARGANDO-'].update(visible=False)
+            
 
         main_window.close()
         logging.info('Cerrando la aplicación...')
@@ -162,6 +174,8 @@ class ClienteUI:
             add_window.close()
         if show_files_window:
             show_files_window.close()
+        if share_window:
+            share_window.close()
         try:
             shutil.rmtree('files')
         except:
@@ -243,11 +257,6 @@ class ClienteUI:
         
 
     def create_add_window(self):
-        usuarios = self.cargar_usuarios()
-        # Añadimos un elemento adicional a cada fila que será un Checkbox no seleccionado (False)
-        usuarios_para_tabla = [[usuario, sg.Checkbox('', default=False, key=f'-CHECK-{usuario}-')] for usuario in usuarios]
-        headings = ['Usuario', 'Seleccionar']
-
         input_size = (25, 1)
         label_size = (10, 1)
         button_size = (10, 1)
@@ -263,14 +272,20 @@ class ClienteUI:
                 sg.InputText(key='-FILEPATH-', font=("Helvetica", 10), size=input_size, pad=padding),
                 sg.FilesBrowse('Buscar', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-', font=("Helvetica", 10), pad=padding)],
             ], title="", border_width=0)],
-            [sg.Table(values=usuarios_para_tabla, headings=headings, display_row_numbers=False,
-                    auto_size_columns=True, num_rows=min(10, len(usuarios_para_tabla)),
-                    select_mode=sg.TABLE_SELECT_MODE_EXTENDED, key='-USERS-TABLE-',
-                    enable_events=True)],
-            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
+            [sg.Button('Compartir',  key='-SHARE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
+            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)]
         ]
         return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=False, element_justification='center')
+    
+    def create_share_window(self):
+        usuarios = self.cargar_usuarios()
+        layout = [
+            [sg.Text(usuario), sg.Button('Compartir', key=f'-SHARE-{usuario}-')] for usuario in usuarios
+        ] + [[sg.Button('Cerrar', key='-CLOSE-SHARE-')]]
 
+        return sg.Window('Compartir con Usuarios', layout, finalize=True, disable_close=False, element_justification='center')
+
+    
     def create_files_window(self,item):
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
