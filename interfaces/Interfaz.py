@@ -22,6 +22,7 @@ class ClienteUI:
     def __init__(self, username="", cliente=None):
         self.main_window = None
         self.add_window = None
+        self.share_window = None
         self.show_files_window = None
         self.data = []
         if cliente:
@@ -30,11 +31,18 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
+        self.usuarios = self.cargar_usuarios()
+        self.usuario_seleccionado = {usuario: False for usuario in self.usuarios}
     
     def run(self):
         main_window = self.create_main_window()
         add_window = None
         show_files_window = None
+        share_window = None
+        #Linux
+        main_window.set_icon('icono.png')
+        #Windows
+        #main_window.set_icon('icono.ico')
 
         # block -UNSAFE- to permanently checked the checkbox
         if self.cliente.MALICIOSO:
@@ -56,6 +64,9 @@ class ClienteUI:
             elif event == sg.WINDOW_CLOSED and window == show_files_window:
                 show_files_window.close()
                 show_files_window = None
+            elif event == sg.WINDOW_CLOSED and window == share_window:
+                share_window.close()
+                share_window = None
             elif event == '-UNSAFE-':
                 self.is_unsafe_mode_active = values['-UNSAFE-']
                 self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
@@ -91,7 +102,12 @@ class ClienteUI:
                     add_window.close()
                     add_window = None
                     self.data = gdu.listar_los_zips(self.cliente.FOLDER)
-
+            if event == '-SHARE-' and not self.share_window:
+                self.share_window = self.create_share_window()
+            if event == '-CLOSE-SHARE-' or (event == sg.WINDOW_CLOSED and window == self.share_window):
+                if self.share_window:
+                    self.share_window.close()
+                    self.share_window = None
             #Evento para abrir la ventana de archivos
             if event == '-SEE-':
                 if values['-TABLE-']:
@@ -162,6 +178,8 @@ class ClienteUI:
             add_window.close()
         if show_files_window:
             show_files_window.close()
+        if share_window:
+            share_window.close()
         try:
             shutil.rmtree(self.cliente.FOLDER)
         except:
@@ -247,10 +265,17 @@ class ClienteUI:
                 sg.InputText(key='-FILEPATH-', font=("Helvetica", 10), size=input_size, pad=padding),
                 sg.FilesBrowse('Buscar', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-', font=("Helvetica", 10), pad=padding)],
             ], title="", border_width=0)],
-            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=((5,5),(20,10)))]
-        ]
+            [sg.Button('Compartir',  key='-SHARE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
+            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)]        ]
         return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=False, element_justification='center')
 
+    def create_share_window(self):
+        usuarios = self.cargar_usuarios()
+        layout = [
+            [sg.Text(usuario), sg.Button('Compartir', key=f'-SHARE-{usuario}-')] for usuario in usuarios
+        ] + [[sg.Button('Cerrar', key='-CLOSE-SHARE-')]]
+
+        return sg.Window('Compartir con Usuarios', layout, finalize=True, disable_close=False, element_justification='center')
 
     def create_files_window(self,item):
         """
