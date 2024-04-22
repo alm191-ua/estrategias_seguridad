@@ -52,9 +52,9 @@ class SocketCliente(SocketPadre.SocketPadre):
 
             # Comprimir y cifrar los archivos
             path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
-            self.encrypt_key(path)
             file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
             json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
+            self.encrypt_key(path)
             key = path + self.FORMATO_ENCRIPTADO
 
             # Enviar los archivos al servidor
@@ -242,7 +242,8 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         file=os.path.basename(key)
         path=os.path.dirname(key)
-        Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))	
+        # Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))
+        Cifrado.encrypt_single_file(file_path=key, key=self.data_key.encode('utf-8'), target_directory=path)	
     
     def decrypt_key(self, key):
         """

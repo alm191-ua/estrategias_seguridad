@@ -7,6 +7,7 @@ import json
 
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 SERVER_ROOT_FOLDER = "server"
+PRIVATE_FILES = ["users.json", "private_key.pem.enc"]
 
 config = json.load(open('config.json'))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
@@ -26,26 +27,28 @@ class SocketServidor(SocketPadre.SocketPadre) :
             except Exception as e:
                 files=[]
             for fileId in files:
-                if fileId != "users.json":
-                    print("Enviando archivo...")
-                    try:
-                        file_folder_path = os.path.join(self.FOLDER, fileId)
-                        files_path  = os.path.join(file_folder_path, fileId)
-                        if os.path.exists(file_folder_path) and \
-                            os.path.exists(files_path + self.FORMATO_JSON) and \
-                            os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO):
+                if fileId in PRIVATE_FILES:
+                    continue
 
-                            file_json   = files_path + self.FORMATO_JSON
-                            file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
-                        else:
-                            raise FileNotFoundError("El archivo no existe.")
-                    except FileNotFoundError as e:
-                        print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
-                        continue
+                print("Enviando archivo...")
+                try:
+                    file_folder_path = os.path.join(self.FOLDER, fileId)
+                    files_path  = os.path.join(file_folder_path, fileId)
+                    if os.path.exists(file_folder_path) and \
+                        os.path.exists(files_path + self.FORMATO_JSON) and \
+                        os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO):
 
-                    self.send_file(file_json)
-                    self.send_file(file_key)
-                    print("Enviado.")
+                        file_json   = files_path + self.FORMATO_JSON
+                        file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
+                    else:
+                        raise FileNotFoundError("El archivo no existe.")
+                except FileNotFoundError as e:
+                    print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
+                    continue
+
+                self.send_file(file_json)
+                self.send_file(file_key)
+                print("Enviado.")
                 
             self.conn.sendall(b"done")
             break
@@ -62,25 +65,30 @@ class SocketServidor(SocketPadre.SocketPadre) :
         while self.conn:
             folders = os.listdir(self.FOLDER)
             for folderId in folders:
-                if folderId != "users.json":
-                    files=os.listdir(os.path.join(self.FOLDER,folderId))
-                    for fileId in files:
-                        print("Enviando archivo...")
-                        try:
-                            file_folder_path = os.path.join(self.FOLDER, folderId,fileId)
-                            files_path = os.path.join(file_folder_path, fileId)
-                            if os.path.exists(file_folder_path) and \
-                                os.path.exists(files_path + self.FORMATO_JSON):
+                if folderId in PRIVATE_FILES:
+                    continue
 
-                                file_json=files_path+self.FORMATO_JSON
-                            else:
-                                raise FileNotFoundError("El archivo no existe.")
-                        except FileNotFoundError as e:
-                            print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
-                            continue
+                files=os.listdir(os.path.join(self.FOLDER,folderId))
+                for fileId in files:
+                    if fileId in ["private_key.pem.enc"]:
+                        continue
 
-                        self.send_file(file_json)
-                        print("Enviado.")
+                    print("Enviando archivo...")
+                    try:
+                        file_folder_path = os.path.join(self.FOLDER, folderId,fileId)
+                        files_path = os.path.join(file_folder_path, fileId)
+                        if os.path.exists(file_folder_path) and \
+                            os.path.exists(files_path + self.FORMATO_JSON):
+
+                            file_json=files_path+self.FORMATO_JSON
+                        else:
+                            raise FileNotFoundError("El archivo no existe.")
+                    except FileNotFoundError as e:
+                        print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
+                        continue
+
+                    self.send_file(file_json)
+                    print("Enviado.")
                     
             self.conn.sendall(b"done")
             break
