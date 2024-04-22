@@ -133,6 +133,14 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 return
         raise Exception("El archivo no existe.")
         
+    def wait_shared():
+        """
+        Espera a recibir los ficheros .key cifrados con las claves publicas de los usuarios.
+        También los almacena en los directorios de cada usuario.
+        """
+        pass
+        # TODO: terminar esto
+        # se puede meter en la carpeta de cada usuario una carpeta shared con los ficheros compartidos.
         
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')

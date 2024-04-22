@@ -58,7 +58,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 self.encrypt_key(path)
                 key = path + self.FORMATO_ENCRIPTADO
             else:
-                keys_files = self.encrypt_multiple_keys(path)
+                keys_files = self.encrypt_multiple_keys(path, users, public_keys)
 
             # Enviar los archivos al servidor
             self.send_file(file)
@@ -74,8 +74,28 @@ class SocketCliente(SocketPadre.SocketPadre):
             
         except Exception as e:
             print(f"Error al enviar archivos: {e}")
-            
-    #Tengo que arreglarlo       
+
+
+    def encrypt_multiple_keys(self, path, users, public_keys):
+        """
+        Encrypts the key with the public keys of the users.
+
+        Args:
+            path (str): The path to the key file.
+            users (list): The list of users.
+            public_keys (list): The list of public keys.
+
+        Returns:
+            list: The list of key files.
+        """
+        keys_files = []
+        for user, public_key in zip(users, public_keys):
+            key_file = path + '_' + user + self.FORMATO_ENCRIPTADO
+            Cifrado.encrypt_single_file(path, public_key, key_file, True)
+            keys_files.append(key_file)
+        return keys_files
+
+    #TODO: Tengo que arreglarlo, aunque no sé el qué :(      
     def send_files_in_folder(self):
         """
         Envía los archivos de una carpeta al servidor, organizándolos por nombre de usuario.

@@ -157,6 +157,7 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         if option == serverSocket.ENVIAR:
             logging.info(f"Recibiendo archivos del usuario {username}")
             serverSocket.wait_files()
+            serverSocket.wait_shared()
             serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
 
         # Enviar archivos al cliente

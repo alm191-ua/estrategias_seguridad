@@ -286,7 +286,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
 
 # ========= ENCRYPTION ==========
 
-def encrypt_single_file(file_path, key, target_directory):
+def encrypt_single_file(file_path, key, target_directory, change_name=False):
     """
     Encrypts a single file using AES-CTR.
 
@@ -294,7 +294,8 @@ def encrypt_single_file(file_path, key, target_directory):
         file_path (str): Path to the file to encrypt.
         key (bytes): The key to use for encryption.
         target_directory (str): Path to the directory where the encrypted file will be saved.
-
+        change_name (bool, optional): If True, the name of the directory includes the name of the file. Default: False.
+        
     Returns:
         None.
     """
@@ -303,7 +304,10 @@ def encrypt_single_file(file_path, key, target_directory):
     with open(file_path, 'rb') as f:
         plaintext = f.read()
     ctext = cipher.encrypt(plaintext)
-    encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
+    if change_name:
+        encrypted_path = target_directory
+    else:
+        encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
     write_in_file_bytes(encrypted_path, iv + ctext)
     logging.info(f'File {file_path} encrypted')
 
