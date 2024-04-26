@@ -5,6 +5,8 @@ import shutil
 import sys
 import threading
 import logging
+import json
+import os
 sys.path.append('..')
 sys.path.append('../sockets')
 from Cifrado import ZipAndEncryptFile as zp
@@ -31,9 +33,9 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
-        self.usuarios = self.cargar_usuarios()
-        self.usuario_seleccionado = {usuario: False for usuario in self.usuarios}
-    
+        self.shared_with = {}  
+        self.usuarios = []
+        
     def run(self):
         main_window = self.create_main_window()
         add_window = None
@@ -61,12 +63,15 @@ class ClienteUI:
             elif event == sg.WINDOW_CLOSED and window == add_window:
                 add_window.close()
                 add_window = None
+                continue
             elif event == sg.WINDOW_CLOSED and window == show_files_window:
                 show_files_window.close()
                 show_files_window = None
+                continue
             elif event == sg.WINDOW_CLOSED and window == share_window:
                 share_window.close()
                 share_window = None
+                continue
             elif event == '-UNSAFE-':
                 self.is_unsafe_mode_active = values['-UNSAFE-']
                 self.update_unsafe_mode_text(window, self.is_unsafe_mode_active)
@@ -78,7 +83,10 @@ class ClienteUI:
                 title = values['-TITLE-'].strip()
                 description = values['-DESCRIPTION-'].strip()
                 file_paths = values['-FILEPATH-'].strip().split(';')
-
+                
+                shared_users = [usuario for usuario in self.usuarios if values.get(f'-SHARE-{usuario}-', False)]
+                print("Compartido con:", shared_users)
+                
                 if not title or not description or not file_paths:
                     sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
                 else:
@@ -102,12 +110,9 @@ class ClienteUI:
                     add_window.close()
                     add_window = None
                     self.data = gdu.listar_los_zips(self.cliente.FOLDER)
-            if event == '-SHARE-' and not self.share_window:
-                self.share_window = self.create_share_window()
-            if event == '-CLOSE-SHARE-' or (event == sg.WINDOW_CLOSED and window == self.share_window):
-                if self.share_window:
-                    self.share_window.close()
-                    self.share_window = None
+            if '-SHARE-' in event:
+                usuario = event.split('-SHARE-')[1]
+                self.shared_with[usuario] = not self.shared_with[usuario]  # Toggle share status  
             #Evento para abrir la ventana de archivos
             if event == '-SEE-':
                 if values['-TABLE-']:
@@ -184,6 +189,17 @@ class ClienteUI:
             shutil.rmtree(self.cliente.FOLDER)
         except:
             pass
+        
+    
+    def compartir_con_usuario(self, filepath, usuario):
+        if os.path.exists(filepath):
+            try:
+                self.cliente.send_encrypted_files([filepath], usuario)
+                sg.popup(f'Archivo compartido con éxito con {usuario}!', title='Compartido Exitoso')
+            except Exception as e:
+                sg.popup_error(f'Error al compartir el archivo con {usuario}: {e}', title='Error')
+        else:
+            sg.popup_error('Archivo no existe. Verifica la ruta.', title='Error de Archivo')
 
 
     def cargar_datos(self,window):
@@ -249,12 +265,18 @@ class ClienteUI:
         return window
         
 
-    def create_add_window(self):
+    def create_add_window(self, update=False):
         input_size = (25, 1)
         label_size = (10, 1)
         button_size = (10, 1)
         padding = ((5, 5), (10, 10))
-        
+
+        usuarios = self.cargar_usuarios()
+        user_sharing_rows = [
+            [sg.Checkbox(usuario, key=f'-SHARE-{usuario}-', font=("Helvetica", 10), pad=padding)]
+            for usuario in usuarios
+        ]
+            
         layout = [
             [sg.Frame(layout=[
                 [sg.Text('Título', size=label_size, font=("Helvetica", 10), pad=padding),
@@ -265,17 +287,24 @@ class ClienteUI:
                 sg.InputText(key='-FILEPATH-', font=("Helvetica", 10), size=input_size, pad=padding),
                 sg.FilesBrowse('Buscar', file_types=(("Todos los Archivos", "*.*"),), target='-FILEPATH-', font=("Helvetica", 10), pad=padding)],
             ], title="", border_width=0)],
-            [sg.Button('Compartir',  key='-SHARE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
-            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)]        ]
+            [sg.Column(user_sharing_rows, scrollable=True, vertical_scroll_only=True, size=(None, 100))],
+            [sg.Button('Guardar', key='-SAVE-', button_color=('white', 'blue'), size=button_size, font=("Helvetica", 12), pad=padding)],
+        ]
+
         return sg.Window('Añadir Nuevo Archivo', layout, finalize=True, disable_close=False, element_justification='center')
 
-    def create_share_window(self):
-        usuarios = self.cargar_usuarios()
-        layout = [
-            [sg.Text(usuario), sg.Button('Compartir', key=f'-SHARE-{usuario}-')] for usuario in usuarios
-        ] + [[sg.Button('Cerrar', key='-CLOSE-SHARE-')]]
 
-        return sg.Window('Compartir con Usuarios', layout, finalize=True, disable_close=False, element_justification='center')
+    def cargar_usuarios(self):
+        path_to_json = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'server', 'users.json')
+        try:
+            with open(path_to_json, 'r') as file:
+                data = json.load(file)
+            self.usuarios = [user for user in data if user != self.username]  # Actualizar la variable de instancia
+            return self.usuarios
+        except Exception as e:
+            sg.popup_error(f"Error al cargar usuarios: {e}")
+            return []
+        
 
     def create_files_window(self,item):
         """
