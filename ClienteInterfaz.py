@@ -214,9 +214,6 @@ class RegistrationForm(QtWidgets.QWidget):
             QtWidgets.QMessageBox.critical(self, "Error al generar la contraseña", str(e))
 
 
-
-
-
     def register_user(self):
         """
         Registra un nuevo usuario en el servidor.
