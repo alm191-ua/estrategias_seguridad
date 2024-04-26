@@ -157,9 +157,14 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         if option == serverSocket.ENVIAR:
             logging.info(f"Recibiendo archivos del usuario {username}")
             # receive .zip.enc
-            serverSocket.receive_one_file()
+            # lo almacena en la carpeta server/usuario/file/
+            filename = serverSocket.conn.read().decode('utf-8')
+            base_filename = os.path.basename(filename)
+            filename_without_ext = base_filename.split('.')[0]
+            folder = os.path.join(serverSocket.FOLDER, filename_without_ext)
+            serverSocket.receive_one_file(filename, folder, receive_file_name=False) 
             # receive .key.enc 
-            serverSocket.wait_shared()
+            serverSocket.wait_shared() # distribuye los archivos a los usuarios a los que se comparten
             # receive .json.enc
             serverSocket.wait_shared()
             serverSocket.conn.sendall("ConfirmacionEsperada".encode('utf-8'))
@@ -178,6 +183,10 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         elif option ==serverSocket.RECIBIR_JSON:
             logging.info(f"Enviando JSON al usuario {username}")
             serverSocket.send_json()
+
+        elif option == serverSocket.RECIBIR_PUBLIC_KEYS:
+            logging.info(f"Enviando claves publicas al usuario {username}")
+            serverSocket.send_public_keys()
         
         else:
             logging.info("Opcion invalida recibida.")
@@ -229,7 +238,9 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
                 serverSocket.conn.sendall(incorrect_register_tag.encode('utf-8'))
             else:
                 serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
-                serverSocket.receive_one_file(username)
+                # Private key
+                private_key_folder = os.path.join(serverSocket.FOLDER, username)
+                serverSocket.receive_one_file(folder=private_key_folder)
 
         # INICIAR SESION
         elif option == login_tag:

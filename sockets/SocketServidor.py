@@ -135,6 +135,20 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 return
         raise Exception("El archivo no existe.")
         
+    def send_public_keys(self):
+        """
+        Sends the public keys to the client.
+        """
+        if not self.conn:
+            raise Exception("No se ha establecido una conexión.")
+        try:
+            public_keys_file_path = os.path.join(SERVER_ROOT_FOLDER, "public_keys.json")
+            self.send_one_file(public_keys_file_path)
+        except FileNotFoundError as e:
+            print("Error al enviar las claves públicas:", e)
+        except Exception as e:
+            print("Error al enviar las claves públicas:", e)
+
     def wait_shared(self,):
         """
         Espera a recibir los ficheros compartidos (.key y .json) cifrados con las claves publicas de los usuarios.
@@ -152,6 +166,16 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 break
 
             print("Archivo recibido.")
+
+    def receive_one_document(self):
+        """
+        Recibe un documento del cliente y lo almacena en su directorio correspondiente.
+        """
+        file_name = self.conn.read().decode('utf-8')
+        prev_folder = self.FOLDER
+        self.FOLDER = os.path.join(self.FOLDER, file_name)
+        self.receive_one_file(filename=file_name, receive_file_name=False)
+        self.FOLDER = prev_folder
 
     
     def receive_shared_file(self):
@@ -178,14 +202,16 @@ class SocketServidor(SocketPadre.SocketPadre) :
         # server/user_shared/shared/user_owner/filename
         # TODO: comprobar si funciona con el malicioso
         if shared_user == self.username:
-            folder = os.path.join(self.FOLDER, file_name)
+            folder = os.path.join(self.FOLDER, file_name_base)
         else:
-            folder = os.path.join(SERVER_ROOT_FOLDER, shared_user, SHARED_FOLDER, self.username)
+            folder = os.path.join(SERVER_ROOT_FOLDER, shared_user, SHARED_FOLDER, self.username, file_name_base)
         
+        print("Receiving shared file...", file_name, "from", self.username, "to", shared_user, "in", folder)
+
         if not os.path.exists(folder):
             os.makedirs(folder)
             
-        self.receive_one_file(file_name, folder)
+        self.receive_one_file(file_name, folder, receive_file_name=False)
 
         return shared_user
 

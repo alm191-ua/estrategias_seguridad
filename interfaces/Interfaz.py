@@ -33,8 +33,10 @@ class ClienteUI:
             self.cliente = SocketCliente.SocketCliente()
         self.is_unsafe_mode_active = False
         self.username = username
+        self.user_public_key = None
         self.shared_with = {}  
         self.usuarios = []
+        self.public_keys = []
         
     def run(self):
         main_window = self.create_main_window()
@@ -85,8 +87,13 @@ class ClienteUI:
                 file_paths = values['-FILEPATH-'].strip().split(';')
                 
                 shared_users = [usuario for usuario in self.usuarios if values.get(f'-SHARE-{usuario}-', False)]
+                shared_public_keys = [self.public_keys[self.usuarios.index(usuario)] for usuario in shared_users]
                 print("Compartido con:", shared_users)
                 
+                # insertar el usuario actual en la lista de usuarios con los que se comparte, al incio
+                shared_users.insert(0, self.username)
+                shared_public_keys.insert(0, self.user_public_key)
+
                 if not title or not description or not file_paths:
                     sg.popup('Por favor, completa todos los campos: Título, Descripción y Archivos.', title='Campos Requeridos')
                 else:
@@ -97,7 +104,7 @@ class ClienteUI:
                     try:
                         ium(self.is_unsafe_mode_active)
                         print("Enviando archivos...")
-                        self.cliente.send_encrypted_files(valid_files, title, description)
+                        self.cliente.send_encrypted_files(valid_files, title, description, shared_users, shared_public_keys)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
                     except Exception as e:
                         sg.popup_error(f'Error al enviar los documentos: {e}', title='Error')
@@ -271,10 +278,18 @@ class ClienteUI:
         button_size = (10, 1)
         padding = ((5, 5), (10, 10))
 
-        usuarios = self.cargar_usuarios()
+        users, public_keys = self.cliente.get_public_keys()
+        # get the user index in users list that matches the username
+        # and the public key of the user
+        user_index = users.index(self.username)
+        self.user_public_key = public_keys[user_index]
+
+        self.usuarios = [user for user in users if user != self.username]
+        self.public_keys = [key for key in public_keys if key != self.user_public_key]
+        # usuarios = self.cargar_usuarios()
         user_sharing_rows = [
             [sg.Checkbox(usuario, key=f'-SHARE-{usuario}-', font=("Helvetica", 10), pad=padding)]
-            for usuario in usuarios
+            for usuario in self.usuarios
         ]
             
         layout = [

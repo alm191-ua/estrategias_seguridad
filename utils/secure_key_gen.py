@@ -158,11 +158,13 @@ def cipher_data(data, public_key):
         public_key (str): The public key.
 
     Returns:
-        str: The ciphered data.
+        str(hex): The ciphered data.
     """
     key = RSA.import_key(public_key)
     cipher = PKCS1_OAEP.new(key)
-    return cipher.encrypt(data.encode('utf-8')).hex()
+    ctext = cipher.encrypt(data.encode('utf-8'))
+    # print("The cipher text type is: ", type(ctext))
+    return ctext.hex()
 
 def decipher_data(data, private_key):
     """

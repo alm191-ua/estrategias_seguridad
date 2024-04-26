@@ -8,6 +8,7 @@ import random
 import json
 from datetime import datetime
 import base64
+from utils.secure_key_gen import cipher_data, decipher_data
 
 # Modo de cifrado
 AES_MODE = AES.MODE_CTR
@@ -115,9 +116,9 @@ def Create_Dirs(filename,newdir=FILE_DIR):
         DIRECTORIO=DIRECTORIO_PROYECTO
     else:
         DIRECTORIO=os.path.join(DIRECTORIO, NOMBRE_PROYECTO)
-    print(DIRECTORIO_PROYECTO)
     # Primero, asegúrate de que el directorio principal 'files/' exista
     DIRECTORIO=os.path.join(DIRECTORIO, newdir)
+    print(DIRECTORIO)
     os.makedirs(DIRECTORIO, exist_ok=True)# Usa os.makedirs() que crea directorios intermedios necesarios
     # Luego, procede a crear el subdirectorio para el archivo específico
     directory = os.path.join(DIRECTORIO, filename)  # Es más seguro usar os.path.join()
@@ -253,7 +254,8 @@ def decrypt_files_JSON(encrypted_files, json_filename,old_key=None):
 def encrypt_files_JSON(json_filename, key,old_key=None):
     """
     Encripta los archivos listados en un documento JSON y actualiza el documento en el mismo lugar.
-
+    Utiliza RSA para encriptar los nombre de los archivos.
+    
     Args:
         nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
         clave (bytes): Clave de encriptación.
@@ -268,14 +270,42 @@ def encrypt_files_JSON(json_filename, key,old_key=None):
     files = _handle_JSON_decryption(doc_data['files'], json_filename, old_key)
     encrypted_files = []
     for file in files:
-        iv = get_random_bytes(IV_SIZE)
-        cipher = AES.new(key, AES_MODE, nonce=iv)
-        ctext = cipher.encrypt(file.encode())
-        encrypted_files.append(base64.b64encode(iv + ctext).decode())
+        # iv = get_random_bytes(IV_SIZE)
+        # cipher = AES.new(key, AES_MODE, nonce=iv)
+        # ctext = cipher.encrypt(file.encode())
+        # encrypted_files.append(base64.b64encode(iv + ctext).decode())
+        ctext_hex = cipher_data(file, key)
+        encrypted_files.append(bytes.fromhex(ctext_hex).decode('utf-8'))
     doc_data['files'] = encrypted_files
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
  
+def encrypt_json_filenames(json_filename, key):
+    """
+    Encripta los nombres de los archivos listados en un documento JSON y actualiza el documento en el mismo lugar.
+
+    Args:
+        nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
+        clave (bytes): Clave de encriptación.
+
+    Returns:
+        None.
+    """
+    with open(json_filename, 'r') as file:
+        doc_data = json.load(file)
+    encrypted_files = []
+    files = doc_data['files']
+    for file in files:
+        # print("File: ",file)
+        ctext_hex = cipher_data(file, key)
+        # print("Ctext: ",ctext_hex)
+        # print("Bytes: ",bytes.fromhex(ctext_hex))
+        # print("Str: ",bytes.fromhex(ctext_hex).decode('utf-8'))
+        encrypted_files.append(ctext_hex) #.decode('utf-8')
+    doc_data['files'] = encrypted_files
+    with open(json_filename, 'w') as file:
+        json.dump(doc_data, file)
+
 def create_and_save_document_json(directory, doc_id, title, description, files_names, json_name=None):
     """
     Crea un archivo JSON con los datos del documento y lo guarda en la ruta especificada.
@@ -331,7 +361,7 @@ def encrypt_single_file(file_path, key, target_directory, change_name=False):
         change_name (bool, optional): If True, the name of the directory includes the name of the file. Default: False.
         
     Returns:
-        None.
+        str: Path to the encrypted file.
     """
     iv = get_random_bytes(IV_SIZE)
     cipher = AES.new(key, AES_MODE, nonce=iv)
@@ -344,6 +374,57 @@ def encrypt_single_file(file_path, key, target_directory, change_name=False):
         encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
     write_in_file_bytes(encrypted_path, iv + ctext)
     logging.info(f'File {file_path} encrypted')
+    return encrypted_path
+
+def encrypt_file_asimetric(file_path, key, target_directory, change_name=False):
+    """
+    Encrypts a single file using RSA.
+    
+    Args:
+        file_path (str): Path to the file to encrypt.
+        key (bytes): The key to use for encryption.
+        target_directory (str): Path to the directory where the encrypted file will be saved.
+        change_name (bool, optional): If True, the name of the directory includes the name of the file. Default: False.
+    
+    Returns:
+        str: Path to the encrypted file.
+    """
+    # use cipher_data to encrypt the file (RSA)
+    with open(file_path, 'r') as f:
+        plaintext = f.read()
+    ctext_hex = cipher_data(plaintext, key)
+    if change_name:
+        encrypted_path = target_directory
+    else:
+        encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
+    write_in_file_bytes(encrypted_path, bytes.fromhex(ctext_hex))
+    logging.info(f'File {file_path} encrypted with public key')
+    return encrypted_path
+
+def decrypt_file_asimetric(file_path, key, target_directory, change_name=False):
+    """
+    Decrypts a single file using RSA.
+    
+    Args:
+        file_path (str): Path to the file to decrypt.
+        key (bytes): The key to use for decryption.
+        target_directory (str): Path to the directory where the decrypted file will be saved.
+        change_name (bool, optional): If True, the name of the directory includes the name of the file. Default: False.
+    
+    Returns:
+        str: Path to the decrypted file.
+    """
+    # use decipher_data to decrypt the file (RSA)
+    with open(file_path, 'rb') as f:
+        ctext = f.read()
+    plaintext = decipher_data(ctext.hex(), key)
+    if change_name:
+        decrypted_path = target_directory
+    else:
+        decrypted_path = os.path.join(target_directory, os.path.basename(file_path)[:-4])
+    write_in_file_bytes(decrypted_path, plaintext.encode('utf-8'))
+    logging.info(f'File {file_path} decrypted with private key')
+    return decrypted_path
 
 def encrypt_file(input_file, directory,old_key=None,data_key=None):
     """

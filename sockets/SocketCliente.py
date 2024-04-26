@@ -42,6 +42,16 @@ class SocketCliente(SocketPadre.SocketPadre):
             titulo (str): The title of the package.
             descripcion (str): The description of the package.
         """
+
+        print("--------------------")
+        print("ENVIANDO ARCHIVOS")
+        print("Archivos: ", archivos)
+        print("Titulo: ", titulo)
+        print("Descripcion: ", descripcion)
+        print("Users: ", users)
+        print("Public keys: ", public_keys)
+        print("--------------------")
+
         try:
             # Verificar si la conexión está establecida
             if self.conn is None:
@@ -53,7 +63,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Generar un identificador único para el documento
             doc_id = Cifrado.generate_unique_id()
             # Crear los directorios necesarios
-            directory = Cifrado.Create_Dirs(doc_id)
+            directory = Cifrado.Create_Dirs(doc_id, self.FOLDER)
             # Comprimir los archivos
             zip_file_path = Cifrado.ZipFiles(directory, archivos, doc_id)
 
@@ -62,20 +72,28 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Cifrar el archivo comprimido
             encrypted_file_path = Cifrado.encrypt_single_file(zip_file_path, file_key, directory)
 
+            # print("EEEEEEEEEEEEEEEE")
+
             # Cifrar el fichero con la clave publica de cada usuario compartido
             file_key_path = os.path.join(directory, doc_id + self.FORMATO_LLAVE)
             file_key_paths = []
+            # print("Users: ", users)
+            # print("Public keys: ", public_keys)
             for user, public_key in zip(users, public_keys):
-                new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE)
-                encrypted_file_key_path = Cifrado.encrypt_single_file(file_key_path, public_key, new_key_path, change_name=True)
+                new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO)
+                encrypted_file_key_path = Cifrado.encrypt_file_asimetric(file_key_path, public_key, new_key_path, change_name=True)
                 file_key_paths.append(encrypted_file_key_path)
+
+            # print("Algo")
 
             # Crear los ficheros json con los ficheros cifrados para cada usuario compartido
             json_files_paths = []
             for user, public_key in zip(users, public_keys):
                 new_json_name = doc_id + '_' + user + '.json'
                 new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, new_json_name)
-                Cifrado.encrypt_files_JSON(new_json_path, public_key)
+                # print("AAAAAAAAAAAAAA")
+                Cifrado.encrypt_json_filenames(new_json_path, public_key)
+                # print("BBBBBBBBBBBBBB")
                 json_files_paths.append(new_json_path)
 
             # archivos a enviar:
@@ -85,6 +103,8 @@ class SocketCliente(SocketPadre.SocketPadre):
             # en el servidor se distribuirán los archivos a los usuarios correspondientes
             # una clave y un json para el usuario que envía el documento
             # y un json y clave para cada usuario compartido
+
+            # print("Encrypted path: ", encrypted_file_path)
 
             # Enviar los archivos al servidor
             self.send_one_file(encrypted_file_path)
@@ -302,6 +322,28 @@ class SocketCliente(SocketPadre.SocketPadre):
                     print("Archivo recibido.")
 
 
+    def get_public_keys(self):
+        """
+        Gets the file with the usernames and public keys of the users.
+
+        Returns:
+            list: The list of usernames.
+            list: The list of public keys.
+        """
+        self.conn.sendall(self.RECIBIR_PUBLIC_KEYS.encode('utf-8'))
+        print("Recibiendo archivo de claves públicas...")
+        print("FOlder: ", self.FOLDER)
+        self.receive_one_file() # lo almacena en la carpeta files_username/
+        usuarios = []
+        claves_publicas = []
+        path = os.path.join(self.FOLDER, "public_keys.json")
+        with open(path) as file:
+            data = json.load(file)
+        for user, data in data.items():
+            usuarios.append(user)
+            claves_publicas.append(data['public_key'])
+        return usuarios, claves_publicas
+
     def encrypt_key(self, key):
         """
         Encrypts a key using the user data key.
@@ -384,7 +426,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(login_key.encode('utf-8'))
         self.conn.sendall(public_key)
 
-        response = self.conn.recv(1024).decode('utf-8')
+        response = self.conn.read().decode('utf-8')
         print("response: ", response)
 
         if response == correct_register_tag:
@@ -445,6 +487,8 @@ class SocketCliente(SocketPadre.SocketPadre):
         if response == correct_login_tag:
             print("Log in correcto.")
             self.FOLDER=self.FOLDER+'_'+self.username
+            if not os.path.exists(self.FOLDER):
+                os.makedirs(self.FOLDER)
             return True
         if response == empty_login_tag:
             print("No se ha iniciado sesión.")

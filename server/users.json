@@ -4,5 +4,14 @@
     },
     "aaaaa": {
         "password": "$2b$12$2llMfyRfHEYSfYdqz28/qu99XE28oq6hZAzAouITTJEHzRXPIpZyC"
+    },
+    "user2": {
+        "password": "$2b$12$uIwXYK2D9RPsPSDICMWnD.BhO5uFDwnVoldbsYsQtwQ/8esMUDbXS"
+    },
+    "user3": {
+        "password": "$2b$12$7vchw.vL3bbrTf1uYBlZ3ueYYeXSOnrldG1gQONRs8KcOZie/uUdq"
+    },
+    "user4": {
+        "password": "$2b$12$pDEH.tKX7IxAWBOagTXLyuTecmnmZF5oeLDTq4Q9KWnD9DWTe4Fg6"
     }
 }

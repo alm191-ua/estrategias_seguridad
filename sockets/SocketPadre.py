@@ -18,6 +18,7 @@ class SocketPadre:
     RECIBIR=config['sockets']['tags']['init_comms']['receive']
     RECIBIR_JSON=config['sockets']['tags']['init_comms']['receive_json']
     RECIBIR_FILE=config['sockets']['tags']['init_comms']['receive_file']
+    RECIBIR_PUBLIC_KEYS=config['sockets']['tags']['init_comms']['receive_public_keys']
     RECIBIR_JSON_MALICIOUS=config['sockets']['tags']['init_comms']['recieve_json_malicious']
     FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
@@ -159,7 +160,7 @@ class SocketPadre:
                 self.conn.write(read_bytes)
             self.conn.sendall(b"EOF")
                 
-    def receive_one_file(self, filename=None, folder=None):
+    def receive_one_file(self, filename=None, folder=None, receive_file_name=True):
         """
         Recibe un archivo.
 
@@ -170,18 +171,30 @@ class SocketPadre:
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         
+        if (not receive_file_name) and (not filename):
+            raise ValueError("Se debe especificar un nombre de archivo o recibirlo del cliente.")
+        
         # receive filename
+        if receive_file_name:
+            _filename = self.conn.read().decode('utf-8')
         if filename:
-            filename = filename
-        else:
-            filename = self.conn.read().decode('utf-8')
+            _filename = filename
+
+        base_filename = os.path.basename(_filename)
+        print("Recibiendo archivo...", base_filename)
 
         if folder:
-            filename = os.path.join(folder, filename)
+            _path = folder
+            file_path = os.path.join(_path, base_filename)
         else:
-            filename = os.path.join(self.FOLDER, filename)
+            _path = self.FOLDER
+            file_path = os.path.join(_path, base_filename)
+        print("Guardando archivo en:", file_path)
             
-        with open(filename, "wb") as f:
+        if not os.path.exists(_path):
+            os.makedirs(_path)
+
+        with open(file_path, "wb") as f:
             while True:
                 chunk = self.conn.read(chunk_size)
                 if chunk == b"EOF":
