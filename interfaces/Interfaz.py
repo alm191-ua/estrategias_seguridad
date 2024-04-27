@@ -149,15 +149,19 @@ class ClienteUI:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
                         nombre_Fichero=selected_item[5]
+                        autor=selected_item[4]
+                        
                         try:
                             print(self.cliente.MALICIOSO)
-                            self.cliente.get_file(nombre_Fichero)
+                            self.cliente.get_file(nombre_Fichero,autor)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
-                        
-                        directorio_files=self.cliente.UnzipFolder(nombre_Fichero)
+                        if autor!=self.username:
+                            directorio_files=self.cliente.UnzipFolder(nombre_Fichero,shared=True)
+                        else:
+                            directorio_files=self.cliente.UnzipFolder(nombre_Fichero)
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
@@ -359,6 +363,7 @@ class ClienteUI:
         files = self.cliente.get_files_in_zip(item[5],shared)
 
         file_list = [[file] for file in files]  
+        print(file_list)
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
             [sg.Listbox(values=file_list, size=(100, 10), select_mode='extended', key='-FILES_LIST-')],       

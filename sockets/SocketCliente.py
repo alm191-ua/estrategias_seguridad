@@ -269,7 +269,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         all_files = filesDesencrypted
         return all_files
     
-    def UnzipFolder(self, directorio_file):
+    def UnzipFolder(self, directorio_file,shared=False):
         """
         Descomprime un archivo ZIP en el directorio de archivos.
 
@@ -283,8 +283,12 @@ class SocketCliente(SocketPadre.SocketPadre):
             # print("No se ha encontrado el proyecto")
             return None
         # Construir la ruta del archivo ZIP
-        directorio = os.path.join(Cifrado.DIRECTORIO_PROYECTO, self.FOLDER, directorio_file)
+        if shared:
+            directorio = os.path.join(Cifrado.DIRECTORIO_PROYECTO, self.FOLDER, self.SHARED_FOLDER, directorio_file)
+        else:
+            directorio = os.path.join(Cifrado.DIRECTORIO_PROYECTO, self.FOLDER, directorio_file)
         archivo = os.path.join(directorio, directorio_file + ".zip.enc")
+        print(archivo)
 
         # Descomprimir el archivo ZIP
         self.UnZipFiles(archivo)
@@ -325,7 +329,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             return False
 
 
-    def get_file(self, filename):
+    def get_file(self, filename,autor):
         """
         gets a document from the server.
 
@@ -333,7 +337,27 @@ class SocketCliente(SocketPadre.SocketPadre):
             filename (str): The name of the file to receive.
 
         """
+        shared=False
+        if autor!=self.username:
+            shared=True
         files = os.listdir(self.FOLDER)
+        if shared:
+            files = os.listdir(os.path.join(self.FOLDER,self.SHARED_FOLDER))
+            for fileId in files:
+                if fileId == autor:
+                    file_folder_path = os.path.join(files, fileId,filename)
+                    files_path = os.path.join(file_folder_path, filename)
+                    file_path = files_path + self.FORMATO_ARCHIVO_ENCRIPTADO
+                    if os.path.exists(file_path):
+                        # En caso de que el archivo ya exista, no se descarga
+                        break
+                    else:
+                        self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
+                        self.conn.sendall(filename.encode('utf-8'))
+                        self.conn.sendall(autor.encode('utf-8'))
+
+                        self.wait_files(shared)
+                        print("Archivo recibido.")
         for fileId in files:
             if fileId == filename:
                 file_folder_path = os.path.join(self.FOLDER, fileId)
@@ -345,8 +369,9 @@ class SocketCliente(SocketPadre.SocketPadre):
                 else:
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
+                    self.conn.sendall(autor.encode('utf-8'))
 
-                    self.wait_files()
+                    self.wait_files(shared)
                     print("Archivo recibido.")
 
 

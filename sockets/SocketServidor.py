@@ -217,6 +217,8 @@ class SocketServidor(SocketPadre.SocketPadre) :
 
     def send_encoded(self):
         name = self.conn.read().decode('utf-8')
+        autor = self.conn.read().decode('utf-8')
+        print(autor,' ',self.username)
         if not self.conn:
             raise Exception("No se ha establecido una conexión.")
         while self.conn:
@@ -236,6 +238,11 @@ class SocketServidor(SocketPadre.SocketPadre) :
 
             else:
                 folder_path = self.FOLDER
+                
+                if autor != self.username:
+                    print(name)
+                    folder_path = os.path.join(SERVER_ROOT_FOLDER,autor)
+                    print(folder_path)
                 try:
                     self.send_enconded_file(folder_path,name)
                     return
