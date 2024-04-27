@@ -55,6 +55,7 @@ def getDataFromJSON(fichero, directorio):
     """
     data=[]
     json_path = os.path.join(directorio, fichero, f"{fichero}.json")
+    print(json_path)
     if os.path.exists(json_path):
         with open(json_path, 'r') as json_file:
             data = json.load(json_file)

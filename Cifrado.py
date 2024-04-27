@@ -280,28 +280,28 @@ def encrypt_files_JSON(json_filename, key,old_key=None):
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
  
-def encrypt_json_filenames(json_filename, key):
+def encrypt_json_filenames(json_filename, key,old_key=None):
     """
-    Encripta los nombres de los archivos listados en un documento JSON y actualiza el documento en el mismo lugar.
+    Encripta los archivos listados en un documento JSON y actualiza el documento en el mismo lugar.
 
     Args:
         nombre_archivo_json (str): Ruta al documento JSON que contiene la información de los archivos.
         clave (bytes): Clave de encriptación.
+        clave_anterior (bytes, opcional): Clave anterior si se desea desencriptar y reencriptar (predeterminado: None).
 
     Returns:
-        None.
+        list: Lista de representaciones base64 de los archivos encriptados.
     """
+    
     with open(json_filename, 'r') as file:
         doc_data = json.load(file)
+    files = _handle_JSON_decryption(doc_data['files'], json_filename, old_key)
     encrypted_files = []
-    files = doc_data['files']
     for file in files:
-        # print("File: ",file)
-        ctext_hex = cipher_data(file, key)
-        # print("Ctext: ",ctext_hex)
-        # print("Bytes: ",bytes.fromhex(ctext_hex))
-        # print("Str: ",bytes.fromhex(ctext_hex).decode('utf-8'))
-        encrypted_files.append(ctext_hex) #.decode('utf-8')
+        iv = get_random_bytes(IV_SIZE)
+        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+        ctext = cipher.encrypt(file.encode())
+        encrypted_files.append(base64.b64encode(iv + ctext).decode())
     doc_data['files'] = encrypted_files
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
@@ -420,9 +420,7 @@ def decrypt_file_asimetric(file_path, key, target_directory, change_name=False):
     # use decipher_data to decrypt the file (RSA)
     with open(file_path, 'rb') as f:
         ctext = f.read()
-    print('HOLA')
     plaintext = decipher_data(ctext.hex(), key)
-    print('ADIOS')
     if change_name:
         decrypted_path = target_directory
     else:
@@ -488,6 +486,7 @@ def key_to_use(old_key,json_filename):
 
 
 def try_decrypt_files_JSON(encrypted_files,key):
+
     decrypted_files = []
     for encrypted_file in encrypted_files:
         # Decodificar y separar el IV del texto cifrado

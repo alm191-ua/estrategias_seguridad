@@ -97,7 +97,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 new_json_name = doc_id + '_' + user + '.json'
                 new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, new_json_name)
                 # print("AAAAAAAAAAAAAA")
-                Cifrado.encrypt_json_filenames(new_json_path, public_key)
+                Cifrado.encrypt_json_filenames(new_json_path, file_key)
                 # print("BBBBBBBBBBBBBB")
                 json_files_paths.append(new_json_path)
 
@@ -239,12 +239,13 @@ class SocketCliente(SocketPadre.SocketPadre):
             list: Lista de los archivos desencriptados.
         """
         directorio=os.path.join(Cifrado.DIRECTORIO_PROYECTO,self.FOLDER)
+        print(directorio)
         if not directorio:
             return []
-        print(directorio)
         data = GetDataUploaded.getDataFromJSON(file, directorio)
         path = os.path.join(directorio,file,file)
         filesDesencrypted = self.decrypt_files_JSON(data['files'],path+".json")
+        print('HECHO')
         all_files = filesDesencrypted
         return all_files
     

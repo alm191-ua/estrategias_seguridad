@@ -116,7 +116,10 @@ class ClienteUI:
                     main_window['-TABLE-'].update(values=self.data)
                     add_window.close()
                     add_window = None
+                    print(self.cliente.FOLDER)
                     self.data = gdu.listar_los_zips(self.cliente.FOLDER)
+                    
+                    
             if '-SHARE-' in event:
                 usuario = event.split('-SHARE-')[1]
                 self.shared_with[usuario] = not self.shared_with[usuario]  # Toggle share status  
@@ -127,7 +130,6 @@ class ClienteUI:
                     
                     selected_item = self.data[selected_row_index]
                     try:
-                        print(selected_item)
                         show_files_window = self.create_files_window(selected_item)
                     except Exception as e:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
@@ -326,7 +328,7 @@ class ClienteUI:
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        files = self.cliente.get_files_in_zip("File"+item[4])
+        files = self.cliente.get_files_in_zip(item[4])
         file_list = [[file] for file in files]  
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
