@@ -1,8 +1,0 @@
-{
-    "12345": {
-        "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzHy0jVClTqHCa73pAYV3\nUDRAmnMUfIsdJxAMoFn/jRmLZl/f9q+cvDuG+PZVZWEDBL18cTAIWQVBctaBaPeA\ncC/84WHv+7ezVd54XoTdop3ToFvldf6f6Wu+abH9wCVrlnof6Nub7DqGBC9+nY3u\n5et5sl71ynmUoeLvYrB1z1Prwpnin9DQJJeFOvTq8TTucORoTwDgJ7rwNyvlwImV\nWROUhR9cEsQmCWQ1bbarWvKTykIZKp/Zys4R1Xp6RSwkWKinYKTTmyBJ76PH05q4\nxWDHwHJjAaR92QKjU+Nl7n/0ia+meDMh0TwLvsmogzc1NabVeT4FqdrClQ3oEcqY\nzwIDAQAB\n-----END PUBLIC KEY-----"
-    },
-    "user33": {
-        "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyqd4UvAKAtDndskufwsO\ngqUgVmnsbXPxHc+TOADdxGCbJYcgj1HA/kWN4+CjVD7w7h7etivNQL0pmZM6bCrc\nH0cV9/FvrsLKhqNSe1Jq195co1qwrxxdUmRYXhail8LdcW8kqIMVPc1gmxe7sydW\nEvcji8SylXBNP6P5PF+Rkf1hORlz07OWmFuxnipUJDTXa2v/5bgow7uHAjhD0s3j\nWxmMRlCTj068iQmgscI77nGcqAd3rkBSOTLbqRIkF8Bs1IxwVZWmDAR5uhspKjY5\nAd/KxshuY+h5EUslK59PajV/z7c3XaSzAX6LaPwJWiZ3joCkc/xGML7XjAHrrQCY\nqQIDAQAB\n-----END PUBLIC KEY-----"
-    }
-}

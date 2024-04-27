@@ -162,7 +162,9 @@ def cipher_data(data, public_key):
     """
     key = RSA.import_key(public_key)
     cipher = PKCS1_OAEP.new(key)
-    ctext = cipher.encrypt(data.encode('utf-8'))
+    if type(data) is not bytes:
+        data = data.encode('utf-8')
+    ctext = cipher.encrypt(data)
     # print("The cipher text type is: ", type(ctext))
     return ctext.hex()
 
