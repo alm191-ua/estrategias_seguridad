@@ -12,7 +12,8 @@
                 "receive_file": "RCF",
                 "receive_public_keys": "RCPK",
                 "recieve_json_malicious": "RCJM",
-                "malicious": "MAL"
+                "malicious": "MAL",
+                "receive_shared_json": "RCSJ"
             },
             "response": {
                 "incorrect_tag": "000",
@@ -23,8 +24,8 @@
                 "correct_register": "200",
                 "incorrect_register": "201",
                 "empty_register": "202",
-
-                "file_does_not_exist": "300"
+                "file_does_not_exist": "300",
+                "correct_shared_json": "600"
             }
         },
         "chunk_size": 2048

@@ -669,5 +669,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 print('Recibiendo JSON')
                 self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
             self.wait_files()
-            
+        if number == 6:
+            self.conn.sendall(self.RECIBIR_JSON_SHARED.encode('utf-8'))
+            self.wait_files()
     

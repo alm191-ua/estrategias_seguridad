@@ -48,6 +48,7 @@ incorrect_register_tag = config['sockets']['tags']['response']['incorrect_regist
 incorrect_tag = config['sockets']['tags']['response']['incorrect_tag']
 malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
+send_shared_json = config['sockets']['tags']['init_comms']['receive_shared_json']
 
 server_action_tags = [register_tag, login_tag, malicious_tag]
 
@@ -187,6 +188,10 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         elif option == serverSocket.RECIBIR_PUBLIC_KEYS:
             logging.info(f"Enviando claves publicas al usuario {username}")
             serverSocket.send_public_keys()
+        
+        elif option == serverSocket.RECIBIR_JSON_SHARED:
+            logging.info(f"Enviando JSON compartido al usuario {username}")
+            serverSocket.send_shared_json()
         
         else:
             logging.info("Opcion invalida recibida.")

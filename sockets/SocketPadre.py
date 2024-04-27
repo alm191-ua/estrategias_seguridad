@@ -20,6 +20,7 @@ class SocketPadre:
     RECIBIR_FILE=config['sockets']['tags']['init_comms']['receive_file']
     RECIBIR_PUBLIC_KEYS=config['sockets']['tags']['init_comms']['receive_public_keys']
     RECIBIR_JSON_MALICIOUS=config['sockets']['tags']['init_comms']['recieve_json_malicious']
+    RECIBIR_JSON_SHARED=config['sockets']['tags']['init_comms']['receive_shared_json']
     FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'

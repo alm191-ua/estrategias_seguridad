@@ -211,6 +211,7 @@ class ClienteUI:
 
     def cargar_datos(self,window):
         self.cliente.choose_opt(5)
+        self.cliente.choose_opt(6)
         try:
 
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER)
