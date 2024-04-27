@@ -115,7 +115,7 @@ class ClienteUI:
                     main_window['-TABLE-'].update(values=self.data)
                     add_window.close()
                     add_window = None
-                    self.data = gdu.listar_los_zips(self.cliente.FOLDER)
+                    self.data = gdu.listar_los_zips(self.cliente.FOLDER, self.username)
             if '-SHARE-' in event:
                 usuario = event.split('-SHARE-')[1]
                 self.shared_with[usuario] = not self.shared_with[usuario]  # Toggle share status  
@@ -212,11 +212,11 @@ class ClienteUI:
     def cargar_datos(self, window):
         self.cliente.choose_opt(5)
         try:
-            data_cargada = gdu.listar_los_zips(self.cliente.FOLDER)
+            data_cargada = gdu.listar_los_zips(self.cliente.FOLDER, self.username)
             if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
             else:
-                window.write_event_value('-DATOS CARGADOS-', [])  # Enviar lista vacía si no hay datos
+                window.write_event_value('-DATOS CARGADOS-', [])
         except Exception as e:
             logging.error(f'Error al cargar datos: {e}')
             window.write_event_value('-ERROR-', str(e))
@@ -343,22 +343,42 @@ class ClienteUI:
         """
         Muestra la información de un archivo JSON.
         """
+        if not os.path.exists(json_path):
+            sg.popup_error(f"El archivo JSON no existe: {json_path}")
+            return
+
         try:
-            title, description, time, decrypted_files = self.cliente.get_json_info(json_path)
+            with open(json_path, 'r') as file:
+                data = json.load(file)
+
+            title = data.get('title', 'Sin título')
+            description = data.get('description', 'Sin descripción')
+            time = data.get('time', 'Sin tiempo especificado')
+            files = data.get('files', [])
+
+            if not files:  # Si no hay archivos, mostrar mensaje relevante
+                sg.popup_error("No hay archivos listados en el JSON.")
+                return
+
             info_layout = [
                 [sg.Text(f"Title: {title}")],
                 [sg.Text(f"Description: {description}")],
                 [sg.Text(f"Time: {time}")],
-                [sg.Text("Files:")]] + [[sg.Text(f)] for f in decrypted_files]
-            
+                [sg.Text("Files:")] + [sg.Text(f) for f in files]
+            ]
+
             info_window = sg.Window("Info JSON", info_layout, modal=True)
             while True:
-                event, values = info_window.read()
+                event, _ = info_window.read()
                 if event == sg.WINDOW_CLOSED:
                     break
             info_window.close()
+
+        except json.JSONDecodeError:
+            sg.popup_error("Error al decodificar el archivo JSON.")
         except Exception as e:
             sg.popup_error(f"Error al cargar la información JSON: {e}")
+
 
 
 if __name__ == '__main__':

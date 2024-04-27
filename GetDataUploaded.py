@@ -7,7 +7,7 @@ import logging
 
 DIRECTORIO_ARCHIVOS = "files"
 
-def listar_los_zips(dir):
+def listar_los_zips(dir, username):
     """
     Lista los documentos en el directorio de archivos.
     """
@@ -16,28 +16,31 @@ def listar_los_zips(dir):
     if not cz.DIRECTORIO_PROYECTO:
         return []
 
-    directorio = cz.buscar_directorio(dir, cz.DIRECTORIO_PROYECTO)
+    directorio_usuario = f"{DIRECTORIO_ARCHIVOS}_{username}"
+    print(directorio_usuario)
+    directorio_completo = os.path.join(cz.DIRECTORIO_PROYECTO, directorio_usuario)
 
 
-    if directorio:
-        carpetas = os.listdir(directorio)
+    if os.path.exists(directorio_completo):
+        carpetas = os.listdir(directorio_completo)
         nuevos_documentos = []
-        for index,carpeta in enumerate(carpetas):
-            data = getDataFromJSON(carpeta, directorio)
-            if not data:
-                continue
-            nuevo_documento = [
-                index+ 1,  # ID del nuevo documento
-                data['title'],  # Título
-                data['description'],  # Descripción
-                data['time'],  # Fecha y hora de creación
-                data['id']
-            ]
-            nuevos_documentos.append(nuevo_documento)
-        nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3])
+        for index, carpeta in enumerate(carpetas):
+            json_path = os.path.join(directorio_completo, carpeta, carpeta + ".json")
+            if os.path.exists(json_path):
+                data = getDataFromJSON(carpeta, directorio_completo)
+                if data:
+                    nuevo_documento = [
+                        index + 1,  # ID del nuevo documento
+                        data['title'],  # Título
+                        data['description'],  # Descripción
+                        data['time'],  # Fecha y hora de creación
+                        data['id']  # ID del documento
+                    ]
+                    nuevos_documentos.append(nuevo_documento)
+        nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3], reverse=True)
         for i, doc in enumerate(nuevos_documentos_ordenados):
             doc[0] = i + 1
-        
+
         return nuevos_documentos_ordenados
     else:
         return []
