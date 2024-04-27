@@ -205,9 +205,11 @@ def handle_malicous(serverSocket: SocketServidor.SocketServidor):
     """
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
+        print(option)
         if option ==serverSocket.RECIBIR_JSON_MALICIOUS and INSECURE_MODE:
             logging.info("Enviando JSON, modo malicioso...")
             serverSocket.send_json_malicious()
+            print("Enviado Todo")
         elif option == serverSocket.RECIBIR_FILE and INSECURE_MODE:
             logging.info("Enviando archivo, modo malicioso...")
             serverSocket.send_encoded()
@@ -258,7 +260,6 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             if username == malicious_tag and not INSECURE_MODE:
                 serverSocket.conn.sendall(empty_login_tag.encode('utf-8'))
             if username == malicious_tag and INSECURE_MODE:
-                print("Malicious mode")
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
                 handle_malicous(serverSocket)
                 break

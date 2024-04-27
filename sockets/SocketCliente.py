@@ -338,7 +338,7 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         """
         shared=False
-        if autor!=self.username:
+        if autor!=self.username and not self.MALICIOSO:
             shared=True
         files = os.listdir(self.FOLDER)
         if shared:
@@ -548,6 +548,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             # enviar como nombre de usuario y contraseña el tag de cliente malicioso
             self.conn.sendall(malicious_tag.encode('utf-8'))
             self.conn.sendall(malicious_tag.encode('utf-8'))
+            self.FOLDER=self.FOLDER+'_'
         else:
             # send username
             self.conn.sendall(self.username.encode('utf-8'))
@@ -556,14 +557,14 @@ class SocketCliente(SocketPadre.SocketPadre):
             # send login key
             self.conn.sendall(login_key.encode('utf-8'))
 
-        self.FOLDER=self.FOLDER+'_'+self.username
-        if not os.path.exists(self.FOLDER):
-                os.makedirs(self.FOLDER)
-        private_key_folder=self.receive_one_file(folder=self.FOLDER)
-        self.decrypt_private_key(private_key_folder)
-            
-        # private_key_folder = os.path.join(serverSocket.FOLDER, username)
-        # serverSocket.receive_one_file(folder=private_key_folder)
+            self.FOLDER=self.FOLDER+'_'+self.username
+            if not os.path.exists(self.FOLDER):
+                    os.makedirs(self.FOLDER)
+            private_key_folder=self.receive_one_file(folder=self.FOLDER)
+            self.decrypt_private_key(private_key_folder)
+                
+            # private_key_folder = os.path.join(serverSocket.FOLDER, username)
+            # serverSocket.receive_one_file(folder=private_key_folder)
 
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
@@ -584,12 +585,9 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         print("Esperando el tamaño del nombre del archivo...")
         try:
-            fmt = "<L"
-            NameSize = self.receive_size(fmt)
-            if NameSize == 0:
+            filename = self.conn.read().decode('utf-8')
+            if filename == "done":
                 raise ValueError("Everything sent correctly")
-            file = self.conn.recv(NameSize)
-            filename = file.decode('utf-8')
             fmt="<Q"
             print(f"Nombre de archivo recibido: {filename}")
             filesize = self.receive_size(fmt)

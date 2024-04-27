@@ -17,7 +17,6 @@
             },
             "response": {
                 "incorrect_tag": "000",
-
                 "correct_login": "100",
                 "incorrect_login": "101",
                 "empty_login": "102",
@@ -25,6 +24,7 @@
                 "incorrect_register": "201",
                 "empty_register": "202",
                 "file_does_not_exist": "300",
+                "correct_sent": "400",
                 "correct_shared_json": "600"
             }
         },

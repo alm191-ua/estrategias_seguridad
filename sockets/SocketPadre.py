@@ -21,6 +21,7 @@ class SocketPadre:
     RECIBIR_PUBLIC_KEYS=config['sockets']['tags']['init_comms']['receive_public_keys']
     RECIBIR_JSON_MALICIOUS=config['sockets']['tags']['init_comms']['recieve_json_malicious']
     RECIBIR_JSON_SHARED=config['sockets']['tags']['init_comms']['receive_shared_json']
+    correct_sent=config['sockets']['tags']['response']['correct_sent']
     FORMATO_ARCHIVO_ENCRIPTADO='.zip.enc'
     FORMATO_LLAVE='.key'
     FORMATO_JSON='.json'
@@ -131,7 +132,6 @@ class SocketPadre:
                 self.conn=None
                 break
             except ValueError as e:
-                print(e)
                 print("Archivos recibidos correctamente.")
                 break
             except FileNotFoundError as e:
@@ -214,7 +214,6 @@ class SocketPadre:
         # Enviar el nombre del archivo al servidor.
         name = os.path.basename(filename)
         name_size = len(name)
-        self.conn.sendall(struct.pack("<L", name_size))
         self.conn.sendall(name.encode('utf-8'))
 
         # Obtener el tamaño del archivo a enviar.

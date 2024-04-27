@@ -158,7 +158,7 @@ class ClienteUI:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
-                        if autor!=self.username:
+                        if autor!=self.username and not self.cliente.MALICIOSO:
                             directorio_files=self.cliente.UnzipFolder(nombre_Fichero,shared=True)
                         else:
                             directorio_files=self.cliente.UnzipFolder(nombre_Fichero)
@@ -245,13 +245,15 @@ class ClienteUI:
 
     def cargar_datos(self, window):
         self.cliente.choose_opt(5)
-        self.cliente.choose_opt(6)
+        if not self.cliente.MALICIOSO:
+            self.cliente.choose_opt(6)
         try:
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER, self.username)
             shared_data = gdu.listar_los_zips_compartidos(self.cliente.FOLDER, self.username)
             if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
             if shared_data:
+                print(shared_data)
                 window.write_event_value('-DATOS COMPARTIDOS CARGADOS-', shared_data)
         
             else:
