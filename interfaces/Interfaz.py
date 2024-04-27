@@ -141,9 +141,9 @@ class ClienteUI:
                 if selected_files:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
-                        nombre_Fichero="File"+selected_item[4]
+                        nombre_Fichero=selected_item[4]
                         try:
-                            print("Cliente malicioso activado: " + self.cliente.MALICIOSO)
+                            print(self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')

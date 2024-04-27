@@ -314,6 +314,7 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         """
         files = os.listdir(self.FOLDER)
+        print('Hola')
         for fileId in files:
             if fileId == filename:
                 file_folder_path = os.path.join(self.FOLDER, fileId)
@@ -323,6 +324,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                     # En caso de que el archivo ya exista, no se descarga
                     break
                 else:
+                    print("HOLA")
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
                     self.wait_files()
