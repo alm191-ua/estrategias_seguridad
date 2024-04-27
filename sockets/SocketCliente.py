@@ -246,7 +246,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             decrypted_files=Cifrado.try_decrypt_files_JSON(encrypted_files, key)
             return decrypted_files
     
-    def get_files_in_zip(self, file):
+    def get_files_in_zip(self, file,shared=False):
         """
         Obtiene los archivos en un documento cifrado a partir de la información del JSON.
 
@@ -257,6 +257,8 @@ class SocketCliente(SocketPadre.SocketPadre):
             list: Lista de los archivos desencriptados.
         """
         directorio=os.path.join(Cifrado.DIRECTORIO_PROYECTO,self.FOLDER)
+        if shared:
+            directorio=os.path.join(directorio,self.SHARED_FOLDER)
         print(directorio)
         if not directorio:
             return []

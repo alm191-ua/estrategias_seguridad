@@ -132,6 +132,14 @@ class ClienteUI:
                         show_files_window = self.create_files_window(selected_item)
                     except Exception as e:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
+                elif values['-SHARETABLE-']:
+                    selected_row_index = values['-SHARETABLE-'][0] 
+                    
+                    selected_item = self.shared_data[selected_row_index]
+                    try:
+                        show_files_window = self.create_files_window(selected_item,shared=True)
+                    except Exception as e:
+                        sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
             #Evento para descargar archivos    
@@ -344,11 +352,14 @@ class ClienteUI:
             return []
         
 
-    def create_files_window(self,item):
+    def create_files_window(self,item,shared=False):
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        files = self.cliente.get_files_in_zip(item[4])
+        if shared:
+            files = self.cliente.get_files_in_zip(item[5],shared)
+        else:
+            files = self.cliente.get_files_in_zip(item[4])
         file_list = [[file] for file in files]  
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
