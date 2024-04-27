@@ -82,6 +82,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             for user, public_key in zip(users, public_keys):
                 new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO)
                 encrypted_file_key_path = Cifrado.encrypt_file_asimetric(file_key_path, public_key, new_key_path, change_name=True)
+                print("Algo")
                 file_key_paths.append(encrypted_file_key_path)
 
             # print("Algo")
@@ -104,7 +105,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             # una clave y un json para el usuario que envía el documento
             # y un json y clave para cada usuario compartido
 
-            # print("Encrypted path: ", encrypted_file_path)
+            
 
             # Enviar los archivos al servidor
             self.send_one_file(encrypted_file_path)
@@ -116,6 +117,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             for file in json_files_paths:
                 self.send_one_file(file)
             self.conn.sendall(b"done")
+            
 
             # Comprimir y cifrar los archivos
             # path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
