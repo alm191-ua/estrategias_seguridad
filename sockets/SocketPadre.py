@@ -201,6 +201,7 @@ class SocketPadre:
                     break
                 f.write(chunk)
             f.close()
+        return file_path
 
     def send_file(self, filename):
         """

@@ -349,6 +349,20 @@ class SocketCliente(SocketPadre.SocketPadre):
             claves_publicas.append(data['public_key'])
         return usuarios, claves_publicas
 
+    def decrypt_private_key(self, private_key):
+        """
+        Decrypts the private key with the public key of the user.
+
+        Args:
+            private_key (str): The public key of the user.
+
+        Returns:
+            str: The private key.
+        """
+        Cifrado.decrypt_file(private_key, data_key=self.data_key.encode('utf-8'))	
+        return private_key
+
+
     def encrypt_key(self, key):
         """
         Encrypts a key using the user data key.
@@ -368,7 +382,6 @@ class SocketCliente(SocketPadre.SocketPadre):
         Args:
             key (str): The key to encrypt.
         """
-        print("data_key: ", self.data_key)
         Cifrado.decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
 
 
@@ -492,7 +505,8 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.FOLDER=self.FOLDER+'_'+self.username
         if not os.path.exists(self.FOLDER):
                 os.makedirs(self.FOLDER)
-        self.receive_one_file(folder=self.FOLDER)
+        private_key_folder=self.receive_one_file(folder=self.FOLDER)
+        self.decrypt_private_key(private_key_folder)
             
         # private_key_folder = os.path.join(serverSocket.FOLDER, username)
         # serverSocket.receive_one_file(folder=private_key_folder)
