@@ -254,16 +254,29 @@ class SocketServidor(SocketPadre.SocketPadre) :
         while self.conn:    
             try:
                 files = os.listdir(self.FOLDER)
-                print(files)
             except Exception as e:
                 files=[]
             for fileId in files:
-                print(fileId=='shared')
-                if fileId in PRIVATE_FILES:
+                if fileId=='shared':
+                    path_shared_users=os.path.join(self.FOLDER,fileId)
+                    propietarios=os.listdir(path_shared_users)
+                    for propietario in propietarios:
+                        if propietario in PRIVATE_FILES:
+                            continue
+                        archivos_path=os.path.join(path_shared_users,propietario)
+                        archivos=os.listdir(archivos_path)
+                        for archivo in archivos:
+                            archivo_path=os.path.join(archivos_path,archivo)
+                            camino_sin_extension=os.path.join(archivo_path,archivo)
+                            camino_json=camino_sin_extension+self.FORMATO_JSON
+                            camino_llave=camino_sin_extension+self.FORMATO_LLAVE+self.FORMATO_ENCRIPTADO
+                            if os.path.exists(camino_json) and os.path.exists(camino_llave):
+                                self.send_file(camino_json)
+                                self.send_file(camino_llave)
+                                print("Enviado.")
+                        
+                else:
                     continue
-
-                print("Enviando archivo...")
-                print("Enviado.")
                 
             self.conn.sendall(b"done")
             break

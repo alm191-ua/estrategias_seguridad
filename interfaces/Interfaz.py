@@ -28,6 +28,7 @@ class ClienteUI:
         self.share_window = None
         self.show_files_window = None
         self.data = []
+        self.shared_data = []
         if cliente:
             self.cliente = cliente
         else:
@@ -183,6 +184,14 @@ class ClienteUI:
                 else:
                     sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
                     window['-CARGANDO-'].update(visible=False)
+            elif event == '-DATOS COMPARTIDOS CARGADOS-':
+                if values[event]:
+                    self.shared_data = values[event]
+                    window['-SHARETABLE-'].update(values=self.shared_data)
+                    window['-CARGANDO-'].update(visible=False)
+                else:
+                    sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
+                    window['-CARGANDO-'].update(visible=False)
             #Evento para mostrar un error
             elif event == '-ERROR-':
                 window['-CARGANDO-'].update(visible=False)
@@ -215,10 +224,15 @@ class ClienteUI:
 
     def cargar_datos(self, window):
         self.cliente.choose_opt(5)
+        self.cliente.choose_opt(6)
         try:
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER, self.username)
+            shared_data = gdu.listar_los_zips_compartidos(self.cliente.FOLDER, self.username)
             if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
+            if shared_data:
+                window.write_event_value('-DATOS COMPARTIDOS CARGADOS-', shared_data)
+        
             else:
                 window.write_event_value('-DATOS CARGADOS-', [])
         except Exception as e:

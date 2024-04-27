@@ -118,13 +118,13 @@ class SocketPadre:
 
         print("Archivo recibido correctamente.")
 
-    def wait_files(self):
+    def wait_files(self,sharing=False):
         """
         Espera a recibir archivos.
         """
         while self.conn:
             try:
-                self.receive_file()
+                self.receive_file(sharing)
             except ConnectionResetError:
                 print("Conexión cerrada.")
                 self.conn.close()

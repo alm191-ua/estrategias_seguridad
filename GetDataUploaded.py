@@ -17,7 +17,6 @@ def listar_los_zips(dir, username):
         return []
 
     directorio_usuario = f"{DIRECTORIO_ARCHIVOS}_{username}"
-    print(directorio_usuario)
     directorio_completo = os.path.join(cz.DIRECTORIO_PROYECTO, directorio_usuario)
 
 
@@ -45,6 +44,50 @@ def listar_los_zips(dir, username):
     else:
         return []
 
+def listar_los_zips_compartidos(dir, username):
+    """
+    Lista los documentos en el directorio de archivos.
+    """
+    if not cz.DIRECTORIO_PROYECTO:
+        cz.buscar_proyecto()
+    if not cz.DIRECTORIO_PROYECTO:
+        return []
+
+    directorio_usuario = f"{DIRECTORIO_ARCHIVOS}_{username}"
+    directorio_completo = os.path.join(cz.DIRECTORIO_PROYECTO, directorio_usuario)
+
+
+    if os.path.exists(directorio_completo):
+        carpetas = os.listdir(directorio_completo)
+        nuevos_documentos = []
+        for index, carpeta in enumerate(carpetas):
+            if carpeta == "shared":
+                directorio_completo=os.path.join(directorio_completo, carpeta)
+                archivos= os.listdir(directorio_completo)
+                
+                for archivo in archivos:
+                    json_path = os.path.join(directorio_completo, archivo, archivo + ".json")
+                    if os.path.exists(json_path):
+                        data = getDataFromJSON(archivo, directorio_completo)
+                        if data:
+                            nuevo_documento = [
+                                index + 1,  # ID del nuevo documento
+                                data['title'],  # Título
+                                data['description'],  # Descripción
+                                data['time'],  # Fecha y hora de creación
+                                data['author'], # Dueño del documento
+                                data['id']  # ID del documento
+                                
+                            ]
+                            nuevos_documentos.append(nuevo_documento)
+        nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3], reverse=True)
+        for i, doc in enumerate(nuevos_documentos_ordenados):
+            doc[0] = i + 1
+
+        return nuevos_documentos_ordenados
+    else:
+        return []
+
 def getDataFromJSON(fichero, directorio):
     """
     Obtiene la información del archivo JSON de un documento.
@@ -58,7 +101,6 @@ def getDataFromJSON(fichero, directorio):
     """
     data=[]
     json_path = os.path.join(directorio, fichero, f"{fichero}.json")
-    print(json_path)
     if os.path.exists(json_path):
         with open(json_path, 'r') as json_file:
             data = json.load(json_file)
@@ -73,7 +115,6 @@ def get_files_in_zip(file,username=None):
     """
     if username:
         dir=DIRECTORIO_ARCHIVOS+'_'+username
-        print(dir)
         directorio=os.path.join(cz.DIRECTORIO_PROYECTO,dir)
     else:
         directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)

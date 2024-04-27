@@ -31,12 +31,29 @@ class SocketCliente(SocketPadre.SocketPadre):
     Se encarga del envío y recepción de archivos y mensajes al servidor.
     """
     FOLDER = 'files'
+    SHARED_FOLDER = 'shared'
     username=''
     password=''
     data_key=''
     MALICIOSO=False
     NAME_PREFIX  = 'File'
     PRIVATE_KEY=''
+
+    def create_folder_4_new_file(self, filename,get_shared=False):
+        """
+        Crea una carpeta para un nuevo archivo.
+        """
+        filename = filename.split(".")[0]
+        if get_shared:
+            dir=os.path.join(self.FOLDER,self.SHARED_FOLDER)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            path=os.path.join(dir, filename)
+        else:
+            path=os.path.join(self.FOLDER, filename)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
 
     def send_encrypted_files(self, archivos, titulo, descripcion,author, users=[], public_keys=[]):
         """
@@ -315,7 +332,6 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         """
         files = os.listdir(self.FOLDER)
-        print('Hola')
         for fileId in files:
             if fileId == filename:
                 file_folder_path = os.path.join(self.FOLDER, fileId)
@@ -325,7 +341,6 @@ class SocketCliente(SocketPadre.SocketPadre):
                     # En caso de que el archivo ya exista, no se descarga
                     break
                 else:
-                    print("HOLA")
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
                     self.wait_files()
@@ -535,7 +550,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             print("Usuario o contraseña incorrectos.")
             return False
 
-    def receive_file(self,):
+    def receive_file(self,shared_file=False):
         """
         Receives a file from the server.
         """
@@ -551,7 +566,11 @@ class SocketCliente(SocketPadre.SocketPadre):
             print(f"Nombre de archivo recibido: {filename}")
             filesize = self.receive_size(fmt)
             self.buscar_server_folder()
-            folder = self.create_folder_4_new_file(filename)
+            if shared_file:
+                folder = self.create_folder_4_new_file(filename,True)
+            else:
+                folder = self.create_folder_4_new_file(filename)
+            print("folder: ", folder)
             filename = os.path.join(folder, filename)
         except ConnectionResetError:
             raise ConnectionResetError("Conexión cerrada por el cliente.")
@@ -672,5 +691,5 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.wait_files()
         if number == 6:
             self.conn.sendall(self.RECIBIR_JSON_SHARED.encode('utf-8'))
-            self.wait_files()
+            self.wait_files(sharing=True)
     
