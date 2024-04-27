@@ -87,7 +87,6 @@ class SocketCliente(SocketPadre.SocketPadre):
             for user, public_key in zip(users, public_keys):
                 new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO)
                 encrypted_file_key_path = Cifrado.encrypt_file_asimetric(file_key_path, public_key, new_key_path, change_name=True)
-                print("Algo")
                 file_key_paths.append(encrypted_file_key_path)
 
             # print("Algo")

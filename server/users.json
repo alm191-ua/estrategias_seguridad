@@ -14,10 +14,10 @@
     "user4": {
         "password": "$2b$12$pDEH.tKX7IxAWBOagTXLyuTecmnmZF5oeLDTq4Q9KWnD9DWTe4Fg6"
     },
-    "user33": {
-        "password": "$2b$12$Pj7IP24fWsZQqdSQaYtGXu/07mVfOMokpEi4l7BfwRho9o/jN8/N."
-    },
     "12345": {
-        "password": "$2b$12$aYmdGtntpGTmNGCcMxsAj.GASh52mdkaJaugd.LPNdfYUE2De2q02"
+        "password": "$2b$12$l3fyut2GhW.I220wcYQ8UOVvf8szXmaVafy1INmANd6pIv8VBcBRi"
+    },
+    "user33": {
+        "password": "$2b$12$KJiDbg/VbWYYg9sBg.Gp.ejv7BTGYDpd5RlyzEnZCRDiDc9FbZRn2"
     }
 }

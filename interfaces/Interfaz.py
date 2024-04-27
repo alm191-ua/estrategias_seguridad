@@ -109,15 +109,12 @@ class ClienteUI:
                     except Exception as e:
                         sg.popup_error(f'Error al enviar los documentos: {e}', title='Error')
 
-                    now = datetime.now()
-                    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-                    nuevo_documento = [len(self.data) + 1, title, description, current_time]
-                    self.data.append(nuevo_documento)
+
+                    self.cliente.choose_opt(5)
+                    self.data = gdu.listar_los_zips(self.cliente.FOLDER)
                     main_window['-TABLE-'].update(values=self.data)
                     add_window.close()
                     add_window = None
-                    print(self.cliente.FOLDER)
-                    self.data = gdu.listar_los_zips(self.cliente.FOLDER)
                     
                     
             if '-SHARE-' in event:
