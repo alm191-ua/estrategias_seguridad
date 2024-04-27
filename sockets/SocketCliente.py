@@ -435,6 +435,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         print("response: ", response)
 
         if response == correct_register_tag:
+            self.FOLDER=self.FOLDER+'_'+self.username
             # save private key file
             # create self.FOLDER if not exist
             if not os.path.exists(self.FOLDER):
@@ -488,12 +489,19 @@ class SocketCliente(SocketPadre.SocketPadre):
             # send login key
             self.conn.sendall(login_key.encode('utf-8'))
 
+        self.FOLDER=self.FOLDER+'_'+self.username
+        if not os.path.exists(self.FOLDER):
+                os.makedirs(self.FOLDER)
+        self.receive_one_file(folder=self.FOLDER)
+            
+        # private_key_folder = os.path.join(serverSocket.FOLDER, username)
+        # serverSocket.receive_one_file(folder=private_key_folder)
+
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
             print("Log in correcto.")
-            self.FOLDER=self.FOLDER+'_'+self.username
-            if not os.path.exists(self.FOLDER):
-                os.makedirs(self.FOLDER)
+            
+            
             return True
         if response == empty_login_tag:
             print("No se ha iniciado sesión.")

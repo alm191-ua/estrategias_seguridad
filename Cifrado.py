@@ -373,6 +373,8 @@ def encrypt_single_file(file_path, key, target_directory, change_name=False):
     else:
         encrypted_path = os.path.join(target_directory, os.path.basename(file_path) + FILES_ENCODE_FORMAT)
     write_in_file_bytes(encrypted_path, iv + ctext)
+    delete_path=os.path.join(target_directory, os.path.basename(file_path))
+    os.remove(delete_path)
     logging.info(f'File {file_path} encrypted')
     return encrypted_path
 
