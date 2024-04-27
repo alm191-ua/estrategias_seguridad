@@ -34,7 +34,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     password=''
     data_key=''
     MALICIOSO=False
-    def send_encrypted_files(self, archivos, titulo, descripcion, users=[], public_keys=[]):
+    def send_encrypted_files(self, archivos, titulo, descripcion, author, users=[], public_keys=[]):
         """
         Sends files to the server.
         Args:
@@ -48,6 +48,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         print("Archivos: ", archivos)
         print("Titulo: ", titulo)
         print("Descripcion: ", descripcion)
+        print("Author: ", author)
         print("Users: ", users)
         print("Public keys: ", public_keys)
         print("--------------------")
@@ -90,7 +91,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             json_files_paths = []
             for user, public_key in zip(users, public_keys):
                 new_json_name = doc_id + '_' + user + '.json'
-                new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, new_json_name)
+                new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, author, new_json_name)
                 # print("AAAAAAAAAAAAAA")
                 Cifrado.encrypt_json_filenames(new_json_path, public_key)
                 # print("BBBBBBBBBBBBBB")

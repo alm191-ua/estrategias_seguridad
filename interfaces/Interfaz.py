@@ -9,7 +9,6 @@ import json
 import os
 sys.path.append('..')
 sys.path.append('../sockets')
-from Cifrado import ZipAndEncryptFile as zp
 from Cifrado import is_unsafe_mode as ium
 import GetDataUploaded as gdu
 from sockets import SocketCliente
@@ -104,7 +103,7 @@ class ClienteUI:
                     try:
                         ium(self.is_unsafe_mode_active)
                         print("Enviando archivos...")
-                        self.cliente.send_encrypted_files(valid_files, title, description, shared_users, shared_public_keys)
+                        self.cliente.send_encrypted_files(valid_files, title, description, self.username, shared_users, shared_public_keys)
                         sg.popup('Documentos enviados y guardados con éxito', title='Guardado Exitoso')
                     except Exception as e:
                         sg.popup_error(f'Error al enviar los documentos: {e}', title='Error')
@@ -174,12 +173,13 @@ class ClienteUI:
                 threading.Thread(target=self.cargar_datos, args=(window,), daemon=True).start()
             #Evento para cargar los datos
             elif event == '-DATOS CARGADOS-':
-                if values[event]: 
+                if values[event]:  # Esta es la lista de datos cargados
                     self.data = values[event]
                     window['-TABLE-'].update(values=self.data)
-                    window['-CARGANDO-'].update(visible=False)  
+                    window['-CARGANDO-'].update(visible=False)
                 else:
-                    sg.popup("Error al cargar los datos. Por favor, intenta nuevamente.")
+                    sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
+                    window['-CARGANDO-'].update(visible=False)
             #Evento para mostrar un error
             elif event == '-ERROR-':
                 window['-CARGANDO-'].update(visible=False)
@@ -209,19 +209,18 @@ class ClienteUI:
             sg.popup_error('Archivo no existe. Verifica la ruta.', title='Error de Archivo')
 
 
-    def cargar_datos(self,window):
+    def cargar_datos(self, window):
         self.cliente.choose_opt(5)
         try:
-
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER)
-            if not data_cargada:
-                sg.popup('No se encontraron datos')
-            else:
+            if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
+            else:
+                window.write_event_value('-DATOS CARGADOS-', [])  # Enviar lista vacía si no hay datos
         except Exception as e:
             logging.error(f'Error al cargar datos: {e}')
-            # print("Error al cargar datos:", e)
-            window.write_event_value('-ERROR-', str(e)) 
+            window.write_event_value('-ERROR-', str(e))
+
 
 
     def update_unsafe_mode_text(self,window, is_unsafe_mode):
@@ -260,10 +259,16 @@ class ClienteUI:
         layout = [
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
+            [sg.Text('Documentos:', font=("Helvetica", 12))],
             [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
-                      row_height=25, text_color='black', alternating_row_color='lightblue')],
+                      row_height=15, text_color='black', alternating_row_color='lightblue')],
+            [sg.Text('Documentos Compartidos:', font=("Helvetica", 12))],
+            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
+                      auto_size_columns=True, display_row_numbers=True,
+                      justification='left', num_rows=10, key='-SHARETABLE-',
+                      row_height=15, text_color='black', alternating_row_color='lightblue')],
             [sg.Column(buttons_column, element_justification='center')]
         ]
         
