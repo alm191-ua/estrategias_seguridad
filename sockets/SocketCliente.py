@@ -52,6 +52,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         print("Archivos: ", archivos)
         print("Titulo: ", titulo)
         print("Descripcion: ", descripcion)
+        print("Author: ", author)
         print("Users: ", users)
         print("Public keys: ", public_keys)
         print("--------------------")
@@ -95,7 +96,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             json_files_paths = []
             for user, public_key in zip(users, public_keys):
                 new_json_name = doc_id + '_' + user + '.json'
-                new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, new_json_name)
+                new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, author, new_json_name)
                 # print("AAAAAAAAAAAAAA")
                 Cifrado.encrypt_json_filenames(new_json_path, file_key)
                 # print("BBBBBBBBBBBBBB")

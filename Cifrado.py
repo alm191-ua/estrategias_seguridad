@@ -173,7 +173,7 @@ def ZipFiles(directory, files, doc_id):
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
     return zip_path
 
-def ZipAndEncryptFile(files, title, description):
+def ZipAndEncryptFile(files, title, description, author):
     """
     Crea un paquete comprimido de documentos con metadatos asociados y encriptación.
 
@@ -197,7 +197,7 @@ def ZipAndEncryptFile(files, title, description):
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
 
-    create_and_save_document_json(directory,doc_id, title, description, files)
+    create_and_save_document_json(directory,doc_id, title, description, files, author)
     encrypt_file(FileName, directory)
 
     logging.info('Files compressed')
@@ -306,7 +306,7 @@ def encrypt_json_filenames(json_filename, key,old_key=None):
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
-def create_and_save_document_json(directory, doc_id, title, description, files_names, json_name=None):
+def create_and_save_document_json(directory, doc_id, title, description, files_names, author, json_name=None):
     """
     Crea un archivo JSON con los datos del documento y lo guarda en la ruta especificada.
 
@@ -316,6 +316,8 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         title (str): Título del documento.
         description (str): Descripción del documento.
         files_names (list[str]): Lista con los nombres de los archivos asociados al documento.
+        author (str): Autor del documento.
+        json_name (str, optional): Nombre personalizado para el archivo JSON.
 
     Returns:
         str: Ruta completa del archivo JSON creado.
@@ -331,6 +333,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         "id": doc_id,
         "title": title,
         "description": description,
+        "author": author,  # Añadir el autor al JSON
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "files": files_base_names
     }
@@ -346,6 +349,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         json.dump(document_data, json_file, indent=4)
 
     return json_filename
+
 
 
 # ========= ENCRYPTION ==========
