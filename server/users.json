@@ -13,5 +13,11 @@
     },
     "user4": {
         "password": "$2b$12$pDEH.tKX7IxAWBOagTXLyuTecmnmZF5oeLDTq4Q9KWnD9DWTe4Fg6"
+    },
+    "12345": {
+        "password": "$2b$12$46sN7WOWmbvM.UW6neeTDeiBwkCrTQ54qZCM0C/N0UcOq3oT3UJzS"
+    },
+    "user33": {
+        "password": "$2b$12$Pj7IP24fWsZQqdSQaYtGXu/07mVfOMokpEi4l7BfwRho9o/jN8/N."
     }
 }
