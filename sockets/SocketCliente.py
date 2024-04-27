@@ -6,6 +6,7 @@ import json
 import sys
 import logging
 import zipfile
+import shutil
 #Me daba error el import de secure_key_gen, asi que lo importe de esta manera
 ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
 sys.path.append(ruta_secure_key_gen)
@@ -390,10 +391,9 @@ class SocketCliente(SocketPadre.SocketPadre):
         Args:
             key (str): The key to encrypt.
         """
-        print("key: ", path_key)
         taget_dir=os.path.dirname(path_key)
-        print("taget_dir: ", taget_dir)
         Cifrado.decrypt_file_asimetric(path_key,self.PRIVATE_KEY,taget_dir)	
+        os.remove(path_key)       
 
 
 

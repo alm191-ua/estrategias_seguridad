@@ -166,7 +166,7 @@ class ClienteUI:
                     selected_row_indices = values['-TABLE-']
                     for index in selected_row_indices:
                         selected_item = self.data[index]
-                        file_name = "File"+selected_item[4]
+                        file_name = selected_item[4]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
