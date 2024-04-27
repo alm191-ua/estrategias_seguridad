@@ -390,14 +390,9 @@ def encrypt_file_asimetric(file_path, key, target_directory, change_name=False):
         str: Path to the encrypted file.
     """
 
-    # print('Encrypting file with public key')
-    print(file_path)
     # use cipher_data to encrypt the file (RSA)
     with open(file_path, 'rb') as f:
-        print('Leyendo')
         plaintext = f.read()
-        print(plaintext)
-    print('Leeeido')
     ctext_hex = cipher_data(plaintext, key)
     if change_name:
         encrypted_path = target_directory

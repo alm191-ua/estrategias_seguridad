@@ -34,6 +34,8 @@ class SocketCliente(SocketPadre.SocketPadre):
     password=''
     data_key=''
     MALICIOSO=False
+    NAME_PREFIX  = 'File'
+
     def send_encrypted_files(self, archivos, titulo, descripcion, users=[], public_keys=[]):
         """
         Sends files to the server.
@@ -62,6 +64,7 @@ class SocketCliente(SocketPadre.SocketPadre):
 
             # Generar un identificador único para el documento
             doc_id = Cifrado.generate_unique_id()
+            doc_id = self.NAME_PREFIX + doc_id
             # Crear los directorios necesarios
             directory = Cifrado.Create_Dirs(doc_id, self.FOLDER)
             # Comprimir los archivos
