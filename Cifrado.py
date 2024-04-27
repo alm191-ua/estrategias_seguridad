@@ -420,12 +420,14 @@ def decrypt_file_asimetric(file_path, key, target_directory, change_name=False):
     # use decipher_data to decrypt the file (RSA)
     with open(file_path, 'rb') as f:
         ctext = f.read()
+    print('HOLA')
     plaintext = decipher_data(ctext.hex(), key)
+    print('ADIOS')
     if change_name:
         decrypted_path = target_directory
     else:
         decrypted_path = os.path.join(target_directory, os.path.basename(file_path)[:-4])
-    write_in_file_bytes(decrypted_path, plaintext.encode('utf-8'))
+    write_in_file_bytes(decrypted_path, plaintext)
     logging.info(f'File {file_path} decrypted with private key')
     return decrypted_path
 

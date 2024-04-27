@@ -127,6 +127,7 @@ class ClienteUI:
                     
                     selected_item = self.data[selected_row_index]
                     try:
+                        print(selected_item)
                         show_files_window = self.create_files_window(selected_item)
                     except Exception as e:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')

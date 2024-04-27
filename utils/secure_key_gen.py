@@ -181,7 +181,7 @@ def decipher_data(data, private_key):
     """
     key = RSA.import_key(private_key)
     cipher = PKCS1_OAEP.new(key)
-    return cipher.decrypt(bytes.fromhex(data)).decode('utf-8')
+    return cipher.decrypt(bytes.fromhex(data))
 
 def hash_password(password):
     """

@@ -35,6 +35,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     data_key=''
     MALICIOSO=False
     NAME_PREFIX  = 'File'
+    PRIVATE_KEY=''
 
     def send_encrypted_files(self, archivos, titulo, descripcion, users=[], public_keys=[]):
         """
@@ -349,7 +350,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             claves_publicas.append(data['public_key'])
         return usuarios, claves_publicas
 
-    def decrypt_private_key(self, private_key):
+    def decrypt_private_key(self, private_key_path):
         """
         Decrypts the private key with the public key of the user.
 
@@ -359,8 +360,12 @@ class SocketCliente(SocketPadre.SocketPadre):
         Returns:
             str: The private key.
         """
-        Cifrado.decrypt_file(private_key, data_key=self.data_key.encode('utf-8'))	
-        return private_key
+        Cifrado.decrypt_file(private_key_path, data_key=self.data_key.encode('utf-8'))
+        private_key_path = private_key_path.replace(self.FORMATO_ENCRIPTADO, '')
+        with open(private_key_path, 'rb') as f:
+            private_key_data = f.read()	
+        self.PRIVATE_KEY = private_key_data
+        return private_key_path
 
 
     def encrypt_key(self, key):
@@ -375,14 +380,17 @@ class SocketCliente(SocketPadre.SocketPadre):
         # Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))
         Cifrado.encrypt_single_file(file_path=key, key=self.data_key.encode('utf-8'), target_directory=path)	
     
-    def decrypt_key(self, key):
+    def decrypt_key(self, path_key):
         """
         Decrypts a key using the user data key.
 
         Args:
             key (str): The key to encrypt.
         """
-        Cifrado.decrypt_file(key, data_key=self.data_key.encode('utf-8'))	
+        print("key: ", path_key)
+        taget_dir=os.path.dirname(path_key)
+        print("taget_dir: ", taget_dir)
+        Cifrado.decrypt_file_asimetric(path_key,self.PRIVATE_KEY,taget_dir)	
 
 
 
