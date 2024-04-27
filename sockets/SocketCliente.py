@@ -345,6 +345,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 else:
                     self.conn.sendall(self.RECIBIR_FILE.encode('utf-8'))
                     self.conn.sendall(filename.encode('utf-8'))
+
                     self.wait_files()
                     print("Archivo recibido.")
 

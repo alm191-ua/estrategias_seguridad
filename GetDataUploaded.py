@@ -29,12 +29,13 @@ def listar_los_zips(dir, username):
                 data = getDataFromJSON(carpeta, directorio_completo)
                 if data:
                     nuevo_documento = [
-                        index + 1,  # ID del nuevo documento
-                        data['title'],  # Título
-                        data['description'],  # Descripción
-                        data['time'],  # Fecha y hora de creación
-                        data['id']  # ID del documento
-                    ]
+                            index + 1,  # ID del nuevo documento
+                            data['title'],  # Título
+                            data['description'],  # Descripción
+                            data['time'],  # Fecha y hora de creación
+                            data['author'], # Dueño del documento
+                            data['id']  # ID del documento        
+                        ]
                     nuevos_documentos.append(nuevo_documento)
         nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3], reverse=True)
         for i, doc in enumerate(nuevos_documentos_ordenados):

@@ -148,7 +148,7 @@ class ClienteUI:
                 if selected_files:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
-                        nombre_Fichero=selected_item[4]
+                        nombre_Fichero=selected_item[5]
                         try:
                             print(self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero)
@@ -173,7 +173,7 @@ class ClienteUI:
                     selected_row_indices = values['-TABLE-']
                     for index in selected_row_indices:
                         selected_item = self.data[index]
-                        file_name = selected_item[4]
+                        file_name = selected_item[5]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
@@ -356,10 +356,8 @@ class ClienteUI:
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        if shared:
-            files = self.cliente.get_files_in_zip(item[5],shared)
-        else:
-            files = self.cliente.get_files_in_zip(item[4])
+        files = self.cliente.get_files_in_zip(item[5],shared)
+
         file_list = [[file] for file in files]  
         layout = [
             [sg.Text(f'Archivos del elemento seleccionado: {item[1]}')],
