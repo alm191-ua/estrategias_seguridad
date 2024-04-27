@@ -29,9 +29,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
             except Exception as e:
                 files=[]
             for fileId in files:
+                
                 if fileId in PRIVATE_FILES:
                     continue
-
                 print("Enviando archivo...")
                 try:
                     file_folder_path = os.path.join(self.FOLDER, fileId)
@@ -258,29 +258,15 @@ class SocketServidor(SocketPadre.SocketPadre) :
             except Exception as e:
                 files=[]
             for fileId in files:
-                if fileId == "shared":
-                    print("Enviando archivo...")
-                    try:
-                        file_folder_path = os.path.join(self.FOLDER, fileId)
-                        files_path  = os.path.join(file_folder_path, fileId)
-                        if os.path.exists(file_folder_path) and \
-                            os.path.exists(files_path + self.FORMATO_JSON) and \
-                            os.path.exists(files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO):
+                print(fileId=='shared')
+                if fileId in PRIVATE_FILES:
+                    continue
 
-                            file_json   = files_path + self.FORMATO_JSON
-                            file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
-                        else:
-                            raise FileNotFoundError("El archivo no existe.")
-                    except FileNotFoundError as e:
-                        print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
-                        continue
-
-                    self.send_file(file_json)
-                    self.send_file(file_key)
-                    print("Enviado.")
-                    
-                self.conn.sendall(b"done")
-                break
+                print("Enviando archivo...")
+                print("Enviado.")
+                
+            self.conn.sendall(b"done")
+            break
             
         return
 

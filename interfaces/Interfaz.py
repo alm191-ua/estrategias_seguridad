@@ -21,7 +21,9 @@ cliente = SocketCliente.SocketCliente()
 is_unsafe_mode_active = False
 
 class ClienteUI:
+    
     def __init__(self, username="", cliente=None):
+        self.hilo_carga_datos = None
         self.main_window = None
         self.add_window = None
         self.share_window = None
@@ -171,7 +173,8 @@ class ClienteUI:
             #Evento para buscar los datos
             elif event == '-BUSCAR DATOS-':
                 window['-CARGANDO-'].update(visible=True)
-                threading.Thread(target=self.cargar_datos, args=(window,), daemon=True).start()
+                self.hilo_carga_datos=threading.Thread(target=self.cargar_datos, args=(window,), daemon=True)
+                self.hilo_carga_datos.start()
             #Evento para cargar los datos
             elif event == '-DATOS CARGADOS-':
                 if values[event]: 
@@ -183,6 +186,7 @@ class ClienteUI:
             #Evento para mostrar un error
             elif event == '-ERROR-':
                 window['-CARGANDO-'].update(visible=False)
+                sg.popup_error('Ocurrió un error: ' + values['-ERROR-'])
 
         main_window.close()
         logging.info('Cerrando la aplicación...')
@@ -211,12 +215,13 @@ class ClienteUI:
 
     def cargar_datos(self,window):
         self.cliente.choose_opt(5)
-        self.cliente.choose_opt(6)
         try:
 
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER)
-            if not data_cargada:
+            if not data_cargada or data_cargada is None:
+                
                 sg.popup('No se encontraron datos')
+                self.hilo_carga_datos.join()
             else:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
         except Exception as e:
