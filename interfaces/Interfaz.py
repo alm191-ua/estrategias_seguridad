@@ -112,7 +112,7 @@ class ClienteUI:
 
 
                     self.cliente.choose_opt(5)
-                    self.data = gdu.listar_los_zips(self.cliente.FOLDER)
+                    self.data = gdu.listar_los_zips(self.cliente.FOLDER,self.username)
                     main_window['-TABLE-'].update(values=self.data)
                     add_window.close()
                     add_window = None

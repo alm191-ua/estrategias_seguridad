@@ -38,7 +38,7 @@ class SocketCliente(SocketPadre.SocketPadre):
     NAME_PREFIX  = 'File'
     PRIVATE_KEY=''
 
-    def send_encrypted_files(self, archivos, titulo, descripcion, users=[], public_keys=[]):
+    def send_encrypted_files(self, archivos, titulo, descripcion,author, users=[], public_keys=[]):
         """
         Sends files to the server.
         Args:
