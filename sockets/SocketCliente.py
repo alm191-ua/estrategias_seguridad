@@ -557,11 +557,6 @@ class SocketCliente(SocketPadre.SocketPadre):
             # send login key
             self.conn.sendall(login_key.encode('utf-8'))
 
-            self.FOLDER=self.FOLDER+'_'+self.username
-            if not os.path.exists(self.FOLDER):
-                    os.makedirs(self.FOLDER)
-            private_key_folder=self.receive_one_file(folder=self.FOLDER)
-            self.decrypt_private_key(private_key_folder)
                 
             # private_key_folder = os.path.join(serverSocket.FOLDER, username)
             # serverSocket.receive_one_file(folder=private_key_folder)
@@ -569,7 +564,12 @@ class SocketCliente(SocketPadre.SocketPadre):
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
             print("Log in correcto.")
+            self.FOLDER=self.FOLDER+'_'+self.username
+            if not os.path.exists(self.FOLDER):
+                    os.makedirs(self.FOLDER)
             
+            private_key_folder=self.receive_one_file(folder=self.FOLDER)
+            self.decrypt_private_key(private_key_folder)
             
             return True
         if response == empty_login_tag:

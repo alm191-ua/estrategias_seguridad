@@ -150,6 +150,7 @@ class SocketPadre:
             raise Exception("No se ha establecido una conexión.")
         
         if not os.path.exists(filename):
+            print(f"El archivo {filename} no existe.")
             raise FileNotFoundError("El archivo no existe.")
         
         # send filename

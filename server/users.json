@@ -1,26 +1,11 @@
 {
     "user1": {
-        "password": "$2b$12$8OKR0Z27UrM0ZQBMsdrUeuy7ShfI2qCz/5BtUGfjkefwwAC4ie71a"
-    },
-    "aaaaa": {
-        "password": "$2b$12$2llMfyRfHEYSfYdqz28/qu99XE28oq6hZAzAouITTJEHzRXPIpZyC"
+        "password": "$2b$12$Y2kBnKPbacTUxdXIBJF1sOELy4mz94kd5roGBOBA89sv.0xD0neF."
     },
     "user2": {
-        "password": "$2b$12$uIwXYK2D9RPsPSDICMWnD.BhO5uFDwnVoldbsYsQtwQ/8esMUDbXS"
+        "password": "$2b$12$6ex8HcoQP3uH1uSQsPMwP.OgUx47c1bA3HJ5HJqlWB4xez9iAAtpK"
     },
     "user3": {
-        "password": "$2b$12$7vchw.vL3bbrTf1uYBlZ3ueYYeXSOnrldG1gQONRs8KcOZie/uUdq"
-    },
-    "user4": {
-        "password": "$2b$12$pDEH.tKX7IxAWBOagTXLyuTecmnmZF5oeLDTq4Q9KWnD9DWTe4Fg6"
-    },
-    "12345": {
-        "password": "$2b$12$l3fyut2GhW.I220wcYQ8UOVvf8szXmaVafy1INmANd6pIv8VBcBRi"
-    },
-    "user33": {
-        "password": "$2b$12$KJiDbg/VbWYYg9sBg.Gp.ejv7BTGYDpd5RlyzEnZCRDiDc9FbZRn2"
-    },
-    "alexm": {
-        "password": "$2b$12$e48htNy2jPOWWctGCkTBw./RN857fJzMt9dgUKRMOZfQITLW87Pre"
+        "password": "$2b$12$MP.l/8lrqlMsDKuJDYHcouhiGAkd0VqbqXcJ1FDmxL8GhLURB6M92"
     }
 }

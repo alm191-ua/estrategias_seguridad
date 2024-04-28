@@ -269,8 +269,8 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
             if not user_logged:
                 serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
             else:
-                serverSocket.send_one_file(os.path.join(serverSocket.FOLDER,username, 'private_key.pem.enc')) # AÑADIDO AHORA
                 serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
+                serverSocket.send_one_file(os.path.join(serverSocket.FOLDER,username, 'private_key.pem.enc')) # AÑADIDO AHORA
                 serverSocket.FOLDER = os.path.join(serverSocket.FOLDER,username)
                 serverSocket.username = username
                 # Manejar las opciones del usuario
