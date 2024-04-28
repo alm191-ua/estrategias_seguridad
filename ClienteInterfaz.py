@@ -72,10 +72,11 @@ class LoginForm(QtWidgets.QWidget):
                 ui.run()
             else:
                 QtWidgets.QMessageBox().warning(self, "Error", "Usuario o contraseña incorrectos.")
-
+                self.cliente.disconnect()
 
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", str(e))
+            self.cliente.disconnect()
             print(e)
             
 

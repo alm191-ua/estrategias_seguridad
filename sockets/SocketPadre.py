@@ -174,7 +174,7 @@ class SocketPadre:
         
         if (not receive_file_name) and (not filename):
             raise ValueError("Se debe especificar un nombre de archivo o recibirlo del cliente.")
-        
+            
         # receive filename
         if receive_file_name:
             _filename = self.conn.read().decode('utf-8')
@@ -197,7 +197,9 @@ class SocketPadre:
 
         with open(file_path, "wb") as f:
             while True:
+                #Problema
                 chunk = self.conn.read(chunk_size)
+                print("Chunk recibido:", chunk)
                 if chunk == b"EOF":
                     break
                 f.write(chunk)
