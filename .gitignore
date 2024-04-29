@@ -164,7 +164,7 @@ files/
 test/
 tmp/
 # Ignorar todos los archivos dentro del directorio server
-server/*
+# server/*
 
 # Pero incluir users.json
 !server/users.json
