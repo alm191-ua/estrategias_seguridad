@@ -548,7 +548,6 @@ class SocketCliente(SocketPadre.SocketPadre):
             # enviar como nombre de usuario y contraseña el tag de cliente malicioso
             self.conn.sendall(malicious_tag.encode('utf-8'))
             self.conn.sendall(malicious_tag.encode('utf-8'))
-            self.FOLDER=self.FOLDER+'_'
         else:
             # send username
             self.conn.sendall(self.username.encode('utf-8'))
@@ -567,9 +566,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.FOLDER=self.FOLDER+'_'+self.username
             if not os.path.exists(self.FOLDER):
                     os.makedirs(self.FOLDER)
-            
-            private_key_folder=self.receive_one_file(folder=self.FOLDER)
-            self.decrypt_private_key(private_key_folder)
+            if not self.MALICIOSO:
+                private_key_folder=self.receive_one_file(folder=self.FOLDER)
+                self.decrypt_private_key(private_key_folder)
             
             return True
         if response == empty_login_tag:
