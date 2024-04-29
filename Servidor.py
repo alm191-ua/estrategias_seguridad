@@ -4,6 +4,9 @@ import sys
 import os
 import json
 import bcrypt
+import socket
+import ssl
+import threading
 sys.path.append('./sockets')
 sys.path.append('./utils')
 #import SocketServidor
@@ -19,6 +22,29 @@ from utils.secure_key_gen import check_password
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
 log_directory=''
+PROTOCOL = ssl.PROTOCOL_TLS_SERVER
+
+
+config = json.load(open('config.json'))
+class Server:
+    SERVIDOR_IP = config['sockets']['host']
+    SERVIDOR_PUERTO = config['sockets']['port']
+    def start(self, handle_client):
+        while True:
+            with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
+                print("Esperando al cliente...")
+                try:
+                    # Accept the connection
+                    self.client, address = server.accept()
+                except KeyboardInterrupt:
+                    server.close()
+                    print("\nInterrupción de teclado detectada, cerrando el servidor.")
+                    break
+                
+                thread = threading.Thread(target=handle_client, args=(self, address))
+                thread.start()
+                print("Active threads: ", threading.active_count())
+
 
 exec_dir = os.getcwd()
 if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
@@ -217,7 +243,7 @@ def handle_malicous(serverSocket: SocketServidor.SocketServidor):
             break
 
 
-def handle_client(serverSocket: SocketServidor.SocketServidor, address):
+def handle_client(server: Server, address):
     """
     Maneja las opciones del cliente.
     
@@ -225,6 +251,8 @@ def handle_client(serverSocket: SocketServidor.SocketServidor, address):
         serverSocket (SocketServidor.SocketServidor): El socket del servidor.\n
         address (tuple): La dirección del cliente.
     """
+    serverSocket = SocketServidor.SocketServidor()
+    serverSocket.createConnection(server.client)
     serverSocket.FOLDER="server"
     print(f"{address[0]}:{address[1]} conectado.")
     logging.info(f"{address[0]}:{address[1]} conectado.")
@@ -297,7 +325,7 @@ def main():
         logging.info('Unsafe mode activated :(')
         print("HABILITADO MODO INSEGURO")
 
-    server = SocketServidor.SocketServidor()
+    server = Server()
     server.start(handle_client)
 
 if __name__ == "__main__":

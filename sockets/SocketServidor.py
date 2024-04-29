@@ -289,6 +289,14 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
             
         return
+    def createConnection(self,client):
+        self.conn = ssl.wrap_socket(
+            client, 
+            server_side=True, 
+            certfile='certificates/certificate.pem', 
+            keyfile='certificates/key.pem', 
+                        ssl_version=PROTOCOL)
+                    
 
     def start(self, handle_client):
         while True:
@@ -299,12 +307,6 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     client, address = server.accept()
 
                     # Wrap the socket in an SSL context
-                    self.conn = ssl.wrap_socket(
-                        client, 
-                        server_side=True, 
-                        certfile='certificates/certificate.pem', 
-                        keyfile='certificates/key.pem', 
-                        ssl_version=PROTOCOL)
                     
                 except KeyboardInterrupt:
                     server.close()
