@@ -287,6 +287,10 @@ class ClienteUI:
              sg.Text('Modo Seguro Activado', key='-UNSAFE-MODE-TEXT-', text_color='green')]
         ]
         
+        button_shared_archives = [
+            [sg.Button('Compartidos', key='-SHAREBUTTON-', button_color=('white', 'purple'), font=("Helvetica", 12))]
+        ]
+        
         buttons_column = [
             [sg.Text('', size=(10, 1)),
             sg.Button('Añadir', key='-ADD-', button_color=('white', 'green'), font=("Helvetica", 12), visible=not self.cliente.MALICIOSO),
@@ -298,7 +302,7 @@ class ClienteUI:
         ]
 
         layout = [
-            [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
+            [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left'), sg.Column(button_shared_archives, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
             [sg.Text('Documentos:', font=("Helvetica", 12))],
             [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
