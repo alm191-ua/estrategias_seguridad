@@ -180,6 +180,13 @@ class ClienteUI:
                         file_name = selected_item[5]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
+                elif values['-SHARETABLE-']:
+                    selected_row_indices = values['-SHARETABLE-']
+                    for index in selected_row_indices:
+                        selected_item = self.shared_data[index]
+                        file_name = selected_item[5]
+                        json_path = os.path.join(f'files_{self.username}', 'shared', file_name, file_name + ".json")
+                        self.show_json_info(json_path)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
             #Evento para buscar los datos
