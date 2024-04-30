@@ -18,6 +18,7 @@ def listar_los_zips(dir, username):
 
     directorio_usuario = f"{DIRECTORIO_ARCHIVOS}_{username}"
     directorio_completo = os.path.join(cz.DIRECTORIO_PROYECTO, directorio_usuario)
+    print(directorio_completo)
 
 
     if os.path.exists(directorio_completo):

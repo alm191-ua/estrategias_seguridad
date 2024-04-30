@@ -289,7 +289,15 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
             
         return
-    #TODO: Modificar el wrap socket para que me funcione bien -> context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    def createConnection(self,client):
+        self.conn = ssl.wrap_socket(
+            client, 
+            server_side=True, 
+            certfile='certificates/certificate.pem', 
+            keyfile='certificates/key.pem', 
+                        ssl_version=PROTOCOL)
+                    
+
     def start(self, handle_client):
         while True:
             with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
@@ -299,12 +307,6 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     client, address = server.accept()
 
                     # Wrap the socket in an SSL context
-                    self.conn = ssl.wrap_socket(
-                        client, 
-                        server_side=True, 
-                        certfile='certificates/certificate.pem', 
-                        keyfile='certificates/key.pem', 
-                        ssl_version=PROTOCOL)
                     
                 except KeyboardInterrupt:
                     server.close()

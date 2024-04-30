@@ -7,5 +7,11 @@
     },
     "user3": {
         "password": "$2b$12$MP.l/8lrqlMsDKuJDYHcouhiGAkd0VqbqXcJ1FDmxL8GhLURB6M92"
+    },
+    "user33": {
+        "password": "$2b$12$5RS3LSV8EYjduDEKnAo2NuH3dAnXFyGByBpiXx2.MTs7e7nh7roxa"
+    },
+    "12345": {
+        "password": "$2b$12$OiyOjBLwVJVaR4EIR67CPug6lFNvyq7fmJBqmepyIQ16LHlyR0iky"
     }
 }
