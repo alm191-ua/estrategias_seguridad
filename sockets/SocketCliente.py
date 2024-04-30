@@ -439,7 +439,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         os.remove(path_key)       
 
 
-
+    #TODO: Tengo que arreglarlo, aunque no sé el qué :( -> wrap_socket no funciona
     def connect(self):
         """
         Connects to the server.

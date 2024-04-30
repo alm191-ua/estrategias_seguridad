@@ -289,7 +289,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
             
         return
-
+    #TODO: Modificar el wrap socket para que me funcione bien -> context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     def start(self, handle_client):
         while True:
             with socket.create_server((self.SERVIDOR_IP, self.SERVIDOR_PUERTO)) as server:
