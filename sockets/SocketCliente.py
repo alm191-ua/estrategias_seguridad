@@ -438,28 +438,41 @@ class SocketCliente(SocketPadre.SocketPadre):
         Cifrado.decrypt_file_asimetric(path_key,self.PRIVATE_KEY,taget_dir)	
         os.remove(path_key)       
 
+    # Generar una nueva clave privada
+    #openssl genrsa -out key.pem 2048
 
-    #TODO: Tengo que arreglarlo, aunque no sé el qué :( -> wrap_socket no funciona
+    # Crear una solicitud de firma de certificado (CSR)
+    #openssl req -new -key key.pem -out request.csr
+
+    # Generar el certificado SSL utilizando la CSR y la clave privada (válido por 365 días)
+    #openssl x509 -req -days 365 -in request.csr -signkey key.pem -out certificate.pem
+
+    #openssl x509 -noout -text -in certificate.pem | grep -A2 Validity
+
+    
     def connect(self):
         """
-        Connects to the server.
+        Connects to the server using SSL.
         """
         try:
-            # Crear un socket de tipo TCP/IP.
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # wrap_socket() se encarga de la encriptación de los datos
-            # mediante SSL con los certificados proporcionados.
-            self.conn = ssl.wrap_socket(
-                sock,
-                ca_certs='certificates/certificate.pem')
+            # Crear un contexto SSL que use los protocolos más seguros y modernos
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile='certificates/certificatealex.pem')
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_REQUIRED
             
+            # Crear un socket de tipo TCP/IP
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            # Envolver el socket en el contexto SSL
+            self.conn = context.wrap_socket(sock, server_hostname=self.SERVIDOR_IP)
+            
+            # Conectar al servidor
             self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
-
+            
             print("Conectado al servidor.")
         except Exception as e:
             print(f"Error al conectar al servidor: {e}")
             self.conn = None
-            return
 
     def disconnect(self):
         """

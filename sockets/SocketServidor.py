@@ -289,14 +289,27 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
             
         return
-    def createConnection(self,client):
-        self.conn = ssl.wrap_socket(
-            client, 
-            server_side=True, 
-            certfile='certificates/certificate.pem', 
-            keyfile='certificates/key.pem', 
-                        ssl_version=PROTOCOL)
-                    
+    
+    def createConnection(self, client):
+        """
+        Envuelve el socket del cliente con SSL para una conexión segura.
+        Args:
+            client (socket): El socket del cliente a asegurar.
+        """
+        try:
+            # Crear un contexto SSL con configuraciones seguras por defecto
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            # Cargar el certificado del servidor y la clave privada
+            context.load_cert_chain(certfile='certificates/certificatealex.pem', keyfile='certificates/key.pem')
+            
+            # Envolver el socket del cliente en el contexto SSL
+            self.conn = context.wrap_socket(client, server_side=True)
+            
+            print("Conexión SSL establecida con el cliente.")
+        except Exception as e:
+            print(f"Error al establecer la conexión SSL: {e}")
+            self.conn = None
+                        
 
     def start(self, handle_client):
         while True:
