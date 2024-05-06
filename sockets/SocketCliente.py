@@ -594,6 +594,8 @@ class SocketCliente(SocketPadre.SocketPadre):
             return False
         
     def check_otp(self, otp):
+        if otp == '':
+            return False
         # send otp
         self.conn.sendall(otp.encode('utf-8'))
         response = self.conn.read().decode('utf-8')

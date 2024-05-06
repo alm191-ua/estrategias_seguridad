@@ -143,6 +143,9 @@ def check_otp(serverSocket: SocketServidor.SocketServidor, username):
         serverSocket.conn.sendall(enable_otp_tag.encode('utf-8'))
         while True:
             otp_code = serverSocket.conn.read().decode('utf-8')
+            if otp_code == '':
+                serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
+                continue
             if otp_code == 'disc':
                 # se cierra la conexión del socket
                 serverSocket.conn.shutdown(socket.SHUT_RDWR)
@@ -351,7 +354,11 @@ def handle_client(server: Server, address):
                 serverSocket.FOLDER = os.path.join(serverSocket.FOLDER,username)
                 serverSocket.username = username
 
-                check_otp(serverSocket, username)
+                try:
+                    check_otp(serverSocket, username)
+                except Exception as e:
+                    print('Cliente desconectado')
+                    exit()
 
                 # Manejar las opciones del usuario
                 handle_user_logged(serverSocket,username)

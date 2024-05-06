@@ -21,7 +21,7 @@ is_unsafe_mode_active = False
 
 class ClienteUI:
     
-    def __init__(self, username="", cliente=None):
+    def __init__(self, username: str="", cliente: SocketCliente.SocketCliente = None):
         self.hilo_carga_datos = None
         self.main_window = None
         self.add_window = None

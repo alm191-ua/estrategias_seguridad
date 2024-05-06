@@ -84,12 +84,11 @@ class LoginForm(QtWidgets.QWidget):
                 self.cliente.otp = False
 
             if self.cliente.otp:
-                otp_form = Otp_form(self.cliente)
-                otp_form.show()
                 self.close()
-                return
+                otp_form = Otp_form(username, self.cliente)
+                otp_form.show()
 
-            if success:
+            elif success:
                 QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
                 self.close()
                 ui = ClienteUI(username, self.cliente)
@@ -105,9 +104,10 @@ class LoginForm(QtWidgets.QWidget):
             
 
 class Otp_form(QtWidgets.QWidget):
-    def __init__(self, cliente: SocketCliente.SocketCliente):
+    def __init__(self, username: str, cliente: SocketCliente.SocketCliente):
         super().__init__()
         self.cliente = cliente
+        self.username = username
         self.init_ui()
 
     def init_ui(self):
@@ -132,20 +132,22 @@ class Otp_form(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
-    # on close
-    def closeEvent(self, event):
-        self.cliente.disconnect()
-        event.accept()
+    # on close on the window, not for the close method
+    # def closeEvent(self, event):
+        # self.cliente.disconnect()
+        # event.accept()
 
     def comprobar_usuario(self, otp):
         """
         Comprueba si el usuario y la contraseña son correctos y muestra un mensaje de éxito o error.
         """
+        print('OTP: ' + otp)
         verified = self.cliente.check_otp(otp)
         if verified:
             QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
+            # print('Conexion abierta:', self.cliente.conn)
             self.close()
-            ui = ClienteUI(self.cliente.username, self.cliente)
+            ui = ClienteUI(self.username, self.cliente)
             ui.run()
         else:
             QtWidgets.QMessageBox().warning(self, "Error", "OTP incorrecto.")
