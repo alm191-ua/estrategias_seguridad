@@ -8,6 +8,10 @@ sys.path.append('..')
 from interfaces.Interfaz import ClienteUI
 from utils.secure_key_gen import generate_password
 from utils.secure_key_gen import generate_otp_qr
+import json
+
+config = json.load(open('config.json'))
+enable_otp_tag = config['sockets']['tags']['init_comms']['enable_otp']
 
 class LoginForm(QtWidgets.QWidget):
     def __init__(self):
@@ -66,6 +70,25 @@ class LoginForm(QtWidgets.QWidget):
             self.cliente.username = username
             self.cliente.password = password
             success = self.cliente.log_in()
+
+            if not success:
+                QtWidgets.QMessageBox().warning(self, "Error", "Usuario o contraseña incorrectos.")
+                self.cliente.disconnect()
+                return
+
+            # receive otp option
+            response = self.cliente.conn.read().decode('utf-8')
+            if response == enable_otp_tag:
+                self.cliente.otp = True
+            else:
+                self.cliente.otp = False
+
+            if self.cliente.otp:
+                otp_form = Otp_form(self.cliente)
+                otp_form.show()
+                self.close()
+                return
+
             if success:
                 QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
                 self.close()
@@ -81,6 +104,51 @@ class LoginForm(QtWidgets.QWidget):
             print(e)
             
 
+class Otp_form(QtWidgets.QWidget):
+    def __init__(self, cliente: SocketCliente.SocketCliente):
+        super().__init__()
+        self.cliente = cliente
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("OTP")
+        self.setFixedSize(300, 200)
+        self.setStyleSheet("background-color: #2c3e51; color:white;")
+
+        layout = QtWidgets.QVBoxLayout()
+
+        #Campo de texto para el usuario
+        self.otp_line_edit = QtWidgets.QLineEdit()
+        self.otp_line_edit.setPlaceholderText("OTP")
+        self.otp_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
+        layout.addWidget(self.otp_line_edit)
+
+        #Botón para iniciar sesión
+        login_button = QtWidgets.QPushButton("Iniciar Sesión")
+        login_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        #Conectar el botón con la función de comprobar usuario
+        login_button.clicked.connect(lambda: self.comprobar_usuario(self.otp_line_edit.text()))
+        layout.addWidget(login_button)
+
+        self.setLayout(layout)
+
+    # on close
+    def closeEvent(self, event):
+        self.cliente.disconnect()
+        event.accept()
+
+    def comprobar_usuario(self, otp):
+        """
+        Comprueba si el usuario y la contraseña son correctos y muestra un mensaje de éxito o error.
+        """
+        verified = self.cliente.check_otp(otp)
+        if verified:
+            QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
+            self.close()
+            ui = ClienteUI(self.cliente.username, self.cliente)
+            ui.run()
+        else:
+            QtWidgets.QMessageBox().warning(self, "Error", "OTP incorrecto.")
 
 class RegistrationForm(QtWidgets.QWidget):
     def __init__(self):

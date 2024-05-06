@@ -18,6 +18,7 @@ from utils.secure_key_gen import hash_password
 from utils.secure_key_gen import check_password
 from utils.secure_key_gen import gen_otp_key
 from utils.secure_key_gen import gen_otp_uri
+from utils.secure_key_gen import verify_otp
 #from secure_key_gen import hash_password
 #from secure_key_gen import check_password
 
@@ -119,6 +120,45 @@ def login_user(username, password):
                 logging.info(f"Usuario {username} ha iniciado sesion.")
                 return True
     return False  
+
+def check_otp(serverSocket: SocketServidor.SocketServidor, username):
+    """
+    Comprueba si el usuario ha habilitado la autenticación en dos pasos
+    y en caso afirmativo, verifica el código introducido por el usuario.
+    
+    Returns:
+        bool: True si el código es correcto, de lo contrario, False.
+    """
+    otp_key = None
+    # lee la clave privada de autenticacion en dos pasos del usuario
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE) as file:
+            users = json.load(file)
+            if username in users:
+                otp_key = users[username]['otp_key']
+
+    # en caso de existir quiere decir que la opción está habilitada
+    if otp_key:
+        print("Autenticacion en dos pasos habilitada")
+        serverSocket.conn.sendall(enable_otp_tag.encode('utf-8'))
+        while True:
+            otp_code = serverSocket.conn.read().decode('utf-8')
+            if otp_code == 'disc':
+                # se cierra la conexión del socket
+                serverSocket.conn.shutdown(socket.SHUT_RDWR)
+                serverSocket.conn.close()
+                exit()
+            if verify_otp(otp_key, otp_code):
+                print("Codigo OTP correcto")
+                serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
+                return True
+            else:
+                print("Codigo OTP incorrecto")
+                serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
+    else:
+        print("Autenticacion en dos pasos deshabilitada")
+        serverSocket.conn.sendall(disable_otp_tag.encode('utf-8'))
+        return True
 
 def register_user(username, password, public_key, otp_key=None):
     """
@@ -310,6 +350,9 @@ def handle_client(server: Server, address):
                 serverSocket.send_one_file(os.path.join(serverSocket.FOLDER,username, 'private_key.pem.enc')) # AÑADIDO AHORA
                 serverSocket.FOLDER = os.path.join(serverSocket.FOLDER,username)
                 serverSocket.username = username
+
+                check_otp(serverSocket, username)
+
                 # Manejar las opciones del usuario
                 handle_user_logged(serverSocket,username)
                 logging.info(f"Usuario {username} ha cerrado sesion.")

@@ -472,6 +472,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         if self.conn:
             self.conn.sendall(b"disc")
+            self.conn.shutdown(socket.SHUT_RDWR)
             self.conn.close()
             print("Conexión cerrada.")
     
@@ -515,7 +516,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         if response != incorrect_register_tag:
             if self.otp:
                 self.uri = response
-                
+
             self.FOLDER=self.FOLDER+'_'+self.username
             # save private key file
             # create self.FOLDER if not exist
@@ -591,6 +592,18 @@ class SocketCliente(SocketPadre.SocketPadre):
         else:
             print("Usuario o contraseña incorrectos.")
             return False
+        
+    def check_otp(self, otp):
+        # send otp
+        self.conn.sendall(otp.encode('utf-8'))
+        response = self.conn.read().decode('utf-8')
+        if response == correct_login_tag:
+            print("Log in correcto.")
+            return True
+        else:
+            print("OTP incorrecto.")
+            return False
+
 
     def receive_file(self,shared_file=False):
         """
