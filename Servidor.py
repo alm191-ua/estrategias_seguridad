@@ -84,7 +84,7 @@ USERS_FILE = "server/users.json"
 PUBLIC_KEYS_FILE = "server/public_keys.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
-INSECURE_MODE = True
+INSECURE_MODE = False
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")

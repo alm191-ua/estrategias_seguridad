@@ -4,5 +4,11 @@
     },
     "user33": {
         "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuUgLghu0mvuVvUqMeKHF\n+EkEE+1Y/FBTLdaDGhe+QQM+M5pOa53Jc4XDws9/9TorsnXa5Pv9DhRAnR3D2i98\nC/BexyLVrxxHsUqDm4jyCcIHK4gMp5PXxaYQIpQKf+JVl8C9gbt8DEVLNRgj5hzq\nYxh75gqOGYyC7SYC6j5jVxKy6wWDwGmoQ37ayVAck54MiX5eik2+u0iyw4mY1uaB\nkd1q+eKFmQnh5p8o5rqM/YTfCnakchsOM/j2tRk3jSDTxjD9ulOZ/6IeUZe5fAEw\n5FsnJpvgC1z7Lvm4GAyr78EddqqtEdLsg0fH+pd/xT8DK9Rj4krrcV6TjEeLWoO2\n4wIDAQAB\n-----END PUBLIC KEY-----"
+    },
+    "test_exe": {
+        "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtk1kQKJiKdgL0OKKtf+h\nGW7jGPZeoPZyBRkYsrYrWa+D3KSRNtfJ9hyizvxUdFAttfEYd6TyIhHqSGs0Ictq\nX1dcM9nKoQblbzhPHbdhJxwZ6Xq+tB8NgliJhXtrR/01GOnyw/9Bnm+FDsbBi510\npPd3N/G9voW2493DcNH0luRfjExl1jmO5K31B2lRumPV3EuMdcAmIkZmKirkacUz\ni0BdJ8V8/9KkVJnxZH/aQoV4ULVFQS1ZFSM2fQP5UcpybMsnT2D9pDdT6JISy/aP\nhDobfyjfNPuq+miwWrvKKrAav/CDLuYMSJ1Of8nCVDwg1ybITOc5Dlv0PejFzURR\n0wIDAQAB\n-----END PUBLIC KEY-----"
+    },
+    "nuevo_user": {
+        "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6nqOC7ff/+Ea+iPEEbf7\nAt1Z5AdB3JSBTU9IEWnGBS+jRnhPB7mP0nnqk4wq9UcMZLMcPv2jeDGyKxLJziUB\n/TfR1++rR8J4Jbx2gRA0w1of40PQBX1125FcogYf+1l5m7nIaVbwiS3P9kg5iZ35\nUyrdGk9fRkWVonEj9EoDumD/4ex/Xv5YIQSBRrkw6jFEeoUtacf7TuTjz2j5oVeh\nPRDtu782bQiaGd+MnVJCNY0lI9sngUN/8XjSlJL50f6kU2mRtgySbSL0TdXJXg0V\nDCdI0exgE2gUdLZjqHIB/ckWLv+u8sKNhxcdNrV/lAOZHBgfelIrntmq9aUcJg75\nawIDAQAB\n-----END PUBLIC KEY-----"
     }
 }

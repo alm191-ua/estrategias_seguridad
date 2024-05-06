@@ -201,7 +201,7 @@ class ClienteUI:
                     window['-TABLE-'].update(values=self.data)
                     window['-CARGANDO-'].update(visible=False)
                 else:
-                    sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
+                    # sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
                     window['-CARGANDO-'].update(visible=False)
             elif event == '-DATOS COMPARTIDOS CARGADOS-':
                 if values[event]:
@@ -209,7 +209,7 @@ class ClienteUI:
                     window['-SHARETABLE-'].update(values=self.shared_data)
                     window['-CARGANDO-'].update(visible=False)
                 else:
-                    sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
+                    # sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
                     window['-CARGANDO-'].update(visible=False)
             #Evento para mostrar un error
             elif event == '-ERROR-':
@@ -304,6 +304,11 @@ class ClienteUI:
             sg.Button('Info Documento', key='-INFO JSON-', button_color=('white', 'orange'), font=("Helvetica", 12))]
         ]
 
+        tabla_shared = sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
+                      auto_size_columns=True, display_row_numbers=True,
+                      justification='left', num_rows=10, key='-SHARETABLE-',
+                      row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)
+
         layout = [
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
@@ -311,15 +316,16 @@ class ClienteUI:
             [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
-                      row_height=15, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
+                      row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
             [sg.Text('Documentos Compartidos:', font=("Helvetica", 12))],
-            [sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
-                      auto_size_columns=True, display_row_numbers=True,
-                      justification='left', num_rows=10, key='-SHARETABLE-',
-                      row_height=15, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
+            [tabla_shared],
             [sg.Column(buttons_column, element_justification='center')]
         ]
-        
+        if self.cliente.MALICIOSO:
+            #Hide taboe shared
+            layout[4] = [sg.Text('', font=("Helvetica", 12), visible=False)]
+            layout[5] = [sg.Text('', font=("Helvetica", 12), visible=False)]
+
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')
         return window
@@ -404,7 +410,10 @@ class ClienteUI:
             title = data.get('title', 'Sin título')
             description = data.get('description', 'Sin descripción')
             time = data.get('time', 'Sin tiempo especificado')
+            user = data.get('author', 'Desconocido')
             files = data.get('files', [])
+
+            files = self.cliente.decrypt_files_JSON(files, json_path)
 
             if not files:  # Si no hay archivos, mostrar mensaje relevante
                 sg.popup_error("No hay archivos listados en el JSON.")
@@ -414,6 +423,7 @@ class ClienteUI:
                 [sg.Text(f"Title: {title}")],
                 [sg.Text(f"Description: {description}")],
                 [sg.Text(f"Time: {time}")],
+                [sg.Text(f"User: {user}")],
                 [sg.Text("Files:")] + [sg.Text(f) for f in files]
             ]
 

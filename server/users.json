@@ -13,5 +13,11 @@
     },
     "12345": {
         "password": "$2b$12$OiyOjBLwVJVaR4EIR67CPug6lFNvyq7fmJBqmepyIQ16LHlyR0iky"
+    },
+    "test_exe": {
+        "password": "$2b$12$50L85EDHq4wNalvn8Z6RPe.GFwxT17PbGryKYG75krDKDYspAViHa"
+    },
+    "nuevo_user": {
+        "password": "$2b$12$rETNhPSKfKbLiXL6PWwshuRVWWZeLq3JTXON2GoxIpgEWiilVrPL6"
     }
 }
