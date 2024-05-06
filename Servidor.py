@@ -16,6 +16,8 @@ ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'.
 sys.path.append(ruta_secure_key_gen)
 from utils.secure_key_gen import hash_password
 from utils.secure_key_gen import check_password
+from utils.secure_key_gen import gen_otp_key
+from utils.secure_key_gen import gen_otp_uri
 #from secure_key_gen import hash_password
 #from secure_key_gen import check_password
 
@@ -75,6 +77,8 @@ incorrect_tag = config['sockets']['tags']['response']['incorrect_tag']
 malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
 send_shared_json = config['sockets']['tags']['init_comms']['receive_shared_json']
+enable_otp_tag = config['sockets']['tags']['init_comms']['enable_otp']
+disable_otp_tag = config['sockets']['tags']['init_comms']['disable_otp']
 
 server_action_tags = [register_tag, login_tag, malicious_tag]
 
@@ -116,7 +120,7 @@ def login_user(username, password):
                 return True
     return False  
 
-def register_user(username, password, public_key):
+def register_user(username, password, public_key, otp_key=None):
     """
     Registra un usuario.
 
@@ -141,13 +145,13 @@ def register_user(username, password, public_key):
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE) as file:
             users = json.load(file)
-        users[username] = {"password": hashed}
+        users[username] = {"password": hashed, "otp_key": otp_key}
         with open(USERS_FILE, "w") as file:
             # TODO: esto reescribe el fichero entero, buscar alternativa
             json.dump(users, file, indent=4)
     else:
         with open(USERS_FILE, "w") as file:
-            users = {username: {"password": hashed}}
+            users = {username: {"password": hashed, "otp_key": otp_key}}
             json.dump(users, file, indent=4)
 
     if os.path.exists(PUBLIC_KEYS_FILE):
@@ -268,11 +272,16 @@ def handle_client(server: Server, address):
             password = serverSocket.conn.read().decode('utf-8')
             public_key = serverSocket.conn.read().decode('utf-8')
 
-            user_registered = register_user(username, password, public_key)
+            otp_enabled = serverSocket.conn.read().decode('utf-8') == enable_otp_tag
+            otp_key = gen_otp_key() if otp_enabled else None
+
+            otp_uri = gen_otp_uri(username, otp_key)
+
+            user_registered = register_user(username, password, public_key, otp_key)
             if not user_registered:
                 serverSocket.conn.sendall(incorrect_register_tag.encode('utf-8'))
             else:
-                serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
+                serverSocket.conn.sendall(otp_uri.encode('utf-8'))
                 # Private key
                 private_key_folder = os.path.join(serverSocket.FOLDER, username)
                 serverSocket.receive_one_file(folder=private_key_folder)

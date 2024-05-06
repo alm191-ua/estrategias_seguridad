@@ -7,6 +7,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 sys.path.append('..')
 from interfaces.Interfaz import ClienteUI
 from utils.secure_key_gen import generate_password
+from utils.secure_key_gen import generate_otp_qr
 
 class LoginForm(QtWidgets.QWidget):
     def __init__(self):
@@ -105,6 +106,11 @@ class RegistrationForm(QtWidgets.QWidget):
         self.password_line_edit.setStyleSheet("height: 40px; margin: 20px; padding: 5px; border-radius: 10px; color: #ecf0f1; background: #34495e;")
         self.main_layout.addWidget(self.password_line_edit)
         
+        # checkbox auntenticación OTP
+        self.otp_checkbox = QtWidgets.QCheckBox("Autenticación OTP", checked=True)
+        self.otp_checkbox.setStyleSheet("color: #ecf0f1;")
+        self.main_layout.addWidget(self.otp_checkbox)
+
         #Botón para registrar
         register_button = QtWidgets.QPushButton("Registrar")
         register_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
@@ -226,16 +232,75 @@ class RegistrationForm(QtWidgets.QWidget):
         try:
             cliente.username = username
             cliente.password = password
+            cliente.otp = self.otp_checkbox.isChecked()
             success = cliente.register_user() 
             if success:
-                QtWidgets.QMessageBox.information(self, "Éxito", "Usuario registrado correctamente.")
+                msg = "Usuario registrado correctamente." + (" Escanee el código QR para la autenticación OTP." if cliente.otp else "")
+                # show qr code with the message
+                # wait until the user scans the qr code
+                otp_uri = cliente.uri
+                print('URI: ' + otp_uri)
+                self.qr_message_form = QRMessageForm(msg, otp_uri)
+                self.qr_message_form.show()
+
+                # QtWidgets.QMessageBox.information(self, "Éxito", msg)
+
+                # if cliente.otp:
+                #     otp_uri = cliente.uri
+                #     # Qr code generation step
+                #     otp_qr = generate_otp_qr(otp_uri)
+                #     # mostrar qr
+                #     qr_label = QtWidgets.QLabel()
+                #     qr_label.setPixmap(QtGui.QPixmap(otp_qr))
+                #     qr_label.setAlignment(QtCore.Qt.AlignCenter)
+                #     qr_label.setScaledContents(True)
+                #     self.main_layout.addWidget(qr_label)
+                #     qr_label.show()
+
                 self.close()
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", "No se pudo registrar el usuario.")
+            
+
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", str(e))
         
         cliente.disconnect()
+
+class QRMessageForm(QtWidgets.QWidget):
+    def __init__(self, message, uri):
+        super().__init__()
+        self.message = message
+        self.uri = uri
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Mensaje")
+        # self.setFixedSize(300, 300)
+        self.setStyleSheet("background-color: #2c3e51; color: white;")
+
+        layout = QtWidgets.QVBoxLayout()
+
+        message_label = QtWidgets.QLabel(self.message)
+        message_label.setStyleSheet("color: #ecf0f1;")
+        layout.addWidget(message_label)
+
+        # QR code generation step
+        if self.uri:
+            otp_qr = generate_otp_qr(self.uri)
+            qr_label = QtWidgets.QLabel()
+            qr_label.setPixmap(QtGui.QPixmap.fromImage(otp_qr))
+            qr_label.setAlignment(QtCore.Qt.AlignCenter)
+            qr_label.setScaledContents(True)
+            layout.addWidget(qr_label)
+
+        #Botón para cerrar
+        close_button = QtWidgets.QPushButton("Cerrar")
+        close_button.setStyleSheet("QPushButton { background-color: #3498db; color: #ecf0f1; border-radius: 10px; padding: 10px; } QPushButton:hover { background-color: #2980b9; }")
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+
+        self.setLayout(layout)
 
 app = QtWidgets.QApplication(sys.argv)
 login_form = LoginForm()

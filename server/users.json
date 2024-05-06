@@ -1,23 +1,22 @@
 {
     "user1": {
-        "password": "$2b$12$Y2kBnKPbacTUxdXIBJF1sOELy4mz94kd5roGBOBA89sv.0xD0neF."
+        "password": "$2b$12$SPDoclWXJU1GkUC75moaTe4tiH2ZNk.707qXn0eyM0rEw6NWq8HQ2",
+        "otp_key": "SREYQ55RF6GKYQWK3ELVCAF7TIKP4B2M"
     },
     "user2": {
-        "password": "$2b$12$6ex8HcoQP3uH1uSQsPMwP.OgUx47c1bA3HJ5HJqlWB4xez9iAAtpK"
+        "password": "$2b$12$OSCNz9A7p1ul616HX.C9Iu76y61iNRYL7OmAY24MvZCx4rnKzuWXe",
+        "otp_key": "QMPARRAIB74WFSA6WEO5X6F25SOXRJKN"
     },
     "user3": {
-        "password": "$2b$12$MP.l/8lrqlMsDKuJDYHcouhiGAkd0VqbqXcJ1FDmxL8GhLURB6M92"
+        "password": "$2b$12$096PgigqgWGHwYpZMxBqTOZEea23D9aBRyf/uxW1/K6YWhzID/goW",
+        "otp_key": "EHRACTCTWIHMPHILISJLAIYSEE5KAP3P"
     },
-    "user33": {
-        "password": "$2b$12$5RS3LSV8EYjduDEKnAo2NuH3dAnXFyGByBpiXx2.MTs7e7nh7roxa"
+    "user4": {
+        "password": "$2b$12$GrHUENQ0J7KQYgB1ai08rejK69uSeNN/tE62DKQX8WU.0OK3OGldq",
+        "otp_key": "VCMV3A2AF2BKRHUWD7MTBUCCIKRELLJQ"
     },
-    "12345": {
-        "password": "$2b$12$OiyOjBLwVJVaR4EIR67CPug6lFNvyq7fmJBqmepyIQ16LHlyR0iky"
-    },
-    "test_exe": {
-        "password": "$2b$12$50L85EDHq4wNalvn8Z6RPe.GFwxT17PbGryKYG75krDKDYspAViHa"
-    },
-    "nuevo_user": {
-        "password": "$2b$12$rETNhPSKfKbLiXL6PWwshuRVWWZeLq3JTXON2GoxIpgEWiilVrPL6"
+    "user5": {
+        "password": "$2b$12$Aq60ekAD.laZyaa1xV5SxuM/DAa8KxnSPShZP5aZtcjjCgQu4sfnK",
+        "otp_key": null
     }
 }

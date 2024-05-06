@@ -22,8 +22,11 @@ login_tag = config['sockets']['tags']['init_comms']['login']
 register_tag = config['sockets']['tags']['init_comms']['register']
 correct_login_tag = config['sockets']['tags']['response']['correct_login']
 correct_register_tag = config['sockets']['tags']['response']['correct_register']
+incorrect_register_tag = config['sockets']['tags']['response']['incorrect_register']
 malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
+enable_otp_tag = config['sockets']['tags']['init_comms']['enable_otp']
+disable_otp_tag = config['sockets']['tags']['init_comms']['disable_otp']
 
 class SocketCliente(SocketPadre.SocketPadre):
     """
@@ -35,6 +38,8 @@ class SocketCliente(SocketPadre.SocketPadre):
     username=''
     password=''
     data_key=''
+    otp = True
+    uri = ''
     MALICIOSO=False
     NAME_PREFIX  = 'File'
     PRIVATE_KEY=''
@@ -498,10 +503,19 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(login_key.encode('utf-8'))
         self.conn.sendall(public_key)
 
+        # send otp option
+        if self.otp:
+            self.conn.sendall(enable_otp_tag.encode('utf-8'))
+        else:
+            self.conn.sendall(disable_otp_tag.encode('utf-8'))
+
         response = self.conn.read().decode('utf-8')
         print("response: ", response)
 
-        if response == correct_register_tag:
+        if response != incorrect_register_tag:
+            if self.otp:
+                self.uri = response
+                
             self.FOLDER=self.FOLDER+'_'+self.username
             # save private key file
             # create self.FOLDER if not exist
