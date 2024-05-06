@@ -20,8 +20,8 @@ cliente = SocketCliente.SocketCliente()
 is_unsafe_mode_active = False
 
 class ClienteUI:
-    
-    def __init__(self, username: str="", cliente: SocketCliente.SocketCliente = None):
+    SHARED=True
+    def __init__(self, username="", cliente=None):
         self.hilo_carga_datos = None
         self.main_window = None
         self.add_window = None
@@ -132,7 +132,7 @@ class ClienteUI:
                         show_files_window = self.create_files_window(selected_item)
                     except Exception as e:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
-                elif values['-SHARETABLE-']:
+                elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_index = values['-SHARETABLE-'][0] 
                     
                     selected_item = self.shared_data[selected_row_index]
@@ -180,7 +180,7 @@ class ClienteUI:
                         file_name = selected_item[5]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
-                elif values['-SHARETABLE-']:
+                elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_indices = values['-SHARETABLE-']
                     for index in selected_row_indices:
                         selected_item = self.shared_data[index]
@@ -206,7 +206,8 @@ class ClienteUI:
             elif event == '-DATOS COMPARTIDOS CARGADOS-':
                 if values[event]:
                     self.shared_data = values[event]
-                    window['-SHARETABLE-'].update(values=self.shared_data)
+                    if self.SHARED:
+                        window['-SHARETABLE-'].update(values=self.shared_data)
                     window['-CARGANDO-'].update(visible=False)
                 else:
                     # sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
@@ -218,8 +219,9 @@ class ClienteUI:
                         # Dentro del bucle principal
             if isinstance(event, tuple):
                 if event[0] == '-TABLE-':
-                    main_window['-SHARETABLE-'].Update(values=self.shared_data)
-                elif event[0] == '-SHARETABLE-':
+                    if self.SHARED:
+                        main_window['-SHARETABLE-'].Update(values=self.shared_data)
+                elif self.SHARED and event[0] == '-SHARETABLE-':
                     main_window['-TABLE-'].Update(values=self.data)
 
 
@@ -325,6 +327,7 @@ class ClienteUI:
             #Hide taboe shared
             layout[4] = [sg.Text('', font=("Helvetica", 12), visible=False)]
             layout[5] = [sg.Text('', font=("Helvetica", 12), visible=False)]
+            self.SHARED=False
 
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')

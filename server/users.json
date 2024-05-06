@@ -18,5 +18,21 @@
     "user5": {
         "password": "$2b$12$Aq60ekAD.laZyaa1xV5SxuM/DAa8KxnSPShZP5aZtcjjCgQu4sfnK",
         "otp_key": null
+    },
+    "Prueba1": {
+        "password": "$2b$12$DSF0mhhemiw2U2y3Ng/mWOahWmrOG8f9YptEZsLkKOeOe4aV2yps.",
+        "otp_key": "Z5INBYYFVMZ2IM34X5I2ESNSWLUUV7ES"
+    },
+    "user33": {
+        "password": "$2b$12$cbwjfV9zdYbnKsZwfyW2KOSjCK9OQk/21Ifg1lzlbd4Utx3C.TgJu",
+        "otp_key": "76KXXDLYPAB54HS2TPRHBCZ6R6R5MD6W"
+    },
+    "Prueba2": {
+        "password": "$2b$12$8SxkQI0pkIuuFxM12xp2S.MNauyTwgThn/HDvxb77XMYDWTDXYYTa",
+        "otp_key": null
+    },
+    "No_OPT": {
+        "password": "$2b$12$H7NbRDQGsne1L93R.AnQh.SG7fcPTgkoxTmaCGbaa2dv4xDhP5Wg2",
+        "otp_key": null
     }
 }

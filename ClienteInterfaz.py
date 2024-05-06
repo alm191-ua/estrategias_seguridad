@@ -75,9 +75,10 @@ class LoginForm(QtWidgets.QWidget):
                 QtWidgets.QMessageBox().warning(self, "Error", "Usuario o contraseña incorrectos.")
                 self.cliente.disconnect()
                 return
-
+            print('Conexion abierta:', self.cliente.conn)
             # receive otp option
             response = self.cliente.conn.read().decode('utf-8')
+            print('Response:', response)
             if response == enable_otp_tag:
                 self.cliente.otp = True
             else:
@@ -143,6 +144,7 @@ class Otp_form(QtWidgets.QWidget):
         """
         print('OTP: ' + otp)
         verified = self.cliente.check_otp(otp)
+        self.cliente.username = self.username
         if verified:
             QtWidgets.QMessageBox.information(self, "Éxito", "Inicio de sesión exitoso.")
             # print('Conexion abierta:', self.cliente.conn)

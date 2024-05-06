@@ -89,7 +89,7 @@ USERS_FILE = "server/users.json"
 PUBLIC_KEYS_FILE = "server/public_keys.json"
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
-INSECURE_MODE = False
+INSECURE_MODE = True
 
 def exists_user(username):
     print(f"Comprobando si el usuario {username} existe...")
@@ -276,6 +276,8 @@ def handle_malicous(serverSocket: SocketServidor.SocketServidor):
     """
     Maneja las opciones del usuario malicioso.
     """
+    serverSocket.conn.sendall(malicious_tag.encode('utf-8'))
+    print("Manejando usuario malicioso...")
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
         print(option)
@@ -335,7 +337,9 @@ def handle_client(server: Server, address):
             print("Iniciando sesion...")
             #Esperar por el SocketCliente que envie el usuario y contraseña
             username = serverSocket.conn.read().decode('utf-8')
+            print(username)
             password = serverSocket.conn.read().decode('utf-8')
+            print(password)
 
             if username == malicious_tag and not INSECURE_MODE:
                 serverSocket.conn.sendall(empty_login_tag.encode('utf-8'))

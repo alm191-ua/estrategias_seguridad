@@ -579,6 +579,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         if response == correct_login_tag:
             print("Log in correcto.")
             self.FOLDER=self.FOLDER+'_'+self.username
+            print(self.MALICIOSO)
             if not os.path.exists(self.FOLDER):
                     os.makedirs(self.FOLDER)
             if not self.MALICIOSO:
