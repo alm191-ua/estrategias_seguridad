@@ -81,7 +81,7 @@ class SocketPadre:
         filesize = struct.unpack(fmt, stream)[0]
         return filesize
     
-    def receive_file(self,):
+    def receive_file(self,sharing=False):
         """
         Recibe un archivo.
         """
@@ -95,6 +95,7 @@ class SocketPadre:
             filename = file.decode('utf-8')
             fmt="<Q"
             print(f"Nombre de archivo recibido: {filename}")
+            filename = 'File'+filename
             filesize = self.receive_size(fmt)
             self.buscar_server_folder()
             folder = self.create_folder_4_new_file(filename)
@@ -138,6 +139,7 @@ class SocketPadre:
                 print(e)
                 break
             print("Archivo recibido.")
+
 
     def send_one_file(self, filename):
         """
@@ -200,7 +202,6 @@ class SocketPadre:
             while True:
                 #Problema
                 chunk = self.conn.read(chunk_size)
-                print("Chunk recibido:", chunk)
                 if chunk == b"EOF":
                     break
                 f.write(chunk)
@@ -216,7 +217,9 @@ class SocketPadre:
         
         # Enviar el nombre del archivo al servidor.
         name = os.path.basename(filename)
+        print("filename, name: ", filename, name)
         name_size = len(name)
+        self.conn.sendall(struct.pack("<L", name_size))
         self.conn.sendall(name.encode('utf-8'))
 
         # Obtener el tamaño del archivo a enviar.

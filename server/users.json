@@ -1,38 +1,10 @@
 {
-    "user1": {
-        "password": "$2b$12$SPDoclWXJU1GkUC75moaTe4tiH2ZNk.707qXn0eyM0rEw6NWq8HQ2",
-        "otp_key": "SREYQ55RF6GKYQWK3ELVCAF7TIKP4B2M"
-    },
-    "user2": {
-        "password": "$2b$12$OSCNz9A7p1ul616HX.C9Iu76y61iNRYL7OmAY24MvZCx4rnKzuWXe",
-        "otp_key": "QMPARRAIB74WFSA6WEO5X6F25SOXRJKN"
-    },
-    "user3": {
-        "password": "$2b$12$096PgigqgWGHwYpZMxBqTOZEea23D9aBRyf/uxW1/K6YWhzID/goW",
-        "otp_key": "EHRACTCTWIHMPHILISJLAIYSEE5KAP3P"
-    },
-    "user4": {
-        "password": "$2b$12$GrHUENQ0J7KQYgB1ai08rejK69uSeNN/tE62DKQX8WU.0OK3OGldq",
-        "otp_key": "VCMV3A2AF2BKRHUWD7MTBUCCIKRELLJQ"
-    },
-    "user5": {
-        "password": "$2b$12$Aq60ekAD.laZyaa1xV5SxuM/DAa8KxnSPShZP5aZtcjjCgQu4sfnK",
+    "Prueba": {
+        "password": "$2b$12$bESi6k60JcCyAfuOy1IsJ.ID67HR36J0PextURmTWwoOP3L/c7o6y",
         "otp_key": null
     },
     "Prueba1": {
-        "password": "$2b$12$DSF0mhhemiw2U2y3Ng/mWOahWmrOG8f9YptEZsLkKOeOe4aV2yps.",
-        "otp_key": "Z5INBYYFVMZ2IM34X5I2ESNSWLUUV7ES"
-    },
-    "user33": {
-        "password": "$2b$12$cbwjfV9zdYbnKsZwfyW2KOSjCK9OQk/21Ifg1lzlbd4Utx3C.TgJu",
-        "otp_key": "76KXXDLYPAB54HS2TPRHBCZ6R6R5MD6W"
-    },
-    "Prueba2": {
-        "password": "$2b$12$8SxkQI0pkIuuFxM12xp2S.MNauyTwgThn/HDvxb77XMYDWTDXYYTa",
-        "otp_key": null
-    },
-    "No_OPT": {
-        "password": "$2b$12$H7NbRDQGsne1L93R.AnQh.SG7fcPTgkoxTmaCGbaa2dv4xDhP5Wg2",
+        "password": "$2b$12$zPoDzJ/H4i26aGgyZjhmVO8joAtXrRK1ZjF47Q0VB4n4X79HG54ya",
         "otp_key": null
     }
 }

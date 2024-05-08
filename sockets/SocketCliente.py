@@ -59,8 +59,8 @@ class SocketCliente(SocketPadre.SocketPadre):
         if not os.path.exists(path):
             os.makedirs(path)
         return path
-
     def send_encrypted_files(self, archivos, titulo, descripcion,author, users=[], public_keys=[]):
+
         """
         Sends files to the server.
         Args:
@@ -135,7 +135,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             
 
             # Enviar los archivos al servidor
-            self.send_one_file(encrypted_file_path)
+            self.send_file(encrypted_file_path)
+            self.conn.sendall(b"done")
+            # self.send_one_file(encrypted_file_path)
             
             for file in file_key_paths:
                 self.send_one_file(file)
@@ -614,11 +616,17 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         print("Esperando el tamaño del nombre del archivo...")
         try:
-            filename = self.conn.read().decode('utf-8')
+            fmt = "<L"
+            NameSize = self.receive_size(fmt)
+            if NameSize == 0:
+                raise ValueError("Everything sent correctly")
+            file = self.conn.recv(NameSize)
+            filename = file.decode('utf-8')
+            print(f"Nombre de archivo recibido: {filename}")
             if filename == "done":
                 raise ValueError("Everything sent correctly")
             fmt="<Q"
-            print(f"Nombre de archivo recibido: {filename}")
+            
             filesize = self.receive_size(fmt)
             self.buscar_server_folder()
             if shared_file:

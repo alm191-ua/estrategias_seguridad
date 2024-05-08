@@ -236,7 +236,8 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
             base_filename = os.path.basename(filename)
             filename_without_ext = base_filename.split('.')[0]
             folder = os.path.join(serverSocket.FOLDER, filename_without_ext)
-            serverSocket.receive_one_file(filename, folder, receive_file_name=False) 
+            serverSocket.wait_files() # espera a que el archivo sea enviado
+            # serverSocket.receive_one_file(filename, folder, receive_file_name=False) 
             # receive .key.enc 
             serverSocket.wait_shared() # distribuye los archivos a los usuarios a los que se comparten
             # receive .json.enc
