@@ -150,8 +150,8 @@ class ClienteUI:
                     if folder_path:
                         nombre_Fichero=selected_item[5]
                         autor=selected_item[4]
-                        progress_window = sg.Window('Cargando', [[sg.Text('Cargando archivos...')]])
-                        progress_window.read(timeout=0)
+                        Descarga_window = sg.Window('Cargando', [[sg.Text('Descargando archivos...')]])
+                        Descarga_window.read(timeout=0)
                         
                         try:
                             self.cliente.get_file(nombre_Fichero,autor)
@@ -160,7 +160,9 @@ class ClienteUI:
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
                         # Mostrar ventana de carga
-                        progress_window.read(timeout=0)
+                        Descarga_window.close()
+                        Descomprime_window = sg.Window('Cargando', [[sg.Text('Descomprimiendo archivos...')]])
+                        Descomprime_window.read(timeout=0)
 
 
 
@@ -172,6 +174,7 @@ class ClienteUI:
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
+                            Descomprime_window.close()
                             
                             pass
                         try:
