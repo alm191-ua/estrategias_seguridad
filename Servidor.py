@@ -3,7 +3,6 @@ import logging
 import sys
 import os
 import json
-import bcrypt
 import socket
 import ssl
 import threading
