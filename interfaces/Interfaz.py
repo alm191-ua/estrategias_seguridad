@@ -147,8 +147,8 @@ class ClienteUI:
                 if selected_files:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
-                        nombre_Fichero=selected_item[5]
-                        autor=selected_item[4]
+                        nombre_Fichero=selected_item[6]
+                        autor=selected_item[5]
                         Descarga_window = sg.Window('Cargando', [[sg.Text('Descargando archivos...')]])
                         Descarga_window.read(timeout=0)
                         
@@ -179,7 +179,7 @@ class ClienteUI:
                         try:
                             shutil.rmtree(directorio_files)
                             # Cerrar la ventana de progreso después de terminar
-                            progress_window.close()
+                            Descomprime_window.close()
                             
                         except:
                             pass
@@ -190,14 +190,14 @@ class ClienteUI:
                     selected_row_indices = values['-TABLE-']
                     for index in selected_row_indices:
                         selected_item = self.data[index]
-                        file_name = selected_item[5]
+                        file_name = selected_item[6]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_indices = values['-SHARETABLE-']
                     for index in selected_row_indices:
                         selected_item = self.shared_data[index]
-                        file_name = selected_item[5]
+                        file_name = selected_item[6]
                         json_path = os.path.join(f'files_{self.username}', 'shared', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
@@ -328,7 +328,7 @@ class ClienteUI:
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
             [sg.Text('Documentos:', font=("Helvetica", 12))],
-            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
+            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación','Tamaño (KB)'], max_col_width=35,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
                       row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
@@ -400,7 +400,7 @@ class ClienteUI:
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        files = self.cliente.get_files_in_zip(item[5],shared)
+        files = self.cliente.get_files_in_zip(item[6],shared)
 
         file_list = [[file] for file in files]  
         print(file_list)

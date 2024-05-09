@@ -260,7 +260,7 @@ def encrypt_json_filenames(json_filename, key,old_key=None):
     with open(json_filename, 'w') as file:
         json.dump(doc_data, file)
 
-def create_and_save_document_json(directory, doc_id, title, description, files_names, author, json_name=None):
+def create_and_save_document_json(directory, doc_id, title, description, files_names, author,size, json_name=None):
     """
     Crea un archivo JSON con los datos del documento y lo guarda en la ruta especificada.
 
@@ -282,6 +282,8 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
     # Extraer los nombres base de los archivos para incluirlos en el JSON
     files_base_names = [os.path.basename(file) for file in files_names]
 
+    size=round(size/1024,2)
+
     # Crear el diccionario con los datos del documento
     document_data = {
         "id": doc_id,
@@ -289,7 +291,8 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         "description": description,
         "author": author,  # Añadir el autor al JSON
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "files": files_base_names
+        "files": files_base_names,
+        "size": str(size)+" KB"
     }
 
     # Crear un nombre de archivo JSON que incluya el título del documento
@@ -325,6 +328,7 @@ def encrypt_single_file(file_path, key, target_directory, change_name=False):
     cipher = AES.new(key, AES_MODE, nonce=iv)
     with open(file_path, 'rb') as f:
         plaintext = f.read()
+    space = len(plaintext)
     ctext = cipher.encrypt(plaintext)
     if change_name:
         encrypted_path = target_directory
@@ -334,7 +338,7 @@ def encrypt_single_file(file_path, key, target_directory, change_name=False):
     delete_path=os.path.join(target_directory, os.path.basename(file_path))
     os.remove(delete_path)
     logging.info(f'File {file_path} encrypted')
-    return encrypted_path
+    return encrypted_path,space
 
 def encrypt_file_asimetric(file_path, key, target_directory, change_name=False):
     """

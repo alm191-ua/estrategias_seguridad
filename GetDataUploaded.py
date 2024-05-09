@@ -34,8 +34,10 @@ def listar_los_zips(dir, username):
                             data['title'],  # Título
                             data['description'],  # Descripción
                             data['time'],  # Fecha y hora de creación
+                            data['size'],  # Tamaño del documento  
                             data['author'], # Dueño del documento
-                            data['id']  # ID del documento        
+                            data['id']  # ID del documento
+                             
                         ]
                     nuevos_documentos.append(nuevo_documento)
         nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3], reverse=True)
@@ -78,7 +80,8 @@ def listar_los_zips_compartidos(dir, username):
                                 data['description'],  # Descripción
                                 data['time'],  # Fecha y hora de creación
                                 data['author'], # Dueño del documento
-                                data['id']  # ID del documento
+                                data['id'],  # ID del documento
+                                data['size']  # Tamaño del documento
                                 
                             ]
                             nuevos_documentos.append(nuevo_documento)
