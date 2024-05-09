@@ -68,17 +68,6 @@ class SocketCliente(SocketPadre.SocketPadre):
             titulo (str): The title of the package.
             descripcion (str): The description of the package.
         """
-
-        # print("--------------------")
-        # print("ENVIANDO ARCHIVOS")
-        # print("Archivos: ", archivos)
-        # print("Titulo: ", titulo)
-        # print("Descripcion: ", descripcion)
-        # print("Author: ", author)
-        # print("Users: ", users)
-        # print("Public keys: ", public_keys)
-        # print("--------------------")
-
         try:
             # Verificar si la conexión está establecida
             if self.conn is None:
@@ -100,21 +89,17 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Cifrar el archivo comprimido
             encrypted_file_path = Cifrado.encrypt_single_file(zip_file_path, file_key, directory)
 
-            # # print("EEEEEEEEEEEEEEEE")
 
             # Cifrar el fichero con la clave publica de cada usuario compartido
             file_key_path = os.path.join(directory, doc_id + self.FORMATO_LLAVE)
             file_key_paths = []
-            # # print("Users: ", users)
-            # # print("Public keys: ", public_keys)
+
             for user, public_key in zip(users, public_keys):
                 new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO)
                 encrypted_file_key_path = Cifrado.encrypt_file_asimetric(file_key_path, public_key, new_key_path, change_name=True)
                 file_key_paths.append(encrypted_file_key_path)
 
-            # # print("Algo")
 
-            # Crear los ficheros json con los ficheros cifrados para cada usuario compartido
             json_files_paths = []
             for user, public_key in zip(users, public_keys):
                 new_json_name = doc_id + '_' + user + '.json'
@@ -123,14 +108,6 @@ class SocketCliente(SocketPadre.SocketPadre):
                 Cifrado.encrypt_json_filenames(new_json_path, file_key)
                 # # print("BBBBBBBBBBBBBB")
                 json_files_paths.append(new_json_path)
-
-            # archivos a enviar:
-            # 1. archivos cifrados (id.zip.enc)
-            # 2. claves cifradas (id_user1.key.enc, id_user2.key.enc, ...)
-            # 3. json cifrados (id_user1.json, id_user2.json, ...)
-            # en el servidor se distribuirán los archivos a los usuarios correspondientes
-            # una clave y un json para el usuario que envía el documento
-            # y un json y clave para cada usuario compartido
 
             
 
@@ -150,21 +127,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.conn.sendall(b"done")
             
 
-            # Comprimir y cifrar los archivos
-            # path = Cifrado.ZipAndEncryptFile(archivos, titulo, descripcion)
-            # file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_ARCHIVO_ENCRIPTADO)
-            # json_file = str.replace(path, self.FORMATO_LLAVE, self.FORMATO_JSON)
-            # if not users:
-            #     self.encrypt_key(path)
-            #     key = path + self.FORMATO_ENCRIPTADO
-            # else:
-            #     keys_files = self.encrypt_multiple_keys(path, users, public_keys)
 
-            # # Enviar los archivos al servidor
-            # self.send_file(file)
-            # self.send_file(key)
-            # self.send_file(json_file)
-            # self.decrypt_key(key)
             
             # Esperar confirmación del servidor
             respuesta = self.conn.read().decode('utf-8')
@@ -173,28 +136,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             
         except Exception as e:
             print(f"Error al enviar archivos: {e}")
-
-
-    def encrypt_multiple_keys(self, path, users, public_keys):
-        """
-        Encrypts the key with the public keys of the users.
-
-        Args:
-            path (str): The path to the key file.
-            users (list): The list of users.
-            public_keys (list): The list of public keys.
-
-        Returns:
-            list: The list of key files.
-        """
-        keys_files = []
-        for user, public_key in zip(users, public_keys):
-            key_file = path + '_' + user + self.FORMATO_ENCRIPTADO
-            Cifrado.encrypt_single_file(path, public_key, key_file, True)
-            keys_files.append(key_file)
-        return keys_files
-
-    #TODO: Tengo que arreglarlo, aunque no sé el qué :(      
+    
     def send_files_in_folder(self):
         """
         Envía los archivos de una carpeta al servidor, organizándolos por nombre de usuario.
@@ -424,18 +366,6 @@ class SocketCliente(SocketPadre.SocketPadre):
         return private_key_path
 
 
-    def encrypt_key(self, key):
-        """
-        Encrypts a key using the user data key.
-
-        Args:
-            key (str): The key to encrypt.
-        """
-        file=os.path.basename(key)
-        path=os.path.dirname(key)
-        # Cifrado.encrypt_file(key, path, data_key=self.data_key.encode('utf-8'))
-        Cifrado.encrypt_single_file(file_path=key, key=self.data_key.encode('utf-8'), target_directory=path)	
-    
     def decrypt_key(self, path_key):
         """
         Decrypts a key using the user data key.
@@ -671,86 +601,18 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         # print("Archivo recibido correctamente.")
 
-    def get_json_info(self, path):
-        """
-        Gets the information of the JSON file.
-
-        Args:
-            path (str): The path to the JSON file.
-
-        Returns:
-            tuple: The title, description, time, and files of the JSON file.
-        """
-        with open(path) as file:
-            data = json.load(file)
-        # get title
-        title = data['title']
-        description = data['description']
-        time = data['time']
-        files = data['files']
-        decrypted_files = self.decrypt_files_JSON(files, path)
-        return title, description, time, decrypted_files
-    
-    def print_json_info(self, path):
-        """
-        Prints the information of the JSON file.
-
-        Args:
-            path (str): The path to the JSON file.
-        """
-        title, description, time, files = self.get_json_info(path)
-        # print(f"Title: {title}")
-        # print(f"Description: {description}")
-        # print(f"Time: {time}")
-        # print("Files:")
-        # for file in files:
-        #     # print(f"\t{file}")
-
     def choose_opt(self, number):
         """
         Sends an integer to the server and performs the corresponding action.
 
         Args:
             number (int): The integer to send.\n
-            [1]-> Register a new user\n
-            [2]-> Log in\n
-            [3]-> Send files in the 'files' folder to the server\n
-            [4]-> Receive all files from the server (from the user logged)\n
             [5]-> Receive a JSON file from the server\n
+            [6]-> Receive a shared JSON file from the server\n
 
         Raises:
             Exception: If no connection has been established.
-
         """
-        # [3]-> send files in the 'files' folder to the server\n
-        # [4]-> wait for files from the server
-        if not self.conn:
-            raise Exception("No se ha establecido una conexión.")
-        
-        # self.conn.sendall(str(number).encode('utf-8'))
-        if number == 1:
-            # Register a new user
-            user_registered = self.register_user()
-            return user_registered
-            # if user_registered:
-            #     self.log_in()
-            
-        if number == 2:
-            # print("Iniciando sesión...")
-            # Log in
-            user_logged = self.log_in()
-            return user_logged
-            # if user_logged:
-            #     # TODO: implementar acciones que puede realizar un usuario logueado
-            #     pass
-        if number == 3:
-            # Send files in the 'files' folder to the server
-            self.conn.sendall(self.ENVIAR.encode('utf-8'))
-            self.send_files_in_folder()
-        if number == 4 :
-            self.conn.sendall(self.RECIBIR.encode('utf-8'))
-            # Wait for files from the server
-            self.wait_files()
         if number == 5:
             if self.MALICIOSO:
                 # print("No se ha iniciado sesión.")
