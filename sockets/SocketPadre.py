@@ -67,6 +67,7 @@ class SocketPadre:
                 raise FileNotFoundError("El archivo no existe.")
             try:
                 if chunk.decode('utf-8') == "done":
+                    print("done")
                     return 0
                 
                 if chunk.decode('utf-8') == "disc":
@@ -126,6 +127,7 @@ class SocketPadre:
         """
         while self.conn:
             try:
+                print("Sharing en wait_files: ", sharing)
                 self.receive_file(sharing)
             except ConnectionResetError:
                 print("Conexión cerrada.")

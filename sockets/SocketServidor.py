@@ -131,7 +131,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     print("Error fichero no encontrado en la carpeta", folder, ":", e)
                     continue
                 
-                self.conn.sendall(b"done")
+                # self.conn.sendall(b"done")
                 return
         raise Exception("El archivo no existe.")
         

@@ -154,7 +154,6 @@ class ClienteUI:
                         progress_window.read(timeout=0)
                         
                         try:
-                            print(self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero,autor)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
@@ -274,7 +273,7 @@ class ClienteUI:
             if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
             if shared_data:
-                print(shared_data)
+                
                 window.write_event_value('-DATOS COMPARTIDOS CARGADOS-', shared_data)
         
             else:

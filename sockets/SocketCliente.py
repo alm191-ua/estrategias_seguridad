@@ -69,15 +69,15 @@ class SocketCliente(SocketPadre.SocketPadre):
             descripcion (str): The description of the package.
         """
 
-        print("--------------------")
-        print("ENVIANDO ARCHIVOS")
-        print("Archivos: ", archivos)
-        print("Titulo: ", titulo)
-        print("Descripcion: ", descripcion)
-        print("Author: ", author)
-        print("Users: ", users)
-        print("Public keys: ", public_keys)
-        print("--------------------")
+        # print("--------------------")
+        # print("ENVIANDO ARCHIVOS")
+        # print("Archivos: ", archivos)
+        # print("Titulo: ", titulo)
+        # print("Descripcion: ", descripcion)
+        # print("Author: ", author)
+        # print("Users: ", users)
+        # print("Public keys: ", public_keys)
+        # print("--------------------")
 
         try:
             # Verificar si la conexión está establecida
@@ -100,28 +100,28 @@ class SocketCliente(SocketPadre.SocketPadre):
             # Cifrar el archivo comprimido
             encrypted_file_path = Cifrado.encrypt_single_file(zip_file_path, file_key, directory)
 
-            # print("EEEEEEEEEEEEEEEE")
+            # # print("EEEEEEEEEEEEEEEE")
 
             # Cifrar el fichero con la clave publica de cada usuario compartido
             file_key_path = os.path.join(directory, doc_id + self.FORMATO_LLAVE)
             file_key_paths = []
-            # print("Users: ", users)
-            # print("Public keys: ", public_keys)
+            # # print("Users: ", users)
+            # # print("Public keys: ", public_keys)
             for user, public_key in zip(users, public_keys):
                 new_key_path = os.path.join(directory, doc_id + '_' + user + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO)
                 encrypted_file_key_path = Cifrado.encrypt_file_asimetric(file_key_path, public_key, new_key_path, change_name=True)
                 file_key_paths.append(encrypted_file_key_path)
 
-            # print("Algo")
+            # # print("Algo")
 
             # Crear los ficheros json con los ficheros cifrados para cada usuario compartido
             json_files_paths = []
             for user, public_key in zip(users, public_keys):
                 new_json_name = doc_id + '_' + user + '.json'
                 new_json_path = Cifrado.create_and_save_document_json(directory, doc_id, titulo, descripcion, archivos, author, new_json_name)
-                # print("AAAAAAAAAAAAAA")
+                # # print("AAAAAAAAAAAAAA")
                 Cifrado.encrypt_json_filenames(new_json_path, file_key)
-                # print("BBBBBBBBBBBBBB")
+                # # print("BBBBBBBBBBBBBB")
                 json_files_paths.append(new_json_path)
 
             # archivos a enviar:
@@ -219,7 +219,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                         break
                     self.conn.sendall(bytes_read)
             
-            print("Archivos enviados correctamente.")
+            # print("Archivos enviados correctamente.")
         except Exception as e:
             print(f"Error al enviar archivos: {e}")
 
@@ -244,7 +244,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                 key = bytes(password.ljust(Cifrado.KEY_SIZE, '0'), 'utf-8')
                 try:
                     decrypted_files = Cifrado.try_decrypt_files_JSON(encrypted_files, key)
-                    print("Contraseña encontrada:", password)
+                    # print("Contraseña encontrada:", password)
                     return decrypted_files
                 except ValueError:
                     continue
@@ -268,13 +268,13 @@ class SocketCliente(SocketPadre.SocketPadre):
         directorio=os.path.join(Cifrado.DIRECTORIO_PROYECTO,self.FOLDER)
         if shared:
             directorio=os.path.join(directorio,self.SHARED_FOLDER)
-        print(directorio)
+        # print(directorio)
         if not directorio:
             return []
         data = GetDataUploaded.getDataFromJSON(file, directorio)
         path = os.path.join(directorio,file,file)
         filesDesencrypted = self.decrypt_files_JSON(data['files'],path+".json")
-        print('HECHO')
+        # print('HECHO')
         all_files = filesDesencrypted
         return all_files
     
@@ -289,7 +289,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             Cifrado.buscar_proyecto()
         if not Cifrado.DIRECTORIO_PROYECTO:
             logging.error("No se ha encontrado el proyecto")
-            # print("No se ha encontrado el proyecto")
+            # # print("No se ha encontrado el proyecto")
             return None
         # Construir la ruta del archivo ZIP
         if shared:
@@ -297,7 +297,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         else:
             directorio = os.path.join(Cifrado.DIRECTORIO_PROYECTO, self.FOLDER, directorio_file)
         archivo = os.path.join(directorio, directorio_file + ".zip.enc")
-        print(archivo)
+        # print(archivo)
 
         # Descomprimir el archivo ZIP
         self.UnZipFiles(archivo)
@@ -366,7 +366,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                         self.conn.sendall(autor.encode('utf-8'))
 
                         self.wait_files(shared)
-                        print("Archivo recibido.")
+                        # print("Archivo recibido.")
         for fileId in files:
             if fileId == filename:
                 file_folder_path = os.path.join(self.FOLDER, fileId)
@@ -381,7 +381,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                     self.conn.sendall(autor.encode('utf-8'))
 
                     self.wait_files(shared)
-                    print("Archivo recibido.")
+                    # print("Archivo recibido.")
 
 
     def get_public_keys(self):
@@ -393,8 +393,8 @@ class SocketCliente(SocketPadre.SocketPadre):
             list: The list of public keys.
         """
         self.conn.sendall(self.RECIBIR_PUBLIC_KEYS.encode('utf-8'))
-        print("Recibiendo archivo de claves públicas...")
-        print("FOlder: ", self.FOLDER)
+        # print("Recibiendo archivo de claves públicas...")
+        # print("FOlder: ", self.FOLDER)
         self.receive_one_file() # lo almacena en la carpeta files_username/
         usuarios = []
         claves_publicas = []
@@ -464,9 +464,9 @@ class SocketCliente(SocketPadre.SocketPadre):
             
             self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
 
-            print("Conectado al servidor.")
+            # print("Conectado al servidor.")
         except Exception as e:
-            print(f"Error al conectar al servidor: {e}")
+            # print(f"Error al conectar al servidor: {e}")
             self.conn = None
             return
 
@@ -478,7 +478,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.conn.sendall(b"disc")
             self.conn.shutdown(socket.SHUT_RDWR)
             self.conn.close()
-            print("Conexión cerrada.")
+            # print("Conexión cerrada.")
     
     def register_user(self):
         """
@@ -515,7 +515,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.conn.sendall(disable_otp_tag.encode('utf-8'))
 
         response = self.conn.read().decode('utf-8')
-        print("response: ", response)
+        # print("response: ", response)
 
         if response != incorrect_register_tag:
             if self.otp:
@@ -534,11 +534,11 @@ class SocketCliente(SocketPadre.SocketPadre):
             # send private_key.pem.enc file to server
             self.send_one_file(os.path.join(self.FOLDER, 'private_key.pem.enc'))
 
-            print("Usuario registrado correctamente.")
+            # print("Usuario registrado correctamente.")
             return True
         
         else:
-            print("No se pudo registrar el usuario. El usuario ya existe o hubo un error.")
+            # print("No se pudo registrar el usuario. El usuario ya existe o hubo un error.")
             return False
 
 
@@ -563,7 +563,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         
         
         if self.MALICIOSO:
-            print("Enviando nombre de inicio de sesión...")
+            # print("Enviando nombre de inicio de sesión...")
             # enviar como nombre de usuario y contraseña el tag de cliente malicioso
             self.conn.sendall(malicious_tag.encode('utf-8'))
             self.conn.sendall(malicious_tag.encode('utf-8'))
@@ -581,9 +581,9 @@ class SocketCliente(SocketPadre.SocketPadre):
 
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
-            print("Log in correcto.")
+            # print("Log in correcto.")
             self.FOLDER=self.FOLDER+'_'+self.username
-            print(self.MALICIOSO)
+            # print(self.MALICIOSO)
             if not os.path.exists(self.FOLDER):
                     os.makedirs(self.FOLDER)
             if not self.MALICIOSO:
@@ -592,10 +592,10 @@ class SocketCliente(SocketPadre.SocketPadre):
             
             return True
         if response == empty_login_tag:
-            print("No se ha iniciado sesión.")
+            # print("No se ha iniciado sesión.")
             return False
         else:
-            print("Usuario o contraseña incorrectos.")
+            # print("Usuario o contraseña incorrectos.")
             return False
         
     def check_otp(self, otp):
@@ -605,10 +605,10 @@ class SocketCliente(SocketPadre.SocketPadre):
         self.conn.sendall(otp.encode('utf-8'))
         response = self.conn.read().decode('utf-8')
         if response == correct_login_tag:
-            print("Log in correcto.")
+            # print("Log in correcto.")
             return True
         else:
-            print("OTP incorrecto.")
+            # print("OTP incorrecto.")
             return False
 
 
@@ -616,31 +616,36 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         Receives a file from the server.
         """
-        print("Esperando el tamaño del nombre del archivo...")
+        # print("Esperando el tamaño del nombre del archivo...")
         try:
             fmt = "<L"
+            
             NameSize = self.receive_size(fmt)
+            # print("NameSize: ", NameSize)
             if NameSize == 0:
                 raise ValueError("Everything sent correctly")
             file = self.conn.recv(NameSize)
             filename = file.decode('utf-8')
-            print(f"Nombre de archivo recibido: {filename}")
+            # print(f"Nombre de archivo recibido: {filename}")
             if filename == "done":
                 raise ValueError("Everything sent correctly")
             fmt="<Q"
             
             filesize = self.receive_size(fmt)
             self.buscar_server_folder()
+            # print("FileNameBeforeCreate: ", filename)
             if shared_file:
                 folder = self.create_folder_4_new_file(filename,True)
             else:
                 folder = self.create_folder_4_new_file(filename)
-            print("folder: ", folder)
+            # print("Sharing: ", shared_file)
+            # print("folderAfterCreate: ", folder)
+            # print("self.Folder: ", self.FOLDER)
             filename = os.path.join(folder, filename)
         except ConnectionResetError:
             raise ConnectionResetError("Conexión cerrada por el cliente.")
 
-        print("Recibiendo archivo...")
+        # print("Recibiendo archivo...")
         received_bytes = 0
         with open(filename, "wb") as f:
             # receive the file divided in chunks of 2048 bytes
@@ -656,7 +661,7 @@ class SocketCliente(SocketPadre.SocketPadre):
                     raise ConnectionResetError("Conexión cerrada por el cliente.")
             f.close()
         formato_encrypted = self.FORMATO_LLAVE+self.FORMATO_ENCRIPTADO
-        print("filename: ", os.path.basename(filename))
+        # print("filename: ", os.path.basename(filename))
         nombre=os.path.basename(filename)
         division = nombre.split('.', 1)
         if(len(division)>1):
@@ -664,7 +669,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             if division[1]==formato_encrypted:
                     self.decrypt_key(filename)
 
-        print("Archivo recibido correctamente.")
+        # print("Archivo recibido correctamente.")
 
     def get_json_info(self, path):
         """
@@ -694,12 +699,12 @@ class SocketCliente(SocketPadre.SocketPadre):
             path (str): The path to the JSON file.
         """
         title, description, time, files = self.get_json_info(path)
-        print(f"Title: {title}")
-        print(f"Description: {description}")
-        print(f"Time: {time}")
-        print("Files:")
-        for file in files:
-            print(f"\t{file}")
+        # print(f"Title: {title}")
+        # print(f"Description: {description}")
+        # print(f"Time: {time}")
+        # print("Files:")
+        # for file in files:
+        #     # print(f"\t{file}")
 
     def choose_opt(self, number):
         """
@@ -731,7 +736,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             #     self.log_in()
             
         if number == 2:
-            print("Iniciando sesión...")
+            # print("Iniciando sesión...")
             # Log in
             user_logged = self.log_in()
             return user_logged
@@ -748,12 +753,12 @@ class SocketCliente(SocketPadre.SocketPadre):
             self.wait_files()
         if number == 5:
             if self.MALICIOSO:
-                print("No se ha iniciado sesión.")
+                # print("No se ha iniciado sesión.")
                 self.conn.sendall(self.RECIBIR_JSON_MALICIOUS.encode('utf-8'))
             else:
-                print('Recibiendo JSON')
+                # print('Recibiendo JSON')
                 self.conn.sendall(self.RECIBIR_JSON.encode('utf-8'))
-            self.wait_files()
+            self.wait_files(sharing=False)
         if number == 6:
             self.conn.sendall(self.RECIBIR_JSON_SHARED.encode('utf-8'))
             self.wait_files(sharing=True)
