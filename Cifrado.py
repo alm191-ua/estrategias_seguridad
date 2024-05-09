@@ -65,22 +65,6 @@ def is_unsafe_mode(unsafe_mode):
     global UNSAFE_MODE
     UNSAFE_MODE=unsafe_mode
 
-def buscar_directorio(nombre_directorio, ruta_inicio=os.path.abspath(os.sep)):
-    """
-    Recorre un directorio y sus subdirectorios buscando un directorio específico.
-
-    Args:
-        nombre_directorio (str): Nombre del directorio a buscar.
-        ruta_inicio (str, optional): Ruta donde iniciar la búsqueda. Predeterminado: raíz del sistema.
-
-    Returns:
-        str o None: Ruta completa del directorio si se encuentra, None si no.
-    """
-    for root, dirs, files in os.walk(ruta_inicio):
-        if nombre_directorio in dirs:
-            return os.path.join(root, nombre_directorio)
-    return None
-
 def buscar_proyecto():
     """
     Busca la ruta del proyecto actual.
@@ -172,36 +156,6 @@ def ZipFiles(directory, files, doc_id):
             if os.path.isfile(file):  # Verifica si el path es de un archivo
                 zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
     return zip_path
-
-def ZipAndEncryptFile(files, title, description, author):
-    """
-    Crea un paquete comprimido de documentos con metadatos asociados y encriptación.
-
-    Args:
-        archivos (lista): Lista de archivos para incluir en el paquete.
-        titulo (str): Título del documento.
-        descripcion (str): Descripción del documento.
-
-    Returns:
-        str: Ruta al archivo del paquete creado (.key).
-    """
-    doc_id = str(unique_id())
-    FileName = f"{NAME_FILES}{doc_id}"
-    print(FileName)
-    directory = Create_Dirs(FileName)
-    zip_path = os.path.join(directory, FileName + FILES_COMPRESSION_FORMAT)
-    
-
-    with zipfile.ZipFile(zip_path, 'w') as zipf:
-        for file in files:  # Itera sobre la lista de archivos
-            if os.path.isfile(file):  # Verifica si el path es de un archivo
-                zipf.write(file, os.path.basename(file))  # Añade el archivo al zip
-
-    create_and_save_document_json(directory,doc_id, title, description, files, author)
-    encrypt_file(FileName, directory)
-
-    logging.info('Files compressed')
-    return os.path.join(directory, FileName + KEYS_FORMAT)
 
 
 
@@ -643,57 +597,3 @@ def read_key_from_file(input_file):
     # cipher = AES.new(key, AES_MODE, nonce=iv)
     # key = cipher.decrypt(ctext)
     return key
-
-
-
-'''
-
-
-parser = argparse.ArgumentParser(description='Save documents in a secure way')
-parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
-parser.add_argument('-d', '--decrypt', help='Start to decrypt a file (must be followed by File (-f))', action='store_true')
-parser.add_argument('-f', '--file', help='Indicates the file [put the directory eg: "python3 Cifrado.py -d -f files/File2e47b658-6cdc-46ae-aa15-b3344bb3cbfd/]"')
-if(parser.parse_args().unsafe):
-    UNSAFE_MODE = True
-    logging.info('Unsafe mode activated')
-if(parser.parse_args().decrypt and parser.parse_args().file): ##Si se quiere desencriptar un archivo se comprueba que se haya indicado el archivo y se coge el nombre de la carpeta. Si no se llamará a ZipFile
-    match = re.search(r'files/(.*?)/', parser.parse_args().file)
-    file_name = match.group(1)
-    logging.info('Decrypt mode activated')
-    UnZipJSON(file_name)
-
-    if not parser.parse_args().decrypt:
-        logging.info('Encrypt mode activated')
-        
-        # Ask for the data and files to compress
-        title = input('Title: ')
-        description = input('Description: ')
-        same_folder = input('The files are in the same folder? (y/n): ')
-        if same_folder.lower() == 'y':
-            while True:
-                folder = input('Folder: ')
-                if not os.path.exists(folder):
-                    print('Folder does not exist')
-                    print('Select folder again')
-                else:
-                    break
-        files = []
-        while True:
-            file = input('File: ')
-            if same_folder.lower() == 'y':
-                file = os.path.join(folder, file)
-            if not os.path.exists(file):
-                print('File does not exist')
-                continue
-            files.append(file)
-            more_files = input('More files? (y/n): ')
-            if more_files.lower() != 'y':
-                break
-
-        # Compress and encrypt the files
-        ZipFile(files, title, description)
-
-        logging.info('Files encrypted')
-'''
-
-

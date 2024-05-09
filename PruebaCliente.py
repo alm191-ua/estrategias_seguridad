@@ -2,7 +2,6 @@ import sys
 sys.path.append('./sockets')
 #import SocketCliente
 from sockets import SocketCliente
-from Cifrado import ZipAndEncryptFile as encryptDoc
 import os
 
 def main():

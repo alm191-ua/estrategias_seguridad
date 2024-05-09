@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 import os
-from datetime import datetime
 import shutil
 import sys
 import threading
