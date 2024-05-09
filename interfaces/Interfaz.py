@@ -150,6 +150,8 @@ class ClienteUI:
                     if folder_path:
                         nombre_Fichero=selected_item[5]
                         autor=selected_item[4]
+                        progress_window = sg.Window('Cargando', [[sg.Text('Cargando archivos...')]])
+                        progress_window.read(timeout=0)
                         
                         try:
                             print(self.cliente.MALICIOSO)
@@ -158,6 +160,12 @@ class ClienteUI:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
+                        # Mostrar ventana de carga
+                        progress_window.read(timeout=0)
+
+
+
+                        
                         if autor!=self.username and not self.cliente.MALICIOSO:
                             directorio_files=self.cliente.UnzipFolder(nombre_Fichero,shared=True)
                         else:
@@ -165,9 +173,13 @@ class ClienteUI:
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
+                            
                             pass
                         try:
                             shutil.rmtree(directorio_files)
+                            # Cerrar la ventana de progreso después de terminar
+                            progress_window.close()
+                            
                         except:
                             pass
                         sg.popup(f'Archivos descargados en: {folder_path}')

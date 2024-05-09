@@ -32,7 +32,7 @@ UNSAFE_PASSWORDS = ['123456',
                     'qwerty',]
 KEY_SIZE = 16
 IV_SIZE = 8 ##8 bytes
-BLOCK_SIZE = AES.block_size # in bytes 
+BLOCK_SIZE = 2048 #AES.block_size # in bytes 
 DIRECTORIO=os.getcwd()
 NOMBRE_PROYECTO="estrategias_seguridad"
 DIRECTORIO_PROYECTO=None
@@ -530,10 +530,13 @@ def _handle_decrypt_file(input_file, key = None):
                 break
             chunks.append(chunk)
     ciphertext = b''.join(chunks)
+    try:
     # Crear cifrador y desencriptar el texto
-    cipher = AES.new(key, AES_MODE, nonce=iv)
-    plaintext = cipher.decrypt(ciphertext)
-
+        cipher = AES.new(key, AES_MODE, nonce=iv)
+        plaintext = cipher.decrypt(ciphertext)
+    except Exception as e:
+        print(e)
+    print(len(plaintext))
     return plaintext, key
 
 def decrypt_file(input_file, key = None,data_key=None):

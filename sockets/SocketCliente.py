@@ -141,10 +141,12 @@ class SocketCliente(SocketPadre.SocketPadre):
             
             for file in file_key_paths:
                 self.send_one_file(file)
+                os.remove(file)
             self.conn.sendall(b"done")
 
             for file in json_files_paths:
                 self.send_one_file(file)
+                os.remove(file)
             self.conn.sendall(b"done")
             
 
