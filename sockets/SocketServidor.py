@@ -259,7 +259,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     self.send_enconded_file(folder_path,name,shared)
                     return
                 except Exception as e:
-                    logging.warning(f"Archivo no encontrado")
+                    logging.warning(f"Archivo {name} no encontrado")
                     self.conn.sendall(file_does_not_exist_tag.encode('utf-8'))
                     print(e)   
             break
@@ -293,7 +293,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                             if os.path.exists(camino_json) and os.path.exists(camino_llave):
                                 self.send_file(camino_json)
                                 self.send_file(camino_llave)
-                                logging.info(f"Archivo JSON enviado al usuario {self.username}")
+                                logging.info(f"Archivo JSON y claves enviadas al usuario {self.username}")
                                 print("Enviado.")
                         
                 else:
