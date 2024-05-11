@@ -1,0 +1,36 @@
+{
+    "sockets": {
+        "host": "localhost",
+        "port": 65535,
+        "tags": {
+            "init_comms": {
+                "register": "REG",
+                "login": "LOG",
+                "send": "SND",
+                "receive": "RCV",
+                "receive_json": "RCJ",
+                "receive_file": "RCF",
+                "receive_public_keys": "RCPK",
+                "recieve_json_malicious": "RCJM",
+                "malicious": "MAL",
+                "receive_shared_json": "RCSJ",
+                "enable_otp": "OTP_true",
+                "disable_otp": "OTP_false"
+            },
+            "response": {
+                "incorrect_tag": "000",
+                "correct_login": "100",
+                "incorrect_login": "101",
+                "empty_login": "102",
+                "correct_register": "200",
+                "incorrect_register": "201",
+                "empty_register": "202",
+                "file_does_not_exist": "300",
+                "correct_sent": "400",
+                "correct_shared_json": "600"
+            }
+        },
+        "chunk_size": 2048
+    },
+    "encoding_format": "utf-8"
+}
