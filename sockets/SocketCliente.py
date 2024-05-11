@@ -456,7 +456,7 @@ class SocketCliente(SocketPadre.SocketPadre):
         """
         try:
             # Crear un contexto SSL que use los protocolos más seguros y modernos
-            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile='certificates/certificatealex.pem')
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile='certificates/certificate.pem')
             context.check_hostname = False
             context.verify_mode = ssl.CERT_REQUIRED
             

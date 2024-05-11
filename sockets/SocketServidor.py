@@ -300,7 +300,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
             # Crear un contexto SSL con configuraciones seguras por defecto
             context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             # Cargar el certificado del servidor y la clave privada
-            context.load_cert_chain(certfile='certificates/certificatealex.pem', keyfile='certificates/key.pem')
+            context.load_cert_chain(certfile='certificates/certificate.pem', keyfile='certificates/key.pem')
             
             # Envolver el socket del cliente en el contexto SSL
             self.conn = context.wrap_socket(client, server_side=True)

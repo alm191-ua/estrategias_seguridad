@@ -315,7 +315,7 @@ class ClienteUI:
             [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
-                      row_height=15, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
+                      row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
             [sg.Text('Documentos Compartidos:', font=("Helvetica", 12))],
             [sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
                       auto_size_columns=True, display_row_numbers=True,
