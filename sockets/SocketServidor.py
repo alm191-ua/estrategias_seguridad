@@ -1,3 +1,4 @@
+import logging
 import socket
 import SocketPadre
 import threading
@@ -43,13 +44,16 @@ class SocketServidor(SocketPadre.SocketPadre) :
                         file_json   = files_path + self.FORMATO_JSON
                         file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
                     else:
+                        logging.warning(f"Error fichero no encontrado en la carpeta {file_folder_path}: {e}")
                         raise FileNotFoundError("El archivo no existe.")
                 except FileNotFoundError as e:
+                    logging.warning(f"Error fichero no encontrado en la carpeta {file_folder_path}: {e}")
                     print("Error fichero no encontrado en la carpeta", file_folder_path, ":", e)
                     continue
 
                 self.send_file(file_json)
                 self.send_file(file_key)
+                logging.info(f"Archivo JSON enviado al usuario {self.username}")
                 print("Enviado.")
                 
             self.conn.sendall(b"done")
@@ -90,6 +94,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                         continue
 
                     self.send_file(file_json)
+                    logging.info(f"Archivo JSON enviado sin verificar contraseña")
                     print("Enviado.")
                     
             self.conn.sendall(b"done")
@@ -128,6 +133,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     self.send_file(file_key)
                     print("Enviado.")
                 except FileNotFoundError as e:
+                    logging.warning(f"Error fichero no encontrado en la carpeta {folder}: {e}")
                     print("Error fichero no encontrado en la carpeta", folder, ":", e)
                     continue
                 if not shared:
@@ -146,8 +152,10 @@ class SocketServidor(SocketPadre.SocketPadre) :
             public_keys_file_path = os.path.join(SERVER_ROOT_FOLDER, "public_keys.json")
             self.send_one_file(public_keys_file_path)
         except FileNotFoundError as e:
+            logging.warning("Error al enviar las claves públicas:")
             print("Error al enviar las claves públicas:", e)
         except Exception as e:
+            logging.warning("Error al enviar las claves públicas:")
             print("Error al enviar las claves públicas:", e)
 
     def wait_shared(self,):
@@ -159,10 +167,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
             try:
                 self.receive_shared_file()
             except FileNotFoundError as e:
-                print(e)
                 continue
             except Exception as e:
-                print(e)
+                logging.info("Archivo compartido recibido.")
                 print("Archivos recibidos correctamente.")
                 break
 
@@ -198,6 +205,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
 
         # check if the shared user exists
         if not os.path.exists(os.path.join(SERVER_ROOT_FOLDER, shared_user)):
+            logging.warning(f"El usuario compartido {shared_user} no existe.")
             raise FileNotFoundError("El usuario compartido no existe.")
 
         # server/user_shared/shared/user_owner/filename
@@ -232,6 +240,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                         self.send_enconded_file(folder_path, name)
                         return
                     except Exception as e:
+                        logging.warning(f"Error al enviar desde la carpeta {folder_path}: {e}")
                         print("Error al enviar desde la carpeta", folder_path, ":", e)
                         continue  # Continuar con la siguiente iteración del ciclo
                 else:
@@ -250,6 +259,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                     self.send_enconded_file(folder_path,name,shared)
                     return
                 except Exception as e:
+                    logging.warning(f"Archivo no encontrado")
                     self.conn.sendall(file_does_not_exist_tag.encode('utf-8'))
                     print(e)   
             break
@@ -283,6 +293,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                             if os.path.exists(camino_json) and os.path.exists(camino_llave):
                                 self.send_file(camino_json)
                                 self.send_file(camino_llave)
+                                logging.info(f"Archivo JSON enviado al usuario {self.username}")
                                 print("Enviado.")
                         
                 else:
@@ -308,6 +319,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 try:
                     # Accept the connection
                     client, address = server.accept()
+                    logging.info(f"Conexión establecida con {address}")
 
                     # Wrap the socket in an SSL context
                     

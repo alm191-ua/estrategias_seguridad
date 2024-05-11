@@ -6,5 +6,9 @@
     "Prueba1": {
         "password": "$2b$12$zPoDzJ/H4i26aGgyZjhmVO8joAtXrRK1ZjF47Q0VB4n4X79HG54ya",
         "otp_key": null
+    },
+    "user1": {
+        "password": "$2b$12$1AhomHYxMSjDMVYCNRPR1eWkzVIZbEaI0hFjatXnHgmvd5u97.4pW",
+        "otp_key": "UK6RPPLDYIBRVGK3EU2IR6CSGDHRDTKE"
     }
 }
