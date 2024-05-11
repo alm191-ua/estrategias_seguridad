@@ -217,10 +217,22 @@ class RegistrationForm(QtWidgets.QWidget):
         self.lowercase_checkbox = QtWidgets.QCheckBox("Incluir minúsculas", checked=True)
         self.digits_checkbox = QtWidgets.QCheckBox("Incluir números", checked=True)
         self.punctuation_checkbox = QtWidgets.QCheckBox("Incluir símbolos", checked=True)
-        self.uppercase_checkbox.setStyleSheet("color: #ecf0f1;")
-        self.lowercase_checkbox.setStyleSheet("color: #ecf0f1;")
-        self.digits_checkbox.setStyleSheet("color: #ecf0f1;")
-        self.punctuation_checkbox.setStyleSheet("color: #ecf0f1;")
+        checkbox_style = """
+            QCheckBox {
+                font-size: 16px;    
+                color: #ecf0f1;      
+                padding: 10px;        
+                spacing: 5px;            
+            }
+            QCheckBox::indicator {
+                width: 25px;             
+                height: 25px;             
+            }
+            """
+        self.uppercase_checkbox.setStyleSheet(checkbox_style)
+        self.lowercase_checkbox.setStyleSheet(checkbox_style)
+        self.digits_checkbox.setStyleSheet(checkbox_style)
+        self.punctuation_checkbox.setStyleSheet(checkbox_style)
         char_types_layout.addWidget(self.uppercase_checkbox)
         char_types_layout.addWidget(self.lowercase_checkbox)
         char_types_layout.addWidget(self.digits_checkbox)
