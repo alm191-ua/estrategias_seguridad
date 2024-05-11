@@ -282,7 +282,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
     # Extraer los nombres base de los archivos para incluirlos en el JSON
     files_base_names = [os.path.basename(file) for file in files_names]
 
-    size=round(size/1024,2)
+    size=round((size/1024)/1024,2)
 
     # Crear el diccionario con los datos del documento
     document_data = {
@@ -292,7 +292,7 @@ def create_and_save_document_json(directory, doc_id, title, description, files_n
         "author": author,  # Añadir el autor al JSON
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "files": files_base_names,
-        "size": str(size)+" KB"
+        "size": str(size)+" MB"
     }
 
     # Crear un nombre de archivo JSON que incluya el título del documento

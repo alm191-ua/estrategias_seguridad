@@ -328,7 +328,7 @@ class ClienteUI:
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
             [sg.Text('Documentos:', font=("Helvetica", 12))],
-            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación','Tamaño (KB)'], max_col_width=35,
+            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación','Tamaño (MB)'], max_col_width=35,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
                       row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
