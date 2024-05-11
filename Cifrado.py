@@ -1,5 +1,6 @@
 import zipfile
 import os	
+import sys
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import logging
@@ -39,10 +40,19 @@ DIRECTORIO_PROYECTO=None
 log_directory=''
 
 exec_dir = os.getcwd()
-if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
-    DIRECTORIO_PROYECTO=exec_dir
+print('EXEC_DIR:', exec_dir)
+DIRECTORIO_EJECUCION=exec_dir
+if getattr(sys, 'frozen', False):
+    DIRECTORIO_PROYECTO = sys._MEIPASS
 else:
-    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+    DIRECTORIO_PROYECTO = os.getcwd()
+    
+# DIRECTORIO_PROYECTO = sys._MEIPASS
+print('DIRECTORIO_TEMPORAL:', DIRECTORIO_PROYECTO)
+# if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+#     DIRECTORIO_PROYECTO=exec_dir
+# else:
+#     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 log_directory=os.path.join(DIRECTORIO_PROYECTO,'logs')
 
 
@@ -77,11 +87,19 @@ def buscar_proyecto():
     """
 
     global DIRECTORIO_PROYECTO
-    exec_dir = os.getcwd()
-    if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
-        DIRECTORIO_PROYECTO=exec_dir
+    # exec_dir = os.getcwd()
+    # print('EXEC_DIR:', exec_dir)
+    # DIRECTORIO_PROYECTO=exec_dir
+
+    if getattr(sys, 'frozen', False):
+        DIRECTORIO_PROYECTO = sys._MEIPASS
     else:
-        DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+        DIRECTORIO_PROYECTO = os.getcwd()
+
+    # if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+    #     DIRECTORIO_PROYECTO=exec_dir
+    # else:
+    #     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 
 def Create_Dirs(filename,newdir=FILE_DIR):
     """

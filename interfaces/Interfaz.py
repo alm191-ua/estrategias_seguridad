@@ -9,6 +9,7 @@ import os
 sys.path.append('..')
 sys.path.append('../sockets')
 from Cifrado import is_unsafe_mode as ium
+from Cifrado import DIRECTORIO_PROYECTO
 import GetDataUploaded as gdu
 from sockets import SocketCliente
 sg.theme('Material2')
@@ -191,14 +192,14 @@ class ClienteUI:
                     for index in selected_row_indices:
                         selected_item = self.data[index]
                         file_name = selected_item[6]
-                        json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
+                        json_path = os.path.join(DIRECTORIO_PROYECTO, f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_indices = values['-SHARETABLE-']
                     for index in selected_row_indices:
                         selected_item = self.shared_data[index]
                         file_name = selected_item[6]
-                        json_path = os.path.join(f'files_{self.username}', 'shared', file_name, file_name + ".json")
+                        json_path = os.path.join(DIRECTORIO_PROYECTO, f'files_{self.username}', 'shared', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
                     sg.popup("Por favor, selecciona un elemento de la lista.")
@@ -269,6 +270,7 @@ class ClienteUI:
         self.cliente.choose_opt(5)
         if not self.cliente.MALICIOSO:
             self.cliente.choose_opt(6)
+        print("FOLDER: " + self.cliente.FOLDER)
         try:
             data_cargada = gdu.listar_los_zips(self.cliente.FOLDER, self.username)
             shared_data = gdu.listar_los_zips_compartidos(self.cliente.FOLDER, self.username)

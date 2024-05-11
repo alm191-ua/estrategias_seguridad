@@ -9,8 +9,12 @@ from interfaces.Interfaz import ClienteUI
 from utils.secure_key_gen import generate_password
 from utils.secure_key_gen import generate_otp_qr
 import json
+import os
 
-config = json.load(open('config.json'))
+ruta_base = os.path.join(os.path.dirname(__file__))
+config_file = os.path.join(ruta_base, 'config.json')
+
+config = json.load(open(config_file))
 enable_otp_tag = config['sockets']['tags']['init_comms']['enable_otp']
 
 class LoginForm(QtWidgets.QWidget):

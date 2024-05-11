@@ -1,14 +1,10 @@
 {
-    "Prueba": {
-        "password": "$2b$12$bESi6k60JcCyAfuOy1IsJ.ID67HR36J0PextURmTWwoOP3L/c7o6y",
-        "otp_key": null
-    },
-    "Prueba1": {
-        "password": "$2b$12$zPoDzJ/H4i26aGgyZjhmVO8joAtXrRK1ZjF47Q0VB4n4X79HG54ya",
-        "otp_key": null
-    },
     "user1": {
-        "password": "$2b$12$1AhomHYxMSjDMVYCNRPR1eWkzVIZbEaI0hFjatXnHgmvd5u97.4pW",
-        "otp_key": "UK6RPPLDYIBRVGK3EU2IR6CSGDHRDTKE"
+        "password": "$2b$12$rS/vALUJfgNh7EZBuzbgoOZ6p0qeVQDKLtgpj3.R9pHdBN1bMLl/e",
+        "otp_key": null
+    },
+    "user2": {
+        "password": "$2b$12$59rIfkz.UIZNZFLG9NBNwegBaDSS.jBVU39wzLDhaKDhDvoEyGuXi",
+        "otp_key": null
     }
 }

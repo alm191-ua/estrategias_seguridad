@@ -1,9 +1,12 @@
 import struct
 import os
+# import sys
 import json
 
+ruta_base = os.path.join(os.path.dirname(__file__),'..')
+config_file = os.path.join(ruta_base, 'config.json')
 
-config = json.load(open('config.json'))
+config = json.load(open(config_file))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 chunk_size = config['sockets']['chunk_size']
 

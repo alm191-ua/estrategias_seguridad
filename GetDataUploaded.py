@@ -13,6 +13,7 @@ def listar_los_zips(dir, username):
     """
     if not cz.DIRECTORIO_PROYECTO:
         cz.buscar_proyecto()
+    print('DIRECTORIO PROYECTO:', cz.DIRECTORIO_PROYECTO)
     if not cz.DIRECTORIO_PROYECTO:
         return []
 

@@ -1,23 +1,31 @@
-import socket
-import SocketPadre
-import ssl
 import os
-import json
 import sys
+ruta_utils = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
+ruta_sockets = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','sockets')
+sys.path.append(ruta_utils)
+sys.path.append(ruta_sockets)
+import socket
+from sockets.SocketPadre import SocketPadre
+import ssl
+import json
 import logging
 import zipfile
 import shutil
-#Me daba error el import de secure_key_gen, asi que lo importe de esta manera
-ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
-sys.path.append(ruta_secure_key_gen)
 from utils.secure_key_gen import generate_keys
 from utils.secure_key_gen import generate_pub_priv_keys
 ##############################################
 import Cifrado 
 import GetDataUploaded
 
+ruta_base = os.path.join(os.path.dirname(__file__),'..')
+config_file = os.path.join(ruta_base, 'config.json')
+
+config = json.load(open(config_file))
+
+ruta_certs = os.path.join(ruta_base, 'certificates')
+cert = os.path.join(ruta_certs, 'certificate.pem')
+
 # parámetros obtenidos del archivo de configuración
-config = json.load(open('config.json'))
 login_tag = config['sockets']['tags']['init_comms']['login']
 register_tag = config['sockets']['tags']['init_comms']['register']
 correct_login_tag = config['sockets']['tags']['response']['correct_login']
@@ -33,21 +41,29 @@ disable_otp_tag = config['sockets']['tags']['init_comms']['disable_otp']
 NOMBRE_PROYECTO="estrategias_seguridad"
 log_directory=''
 
-exec_dir = os.getcwd()
-if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
-    DIRECTORIO_PROYECTO=exec_dir
+# exec_dir = os.getcwd()
+# if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+#     DIRECTORIO_PROYECTO=exec_dir
+# else:
+#     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+# DIRECTORIO_PROYECTO = sys._MEIPASS
+if getattr(sys, 'frozen', False):
+    DIRECTORIO_PROYECTO = sys._MEIPASS
 else:
-    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+    DIRECTORIO_PROYECTO = os.getcwd()
+    # os.path.dirname(
+    #     os.path.abspath(sys.modules['__main__'].__file__)
+    # )
 log_directory=os.path.join(DIRECTORIO_PROYECTO,'logs')
 log_file_path = os.path.join(log_directory, 'logfile.log')
 logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
 
-class SocketCliente(SocketPadre.SocketPadre):
+class SocketCliente(SocketPadre):
     """
     Clase que representa el socket del cliente.
     Se encarga del envío y recepción de archivos y mensajes al servidor.
     """
-    FOLDER = 'files'
+    FOLDER = os.path.join(Cifrado.DIRECTORIO_PROYECTO, 'files')
     SHARED_FOLDER = 'shared'
     username=''
     password=''
@@ -408,7 +424,7 @@ class SocketCliente(SocketPadre.SocketPadre):
             # mediante SSL con los certificados proporcionados.
             self.conn = ssl.wrap_socket(
                 sock,
-                ca_certs='certificates/certificate.pem')
+                ca_certs=cert)
             
             self.conn.connect((self.SERVIDOR_IP, self.SERVIDOR_PUERTO))
 
