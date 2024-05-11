@@ -319,7 +319,7 @@ class ClienteUI:
             sg.Button('Info Documento', key='-INFO JSON-', button_color=('white', 'orange'), font=("Helvetica", 12))]
         ]
 
-        tabla_shared = sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
+        tabla_shared = sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación','Tamaño (MB)', 'Autor'], max_col_width=25,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-SHARETABLE-',
                       row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)
