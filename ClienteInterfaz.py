@@ -260,7 +260,7 @@ class RegistrationForm(QtWidgets.QWidget):
         self.generate_password_layout.setEnabled(True)
         #Añadir el layout de generación de contraseña al layout principal
         self.main_layout.addLayout(self.generate_password_layout)
-        self.setFixedSize(600, 450)
+        self.setFixedSize(700, 550)
         # hide button
         self.sender().hide()
 

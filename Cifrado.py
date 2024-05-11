@@ -30,7 +30,7 @@ UNSAFE_PASSWORDS = ['123456',
                     '111111',
                     'Password',
                     'qwerty',]
-KEY_SIZE = 16
+KEY_SIZE = 32
 IV_SIZE = 8 ##8 bytes
 BLOCK_SIZE = 2048 #AES.block_size # in bytes 
 DIRECTORIO=os.getcwd()

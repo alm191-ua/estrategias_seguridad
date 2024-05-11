@@ -79,9 +79,9 @@ def listar_los_zips_compartidos(dir, username):
                                 data['title'],  # Título
                                 data['description'],  # Descripción
                                 data['time'],  # Fecha y hora de creación
+                                data['size'],  # Tamaño del documento  
                                 data['author'], # Dueño del documento
-                                data['id'],  # ID del documento
-                                data['size']  # Tamaño del documento
+                                data['id']  # ID del documento
                                 
                             ]
                             nuevos_documentos.append(nuevo_documento)
