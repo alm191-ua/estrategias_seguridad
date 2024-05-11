@@ -6,12 +6,24 @@
 #
 bcrypt==3.2.0
     # via -r requirements.in
-cffi==1.16.0
-    # via bcrypt
-pycparser==2.22
-    # via cffi
+cffi==1.15.1
+    # via
+    #   -r requirements.in
+    #   bcrypt
+colorama==0.4.6
+    # via qrcode
+pillow==9.3.0
+    # via -r requirements.in
+pycparser==2.21
+    # via
+    #   -r requirements.in
+    #   cffi
 pycryptodome==3.16.0
     # via -r requirements.in
+pyotp==2.9.0
+    # via -r requirements.in
+pypng==0.20220715.0
+    # via qrcode
 pyqt5==5.15.10
     # via -r requirements.in
 pyqt5-qt5==5.15.2
@@ -22,5 +34,11 @@ pyqt5-sip==12.13.0
     #   pyqt5
 pysimplegui==4.60.4
     # via -r requirements.in
+qrcode==7.4.2
+    # via -r requirements.in
 six==1.16.0
-    # via bcrypt
+    # via
+    #   -r requirements.in
+    #   bcrypt
+typing-extensions==4.11.0
+    # via qrcode
