@@ -127,7 +127,6 @@ class SocketPadre:
         """
         while self.conn:
             try:
-                print("Sharing en wait_files: ", sharing)
                 self.receive_file(sharing)
             except ConnectionResetError:
                 print("Conexión cerrada.")
