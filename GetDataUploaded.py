@@ -34,8 +34,10 @@ def listar_los_zips(dir, username):
                             data['title'],  # Título
                             data['description'],  # Descripción
                             data['time'],  # Fecha y hora de creación
+                            data['size'],  # Tamaño del documento  
                             data['author'], # Dueño del documento
-                            data['id']  # ID del documento        
+                            data['id']  # ID del documento
+                             
                         ]
                     nuevos_documentos.append(nuevo_documento)
         nuevos_documentos_ordenados = sorted(nuevos_documentos, key=lambda x: x[3], reverse=True)
@@ -78,7 +80,8 @@ def listar_los_zips_compartidos(dir, username):
                                 data['description'],  # Descripción
                                 data['time'],  # Fecha y hora de creación
                                 data['author'], # Dueño del documento
-                                data['id']  # ID del documento
+                                data['id'],  # ID del documento
+                                data['size']  # Tamaño del documento
                                 
                             ]
                             nuevos_documentos.append(nuevo_documento)
@@ -111,41 +114,6 @@ def getDataFromJSON(fichero, directorio):
         # print(f"El archivo {json_path} no existe.")
     return data
 
-def get_files_in_zip(file,username=None):
-    """
-    Obtiene los archivos en un documento cifrado a partir de la información del JSON.
-    """
-    if username:
-        dir=DIRECTORIO_ARCHIVOS+'_'+username
-        directorio=os.path.join(cz.DIRECTORIO_PROYECTO,dir)
-    else:
-        directorio=os.path.join(cz.DIRECTORIO_PROYECTO,DIRECTORIO_ARCHIVOS)
-    if not directorio:
-        return []
-    data = getDataFromJSON(file, directorio)
-    path=os.path.join(directorio,file,file)
-    filesDesencrypted=cz.decrypt_files_JSON(data['files'],path+".json")
-    all_files =filesDesencrypted
-    return all_files
-
-def UnzipFolder(directorio_file):
-    """
-    Descomprime un archivo ZIP en el directorio de archivos.
-    """
-    if not cz.DIRECTORIO_PROYECTO:
-        cz.buscar_proyecto()
-    if not cz.DIRECTORIO_PROYECTO:
-        logging.error("No se ha encontrado el proyecto")
-        # print("No se ha encontrado el proyecto")
-        return None
-    # Construir la ruta del archivo ZIP
-    directorio = os.path.join(cz.DIRECTORIO_PROYECTO, DIRECTORIO_ARCHIVOS, directorio_file)
-    archivo = os.path.join(directorio, directorio_file + ".zip.enc")
-
-    # Descomprimir el archivo ZIP
-    cz.UnZipFiles(archivo)
-    directorio = os.path.join(directorio,directorio_file)
-    return directorio
 
 def get_file(file, directorio_file, target_folder):
     if not cz.DIRECTORIO_PROYECTO:

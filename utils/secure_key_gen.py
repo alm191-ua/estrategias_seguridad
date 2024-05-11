@@ -4,6 +4,9 @@ import hashlib
 import bcrypt
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+import pyotp 
+import qrcode
+from PIL.ImageQt import ImageQt
 
 KEY_SIZE = 2048
 
@@ -209,6 +212,56 @@ def check_password(password, hashed):
         bool: True if the password matches the hash, False otherwise.
     """
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+def gen_otp_key():
+    """
+    Generates an OTP key.
+
+    Returns:
+        str: The OTP key.
+    """
+    return pyotp.random_base32()
+
+def gen_otp_uri(account_name, key):
+    """
+    Generates an OTP URI.
+
+    Args:
+        account_name (str): The account name.
+        key (str): The key.
+
+    Returns:
+        str: The OTP URI.
+    """
+    return pyotp.totp.TOTP(key).provisioning_uri(
+        name='login:'+account_name, 
+        issuer_name='ES')
+
+def verify_otp(key, code):
+    """
+    Verifies an OTP code.
+
+    Args:
+        key (str): The key.
+        code (str): The code.
+
+    Returns:
+        bool: True if the code is valid, False otherwise.
+    """
+    totp = pyotp.TOTP(key)
+    return totp.verify(code)
+
+def generate_otp_qr(uri):
+    """
+    Generates a QR code for an OTP URI.
+
+    Args:
+        uri (str): The URI.
+
+    Returns:
+        None
+    """
+    return ImageQt(qrcode.make(uri))
 
 if __name__ == '__main__':
     passwd = generate_password(12, mode=1)

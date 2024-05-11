@@ -3,7 +3,6 @@ import logging
 import sys
 import os
 import json
-import bcrypt
 import socket
 import ssl
 import threading
@@ -16,6 +15,9 @@ ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'.
 sys.path.append(ruta_secure_key_gen)
 from utils.secure_key_gen import hash_password
 from utils.secure_key_gen import check_password
+from utils.secure_key_gen import gen_otp_key
+from utils.secure_key_gen import gen_otp_uri
+from utils.secure_key_gen import verify_otp
 #from secure_key_gen import hash_password
 #from secure_key_gen import check_password
 
@@ -75,6 +77,8 @@ incorrect_tag = config['sockets']['tags']['response']['incorrect_tag']
 malicious_tag = config['sockets']['tags']['init_comms']['malicious']
 empty_login_tag = config['sockets']['tags']['response']['empty_login']
 send_shared_json = config['sockets']['tags']['init_comms']['receive_shared_json']
+enable_otp_tag = config['sockets']['tags']['init_comms']['enable_otp']
+disable_otp_tag = config['sockets']['tags']['init_comms']['disable_otp']
 
 server_action_tags = [register_tag, login_tag, malicious_tag]
 
@@ -116,7 +120,49 @@ def login_user(username, password):
                 return True
     return False  
 
-def register_user(username, password, public_key):
+def check_otp(serverSocket: SocketServidor.SocketServidor, username):
+    """
+    Comprueba si el usuario ha habilitado la autenticación en dos pasos
+    y en caso afirmativo, verifica el código introducido por el usuario.
+    
+    Returns:
+        bool: True si el código es correcto, de lo contrario, False.
+    """
+    otp_key = None
+    # lee la clave privada de autenticacion en dos pasos del usuario
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE) as file:
+            users = json.load(file)
+            if username in users:
+                otp_key = users[username]['otp_key']
+
+    # en caso de existir quiere decir que la opción está habilitada
+    if otp_key:
+        print("Autenticacion en dos pasos habilitada")
+        serverSocket.conn.sendall(enable_otp_tag.encode('utf-8'))
+        while True:
+            otp_code = serverSocket.conn.read().decode('utf-8')
+            if otp_code == '':
+                serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
+                continue
+            if otp_code == 'disc':
+                # se cierra la conexión del socket
+                serverSocket.conn.shutdown(socket.SHUT_RDWR)
+                serverSocket.conn.close()
+                exit()
+            if verify_otp(otp_key, otp_code):
+                print("Codigo OTP correcto")
+                serverSocket.conn.sendall(correct_login_tag.encode('utf-8'))
+                return True
+            else:
+                print("Codigo OTP incorrecto")
+                serverSocket.conn.sendall(incorrect_login_tag.encode('utf-8'))
+    else:
+        print("Autenticacion en dos pasos deshabilitada")
+        serverSocket.conn.sendall(disable_otp_tag.encode('utf-8'))
+        return True
+
+def register_user(username, password, public_key, otp_key=None):
     """
     Registra un usuario.
 
@@ -141,13 +187,13 @@ def register_user(username, password, public_key):
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE) as file:
             users = json.load(file)
-        users[username] = {"password": hashed}
+        users[username] = {"password": hashed, "otp_key": otp_key}
         with open(USERS_FILE, "w") as file:
             # TODO: esto reescribe el fichero entero, buscar alternativa
             json.dump(users, file, indent=4)
     else:
         with open(USERS_FILE, "w") as file:
-            users = {username: {"password": hashed}}
+            users = {username: {"password": hashed, "otp_key": otp_key}}
             json.dump(users, file, indent=4)
 
     if os.path.exists(PUBLIC_KEYS_FILE):
@@ -189,7 +235,8 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
             base_filename = os.path.basename(filename)
             filename_without_ext = base_filename.split('.')[0]
             folder = os.path.join(serverSocket.FOLDER, filename_without_ext)
-            serverSocket.receive_one_file(filename, folder, receive_file_name=False) 
+            serverSocket.wait_files() # espera a que el archivo sea enviado
+            # serverSocket.receive_one_file(filename, folder, receive_file_name=False) 
             # receive .key.enc 
             serverSocket.wait_shared() # distribuye los archivos a los usuarios a los que se comparten
             # receive .json.enc
@@ -229,6 +276,8 @@ def handle_malicous(serverSocket: SocketServidor.SocketServidor):
     """
     Maneja las opciones del usuario malicioso.
     """
+    serverSocket.conn.sendall(malicious_tag.encode('utf-8'))
+    print("Manejando usuario malicioso...")
     while serverSocket.conn:
         option = serverSocket.conn.read().decode('utf-8')
         print(option)
@@ -268,11 +317,16 @@ def handle_client(server: Server, address):
             password = serverSocket.conn.read().decode('utf-8')
             public_key = serverSocket.conn.read().decode('utf-8')
 
-            user_registered = register_user(username, password, public_key)
+            otp_enabled = serverSocket.conn.read().decode('utf-8') == enable_otp_tag
+            otp_key = gen_otp_key() if otp_enabled else None
+
+            otp_uri = gen_otp_uri(username, otp_key)
+
+            user_registered = register_user(username, password, public_key, otp_key)
             if not user_registered:
                 serverSocket.conn.sendall(incorrect_register_tag.encode('utf-8'))
             else:
-                serverSocket.conn.sendall(correct_register_tag.encode('utf-8'))
+                serverSocket.conn.sendall(otp_uri.encode('utf-8'))
                 # Private key
                 private_key_folder = os.path.join(serverSocket.FOLDER, username)
                 serverSocket.receive_one_file(folder=private_key_folder)
@@ -283,7 +337,9 @@ def handle_client(server: Server, address):
             print("Iniciando sesion...")
             #Esperar por el SocketCliente que envie el usuario y contraseña
             username = serverSocket.conn.read().decode('utf-8')
+            print(username)
             password = serverSocket.conn.read().decode('utf-8')
+            print(password)
 
             if username == malicious_tag and not INSECURE_MODE:
                 serverSocket.conn.sendall(empty_login_tag.encode('utf-8'))
@@ -301,6 +357,13 @@ def handle_client(server: Server, address):
                 serverSocket.send_one_file(os.path.join(serverSocket.FOLDER,username, 'private_key.pem.enc')) # AÑADIDO AHORA
                 serverSocket.FOLDER = os.path.join(serverSocket.FOLDER,username)
                 serverSocket.username = username
+
+                try:
+                    check_otp(serverSocket, username)
+                except Exception as e:
+                    print('Cliente desconectado')
+                    exit()
+
                 # Manejar las opciones del usuario
                 handle_user_logged(serverSocket,username)
                 logging.info(f"Usuario {username} ha cerrado sesion.")

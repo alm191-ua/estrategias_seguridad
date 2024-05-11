@@ -13,7 +13,9 @@
                 "receive_public_keys": "RCPK",
                 "recieve_json_malicious": "RCJM",
                 "malicious": "MAL",
-                "receive_shared_json": "RCSJ"
+                "receive_shared_json": "RCSJ",
+                "enable_otp": "OTP_true",
+                "disable_otp": "OTP_false"
             },
             "response": {
                 "incorrect_tag": "000",

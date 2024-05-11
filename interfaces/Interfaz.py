@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 import os
-from datetime import datetime
 import shutil
 import sys
 import threading
@@ -20,7 +19,7 @@ cliente = SocketCliente.SocketCliente()
 is_unsafe_mode_active = False
 
 class ClienteUI:
-    
+    SHARED=True
     def __init__(self, username="", cliente=None):
         self.hilo_carga_datos = None
         self.main_window = None
@@ -132,7 +131,7 @@ class ClienteUI:
                         show_files_window = self.create_files_window(selected_item)
                     except Exception as e:
                         sg.popup_error(f'Error al mostrar los archivos: {e}', title='Error')
-                elif values['-SHARETABLE-']:
+                elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_index = values['-SHARETABLE-'][0] 
                     
                     selected_item = self.shared_data[selected_row_index]
@@ -148,16 +147,25 @@ class ClienteUI:
                 if selected_files:
                     folder_path = sg.popup_get_folder('Seleccione la carpeta de destino')
                     if folder_path:
-                        nombre_Fichero=selected_item[5]
-                        autor=selected_item[4]
+                        nombre_Fichero=selected_item[6]
+                        autor=selected_item[5]
+                        Descarga_window = sg.Window('Cargando', [[sg.Text('Descargando archivos...')]])
+                        Descarga_window.read(timeout=0)
                         
                         try:
-                            print(self.cliente.MALICIOSO)
                             self.cliente.get_file(nombre_Fichero,autor)
                         except FileNotFoundError as e:
                             sg.popup_error(f'Error al buscar el archivo: {e}', title='Error')
                         except Exception as e:
                             sg.popup_error(f'Error al descargar el archivo: {e}', title='Error')
+                        # Mostrar ventana de carga
+                        Descarga_window.close()
+                        Descomprime_window = sg.Window('Cargando', [[sg.Text('Descomprimiendo archivos...')]])
+                        Descomprime_window.read(timeout=0)
+
+
+
+                        
                         if autor!=self.username and not self.cliente.MALICIOSO:
                             directorio_files=self.cliente.UnzipFolder(nombre_Fichero,shared=True)
                         else:
@@ -165,9 +173,14 @@ class ClienteUI:
                         for file_name in selected_files:
                             file_name = ''.join(file_name)
                             gdu.get_file(file_name, directorio_files,folder_path)
+                            Descomprime_window.close()
+                            
                             pass
                         try:
                             shutil.rmtree(directorio_files)
+                            # Cerrar la ventana de progreso después de terminar
+                            Descomprime_window.close()
+                            
                         except:
                             pass
                         sg.popup(f'Archivos descargados en: {folder_path}')
@@ -177,14 +190,14 @@ class ClienteUI:
                     selected_row_indices = values['-TABLE-']
                     for index in selected_row_indices:
                         selected_item = self.data[index]
-                        file_name = selected_item[5]
+                        file_name = selected_item[6]
                         json_path = os.path.join(f'files_{self.username}', file_name, file_name + ".json")
                         self.show_json_info(json_path)
-                elif values['-SHARETABLE-']:
+                elif self.SHARED and values['-SHARETABLE-']:
                     selected_row_indices = values['-SHARETABLE-']
                     for index in selected_row_indices:
                         selected_item = self.shared_data[index]
-                        file_name = selected_item[5]
+                        file_name = selected_item[6]
                         json_path = os.path.join(f'files_{self.username}', 'shared', file_name, file_name + ".json")
                         self.show_json_info(json_path)
                 else:
@@ -201,15 +214,16 @@ class ClienteUI:
                     window['-TABLE-'].update(values=self.data)
                     window['-CARGANDO-'].update(visible=False)
                 else:
-                    sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
+                    # sg.popup("No se encontraron datos. Por favor, intenta nuevamente.")
                     window['-CARGANDO-'].update(visible=False)
             elif event == '-DATOS COMPARTIDOS CARGADOS-':
                 if values[event]:
                     self.shared_data = values[event]
-                    window['-SHARETABLE-'].update(values=self.shared_data)
+                    if self.SHARED:
+                        window['-SHARETABLE-'].update(values=self.shared_data)
                     window['-CARGANDO-'].update(visible=False)
                 else:
-                    sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
+                    # sg.popup("No se encontraron datos compartidos. Por favor, intenta nuevamente.")
                     window['-CARGANDO-'].update(visible=False)
             #Evento para mostrar un error
             elif event == '-ERROR-':
@@ -218,8 +232,9 @@ class ClienteUI:
                         # Dentro del bucle principal
             if isinstance(event, tuple):
                 if event[0] == '-TABLE-':
-                    main_window['-SHARETABLE-'].Update(values=self.shared_data)
-                elif event[0] == '-SHARETABLE-':
+                    if self.SHARED:
+                        main_window['-SHARETABLE-'].Update(values=self.shared_data)
+                elif self.SHARED and event[0] == '-SHARETABLE-':
                     main_window['-TABLE-'].Update(values=self.data)
 
 
@@ -260,7 +275,7 @@ class ClienteUI:
             if data_cargada:
                 window.write_event_value('-DATOS CARGADOS-', data_cargada)
             if shared_data:
-                print(shared_data)
+                
                 window.write_event_value('-DATOS COMPARTIDOS CARGADOS-', shared_data)
         
             else:
@@ -308,22 +323,29 @@ class ClienteUI:
             sg.Button('Info Documento', key='-INFO JSON-', button_color=('white', 'orange'), font=("Helvetica", 12))]
         ]
 
+        tabla_shared = sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
+                      auto_size_columns=True, display_row_numbers=True,
+                      justification='left', num_rows=10, key='-SHARETABLE-',
+                      row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)
+
         layout = [
             [sg.Column(user_display_column, justification='right', vertical_alignment='top'), sg.Column(unsafe_mode_column, vertical_alignment='top', justification='left'), sg.Column(button_shared_archives, vertical_alignment='top', justification='left')],
             [sg.Text('Cargando datos, por favor espera...', key='-CARGANDO-', visible=False)],
             [sg.Text('Documentos:', font=("Helvetica", 12))],
-            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación'], max_col_width=25,
+            [sg.Table(values=self.data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación','Tamaño (MB)'], max_col_width=35,
                       auto_size_columns=True, display_row_numbers=True,
                       justification='left', num_rows=10, key='-TABLE-',
                       row_height=25, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
             [sg.Text('Documentos Compartidos:', font=("Helvetica", 12))],
-            [sg.Table(values=self.shared_data, headings=['Número', 'Título', 'Descripción', 'Tiempo de Creación', 'Autor'], max_col_width=25,
-                      auto_size_columns=True, display_row_numbers=True,
-                      justification='left', num_rows=10, key='-SHARETABLE-',
-                      row_height=15, text_color='black', alternating_row_color='lightblue',enable_click_events=True,enable_events=True)],
+            [tabla_shared],
             [sg.Column(buttons_column, element_justification='center')]
         ]
-        
+        if self.cliente.MALICIOSO:
+            #Hide taboe shared
+            layout[4] = [sg.Text('', font=("Helvetica", 12), visible=False)]
+            layout[5] = [sg.Text('', font=("Helvetica", 12), visible=False)]
+            self.SHARED=False
+
         window = sg.Window('Administrador de Archivos', layout, finalize=True, element_justification='center')
         logging.info('Ejecutando la aplicación...')
         return window
@@ -382,7 +404,7 @@ class ClienteUI:
         """
         Crea la ventana para mostrar los archivos de un elemento seleccionado.
         """
-        files = self.cliente.get_files_in_zip(item[5],shared)
+        files = self.cliente.get_files_in_zip(item[6],shared)
 
         file_list = [[file] for file in files]  
         print(file_list)
@@ -408,7 +430,10 @@ class ClienteUI:
             title = data.get('title', 'Sin título')
             description = data.get('description', 'Sin descripción')
             time = data.get('time', 'Sin tiempo especificado')
+            user = data.get('author', 'Desconocido')
             files = data.get('files', [])
+
+            files = self.cliente.decrypt_files_JSON(files, json_path)
 
             if not files:  # Si no hay archivos, mostrar mensaje relevante
                 sg.popup_error("No hay archivos listados en el JSON.")
@@ -418,6 +443,7 @@ class ClienteUI:
                 [sg.Text(f"Title: {title}")],
                 [sg.Text(f"Description: {description}")],
                 [sg.Text(f"Time: {time}")],
+                [sg.Text(f"User: {user}")],
                 [sg.Text("Files:")] + [sg.Text(f) for f in files]
             ]
 

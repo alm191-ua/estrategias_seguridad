@@ -96,7 +96,7 @@ class SocketServidor(SocketPadre.SocketPadre) :
             break
         return
     
-    def send_enconded_file(self, folder,name):
+    def send_enconded_file(self, folder,name, shared=False):
         """
         Sends an encoded file to the client.
 
@@ -130,8 +130,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 except FileNotFoundError as e:
                     print("Error fichero no encontrado en la carpeta", folder, ":", e)
                     continue
+                if not shared:
+                    self.conn.sendall(b"done")
                 
-                self.conn.sendall(b"done")
                 return
         raise Exception("El archivo no existe.")
         
@@ -238,13 +239,15 @@ class SocketServidor(SocketPadre.SocketPadre) :
 
             else:
                 folder_path = self.FOLDER
+                shared = False
                 
                 if autor != self.username:
                     print(name)
+                    shared = True
                     folder_path = os.path.join(SERVER_ROOT_FOLDER,autor)
                     print(folder_path)
                 try:
-                    self.send_enconded_file(folder_path,name)
+                    self.send_enconded_file(folder_path,name,shared)
                     return
                 except Exception as e:
                     self.conn.sendall(file_does_not_exist_tag.encode('utf-8'))
