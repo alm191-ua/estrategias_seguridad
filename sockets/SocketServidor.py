@@ -4,18 +4,38 @@ import SocketPadre
 import threading
 import ssl
 import os
+import sys
 import json
 
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
-SERVER_ROOT_FOLDER = "server"
-SHARED_FOLDER = "shared"
+if getattr(sys, 'frozen', False):
+    DIRECTORIO_PROYECTO = sys._MEIPASS
+else:
+    DIRECTORIO_PROYECTO = os.getcwd()
 PRIVATE_FILES = ["users.json", "public_keys.json", "private_key.pem.enc", "shared"]
 
-config = json.load(open('config.json'))
+ruta_base = os.path.join(os.path.dirname(__file__),'..')
+config_file = os.path.join(ruta_base, 'config.json')
+
+config = json.load(open(config_file))
 file_does_not_exist_tag = config['sockets']['tags']['response']['file_does_not_exist']
 
+PERSISTENT_SERVER = config["persistent_server"]
+
+ruta_certs = os.path.join(ruta_base, 'certificates')
+pub_cert = os.path.join(ruta_certs, 'certificate.pem')
+priv_key = os.path.join(ruta_certs, 'key.pem')
+
+if PERSISTENT_SERVER:
+    SERVER_BASE_DIR = os.path.join(os.path.expanduser(os.getenv('USERPROFILE')), 'ES_practica')
+else:
+    SERVER_BASE_DIR = DIRECTORIO_PROYECTO
+SERVER_ROOT_FOLDER = os.path.join(SERVER_BASE_DIR, 'server')
+SHARED_FOLDER = 'shared'
 class SocketServidor(SocketPadre.SocketPadre) :
+    SERVER_FOLDER = SERVER_ROOT_FOLDER
     FOLDER = SERVER_ROOT_FOLDER
+    print('Folder:', FOLDER)
     username = ''
 
     def send_json(self):
@@ -36,6 +56,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
                 print("Enviando archivo...")
                 try:
                     file_folder_path = os.path.join(self.FOLDER, fileId)
+                    print('Folder:', self.FOLDER)
+                    print('File:', fileId)
+                    print('File folder path:', file_folder_path)
                     files_path  = os.path.join(file_folder_path, fileId)
                     if os.path.exists(file_folder_path) and \
                         os.path.exists(files_path + self.FORMATO_JSON) and \
@@ -44,7 +67,6 @@ class SocketServidor(SocketPadre.SocketPadre) :
                         file_json   = files_path + self.FORMATO_JSON
                         file_key    = files_path + self.FORMATO_LLAVE + self.FORMATO_ENCRIPTADO
                     else:
-                        logging.warning(f"Error fichero no encontrado en la carpeta {file_folder_path}: {e}")
                         raise FileNotFoundError("El archivo no existe.")
                 except FileNotFoundError as e:
                     logging.warning(f"Error fichero no encontrado en la carpeta {file_folder_path}: {e}")
@@ -307,9 +329,9 @@ class SocketServidor(SocketPadre.SocketPadre) :
         self.conn = ssl.wrap_socket(
             client, 
             server_side=True, 
-            certfile='certificates/certificate.pem', 
-            keyfile='certificates/key.pem', 
-                        ssl_version=PROTOCOL)
+            certfile=pub_cert, 
+            keyfile=priv_key, 
+            ssl_version=PROTOCOL)
                     
 
     def start(self, handle_client):

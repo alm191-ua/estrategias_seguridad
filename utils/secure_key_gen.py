@@ -6,7 +6,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import pyotp 
 import qrcode
-from PIL.ImageQt import ImageQt
+from PIL import ImageQt
 
 KEY_SIZE = 2048
 

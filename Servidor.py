@@ -6,10 +6,12 @@ import json
 import socket
 import ssl
 import threading
-sys.path.append('./sockets')
-sys.path.append('./utils')
+ruta_sockets = os.path.join(os.path.dirname(os.path.abspath(__file__)),'sockets')
+ruta_utils = os.path.join(os.path.dirname(os.path.abspath(__file__)),'utils')
+sys.path.append(ruta_sockets)
+sys.path.append(ruta_utils)
 #import SocketServidor
-from sockets import SocketServidor
+from sockets.SocketServidor import SocketServidor
 
 ruta_secure_key_gen = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','utils')
 sys.path.append(ruta_secure_key_gen)
@@ -21,13 +23,26 @@ from utils.secure_key_gen import verify_otp
 #from secure_key_gen import hash_password
 #from secure_key_gen import check_password
 
+ruta_base = os.path.join(os.path.dirname(__file__))
+config_file = os.path.join(ruta_base, 'config.json')
+
+config = json.load(open(config_file))
+PERSISTENT_SERVER = config["persistent_server"]
+
 NOMBRE_PROYECTO="estrategias_seguridad"
-DIRECTORIO_PROYECTO=None
+if getattr(sys, 'frozen', False):
+    DIRECTORIO_PROYECTO = sys._MEIPASS
+else:
+    DIRECTORIO_PROYECTO = os.getcwd()
 log_directory=''
 PROTOCOL = ssl.PROTOCOL_TLS_SERVER
 
+if PERSISTENT_SERVER:
+    SERVER_BASE_DIR = os.path.join(os.path.expanduser(os.getenv('USERPROFILE')), 'ES_practica')
+else:
+    SERVER_BASE_DIR = DIRECTORIO_PROYECTO
+SERVER_DIR = os.path.join(SERVER_BASE_DIR, 'server')
 
-config = json.load(open('config.json'))
 class Server:
     SERVIDOR_IP = config['sockets']['host']
     SERVIDOR_PUERTO = config['sockets']['port']
@@ -48,11 +63,11 @@ class Server:
                 print("Active threads: ", threading.active_count())
 
 
-exec_dir = os.getcwd()
-if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
-    DIRECTORIO_PROYECTO=exec_dir
-else:
-    DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
+# exec_dir = os.getcwd()
+# if(os.path.basename(exec_dir)==NOMBRE_PROYECTO):
+#     DIRECTORIO_PROYECTO=exec_dir
+# else:
+#     DIRECTORIO_PROYECTO = os.path.dirname(exec_dir)
 log_directory=os.path.join(DIRECTORIO_PROYECTO,'logs')
 
 
@@ -65,7 +80,7 @@ log_file_path = os.path.join(log_directory, 'logfile_server.log')
 logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(message)s')
 
 
-config = json.load(open('config.json'))
+# config = json.load(open('config.json'))
 
 register_tag = config['sockets']['tags']['init_comms']['register']
 login_tag = config['sockets']['tags']['init_comms']['login']
@@ -84,8 +99,8 @@ server_action_tags = [register_tag, login_tag, malicious_tag]
 
 FORBIDDEN_USERNAMES = ["admin", "root", "superuser", "sysadmin", "system"] + server_action_tags
 
-USERS_FILE = "server/users.json"
-PUBLIC_KEYS_FILE = "server/public_keys.json"
+USERS_FILE = os.path.join(SERVER_DIR, "users.json")
+PUBLIC_KEYS_FILE = os.path.join(SERVER_DIR, "public_keys.json")
 MIN_USERNAME_LENGTH = 4
 MIN_PASSWORD_LENGTH = 8
 INSECURE_MODE = False
@@ -106,7 +121,7 @@ def login_user(username, password):
     Si ambas condiciones se cumplen, devuelve True, de lo contrario, False.
 
     Args:
-        socket (SocketServidor.SocketServidor): El socket del servidor.
+        socket (SocketServidor): El socket del servidor.
 
     Returns:
         bool: True si el usuario y la contraseña son correctos, de lo contrario, False.
@@ -120,7 +135,7 @@ def login_user(username, password):
                 return True
     return False  
 
-def check_otp(serverSocket: SocketServidor.SocketServidor, username):
+def check_otp(serverSocket: SocketServidor, username):
     """
     Comprueba si el usuario ha habilitado la autenticación en dos pasos
     y en caso afirmativo, verifica el código introducido por el usuario.
@@ -216,12 +231,12 @@ def register_user(username, password, public_key, otp_key=None):
     logging.info(f"Usuario {username} ha sido registrado.")
     return True
 
-def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
+def handle_user_logged(serverSocket: SocketServidor, username):
     """
     Maneja las opciones del usuario una vez que ha iniciado sesion.
     
     Args:
-        serverSocket (SocketServidor.SocketServidor): El socket del servidor.\n
+        serverSocket (SocketServidor): El socket del servidor.\n
         username (str): El nombre del usuario que ha iniciado sesion.
     """
     while serverSocket.conn:
@@ -256,6 +271,7 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
         # Enviar los JSON al cliente
         elif option ==serverSocket.RECIBIR_JSON:
             logging.info(f"Enviando JSON al usuario {username}")
+            print(f"Enviando JSON al usuario {username}")
             serverSocket.send_json()
 
         elif option == serverSocket.RECIBIR_PUBLIC_KEYS:
@@ -272,7 +288,7 @@ def handle_user_logged(serverSocket: SocketServidor.SocketServidor, username):
 
 
 
-def handle_malicous(serverSocket: SocketServidor.SocketServidor):
+def handle_malicous(serverSocket: SocketServidor):
     """
     Maneja las opciones del usuario malicioso.
     """
@@ -297,12 +313,12 @@ def handle_client(server: Server, address):
     Maneja las opciones del cliente.
     
     Args:
-        serverSocket (SocketServidor.SocketServidor): El socket del servidor.\n
+        serverSocket (SocketServidor): El socket del servidor.\n
         address (tuple): La dirección del cliente.
     """
-    serverSocket = SocketServidor.SocketServidor()
+    serverSocket = SocketServidor()
     serverSocket.createConnection(server.client)
-    serverSocket.FOLDER="server"
+    serverSocket.FOLDER = serverSocket.SERVER_FOLDER
     print(f"{address[0]}:{address[1]} conectado.")
     logging.info(f"{address[0]}:{address[1]} conectado.")
     while serverSocket.conn:
@@ -380,13 +396,21 @@ def handle_client(server: Server, address):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Save documents in a secure way')
-    parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
-    if(parser.parse_args().unsafe):
+    # parser = argparse.ArgumentParser(description='Save documents in a secure way')
+    # parser.add_argument('-u', '--unsafe', help='Use unsafe mode', action='store_true')
+    # if(parser.parse_args().unsafe):
+    #     global INSECURE_MODE
+    #     INSECURE_MODE = True
+    #     logging.info('Unsafe mode activated :(')
+    #     print("HABILITADO MODO INSEGURO")
+    modo_inseguro = input("Habilitar modo inseguro? (s/N): ")
+    if modo_inseguro.lower() == 's':
         global INSECURE_MODE
         INSECURE_MODE = True
-        logging.info('Unsafe mode activated :(')
+        logging.info('Modo inseguro activado :(')
         print("HABILITADO MODO INSEGURO")
+    else:
+        print("MODO SEGURO")
 
     server = Server()
     server.start(handle_client)

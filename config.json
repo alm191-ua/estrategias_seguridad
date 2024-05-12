@@ -32,5 +32,6 @@
         },
         "chunk_size": 2048
     },
-    "encoding_format": "utf-8"
+    "encoding_format": "utf-8",
+    "persistent_server": false
 }
