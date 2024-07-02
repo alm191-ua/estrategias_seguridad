@@ -1,0 +1,10 @@
+{
+    "user1": {
+        "password": "$2b$12$rS/vALUJfgNh7EZBuzbgoOZ6p0qeVQDKLtgpj3.R9pHdBN1bMLl/e",
+        "otp_key": null
+    },
+    "user2": {
+        "password": "$2b$12$59rIfkz.UIZNZFLG9NBNwegBaDSS.jBVU39wzLDhaKDhDvoEyGuXi",
+        "otp_key": null
+    }
+}
