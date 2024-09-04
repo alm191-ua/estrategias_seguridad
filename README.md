@@ -14,8 +14,8 @@ Este repositorio contiene la implementación de un sistema de archivos seguro co
 
 ## Índice
 1. [Descripción general de los archivos entregados](#descripción-general-de-los-archivos)
-2. [Cómo ejecutar la aplicación](#como-ejecutar-la-aplicacion)
-3. [Funcionalidades de la Aplicación de Cifrado](#funcionalidades-de-la-aplicacion-de-cifrado)
+2. [Cómo ejecutar la aplicación](#cómo-ejecutar-la-aplicación)
+3. [Funcionalidades de la Aplicación de Cifrado](#funcionalidades-de-la-aplicación-de-cifrado)
 4. [Funcionalidades del Cliente Malicioso](#funcionalidades-del-cliente-malicioso)
 
 ## Descripción general de los archivos
